@@ -1,0 +1,220 @@
+TrafficEnforceTeamSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		TrafficEnforceTeamSentArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		//选择编号名称
+		var initStore = new Ext.data.SimpleStore({
+					url :__ctxPath + '/snconfig/getSignsFlowSnConfig.do?flowId=${defId}',
+					autoLoad : true,
+					fields : ['snId', 'snName']
+				});
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/chongqingSentArchives/TrafficEnforceTeamSentFiles.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [{
+						id : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					},{
+						id:'TrafficEnforceTeamSentArchiveDepCheck.defId',
+						xtype:'hidden',
+						value:'${defId}'
+					},{
+						xtype:'hidden',
+						id:'TrafficEnforceTeamSentArchiveDepCheck.snId'
+					},{
+						xtype : 'container',
+						id : 'TrafficEnforceTeamSentArchiveDepCheck.signs',
+						layout : 'column',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '编号名称:',
+									width : 105
+								}, {
+									xtype : "combo",
+									id : "TrafficEnforceTeamSentArchiveDepCheck.snName",
+									valueField : 'snId',
+									displayField : 'snName',
+									editable : false,
+									allowBlank : false,
+									triggerAction : 'all',
+									forceSelection : true,
+									width : 450,
+									store : initStore,
+									listeners : {
+										select : function(cbo, record, index) {
+											Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.snId')
+													.setValue(cbo.getValue());
+										}
+									}
+								}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items:[{
+					   		layout:'form',
+					   		border:false,
+							items : [{
+										fieldLabel : '公文编号',
+										name : 'archivesNo',
+										id:'TrafficEnforceTeamSentArchiveDepCheck.archivesNo',
+										xtype : 'textfield',
+										allowBlank : false,
+										readOnly :true,
+										width : 448
+									}]
+							},{
+								xtype : 'button',
+								style:'padding-left:5px;',
+								iconCls : 'menu-flowWait',
+								text : '生成编号',
+								handler : function() {
+									if(Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.snName').isValid()){
+										Ext.Ajax.request({
+											url : __ctxPath + '/snconfig/getSnNoFileSnConfig.do',
+											params : {
+												defId : '${defId}',
+												snConfigId:Ext.getCmp("TrafficEnforceTeamSentArchiveDepCheck.snName").getValue()
+											},
+											method : 'POST',
+											waitMsg : "正在生成编号，请稍等",
+											success : function(response, options) {
+												 var archivesNo = Ext.util.JSON.decode(response.responseText).data;
+												 Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.archivesNo').setValue(archivesNo);
+											},
+											failure : function(response, options) {
+												Ext.ux.Toast.msg('操作信息', '生成编号出错，请联系管理员！');
+											}
+										});
+									}
+								}
+							}]
+				}, {
+					   layout:'column',
+					   style:'padding-top:6px;',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审核意见',
+				   					id:'TrafficEnforceTeamSentArchiveDepCheck.leaderOpinion',
+									name : 'leaderRead.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			result='呈生成电子公文';		
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+//					status:result,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			 Ext.Ajax.request({
+				url : __ctxPath + '/archive/updateArchNoArchives.do',
+				params : {
+					'archivesId' : Ext.getCmp("archives.archivesId").getValue(),
+					'archivesNo':Ext.getCmp("TrafficEnforceTeamSentArchiveDepCheck.archivesNo").getValue()
+				},
+				method:'post',
+				success : function(response, options) {
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '编号成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				}
+			});
+		}
+	}// end of save
+})

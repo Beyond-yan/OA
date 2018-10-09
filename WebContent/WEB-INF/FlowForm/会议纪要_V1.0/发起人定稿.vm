@@ -1,0 +1,193 @@
+/**
+ * @createtime:2010-01-20
+ * @author csx
+ * @description 公文拟稿发文界面
+ * @class ArchivesDraftView
+ * @extends Ext.Panel
+ */
+MeetingSummarySendComView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId){
+		this.taskId = tId;
+	},
+	getTaskId : function(){
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		MeetingSummarySendComView.superclass.constructor.call(this, {
+					title : '发起人定稿',
+					id : 'MeetingSummarySendComViewWin',
+//					layout : 'column',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 525,
+					autoHeight:true,
+					buttons :  [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'定稿完成并分发',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								, new Ext.Button({
+									iconCls : 'btn-edit',
+									text : '修改公文',
+									scope : this,
+									handler : function(){
+										new RedHeadArticleDraftWin({
+											archivesId : '${archives_archivesId}',
+											detailPanel : this.detailPanel
+										}).show();
+									}
+								})
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel,this.formPanel]
+				});
+				var jsArr=[__ctxPath+'/js/archive/ArchivesDocWin.js',
+				           __ctxPath+'/js/archive/ArchivesDocFullForm.js',
+				           __ctxPath+'/js/archive/RedHeadArticleDraftWin.js',
+				            __ctxPath+'/js/archive/ArchivesDocForm.js',
+				           __ctxPath+'/js/archive/ArchivesDocHistoryWin.js',
+				           __ctxPath+'/js/archive/ArchiveTypeTempView.js',
+				           __ctxPath+'/js/archive/ArchTemplateView.js',
+				           __ctxPath + '/js/archive/ArchTemplateForm.js',
+				            __ctxPath+'/js/archive/OfficeTemplateView.js',
+				           __ctxPath+'/js/archive/ArchTemplateSelector.js'
+				           ];
+				$ImportSimpleJs(jsArr,null);
+	},
+	/**
+	 * 保存公文的方法,传入公文状态作为参数
+	 * @param {} _status
+	 */
+	onSave : function(formPanel,panel,signalName,activityName) {
+		var archivesId=panel.formPanel.getCmpByName('archives.archivesId').getValue();
+		if (formPanel.getForm().isValid()) {
+			var result='结束';
+			formPanel.getForm().submit({
+						method : 'POST',
+						params:{isLast:'last'},
+						waitMsg : '正在提交数据...',
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '成功保存信息！');
+							var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+						    var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+						    var userId=${archives_issuerId};
+									formPanel.getForm().submit({
+										url:__ctxPath+ "/flow/nextProcessActivity.do",
+										method:'post',
+										waitMsg:'正在提交处理，请稍等',
+										params:{taskId:taskId,signalName:signalName,activityName:activityName,ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+										sendMail:sendMail,sendMsg:sendMsg,status:result,
+							    comments:formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()},
+										success : function(fp, action) {
+											Ext.ux.Toast.msg('操作信息','成功保存！');
+											AppUtil.removeTab('ProcessForm'+taskId);
+											Ext.Ajax.request({
+												method : 'POST',
+												params:{userId:userId,defId:57,roleId:24,archivesId:archivesId,roleName:'综合管理员',processName:'红头文件收文_V1.0',startNodeName:'开始'},
+												url:__ctxPath+ "/archive/satrtFileHuiQianSubArchives.do",
+												success : function(response, options) {
+													Ext.ux.Toast.msg('操作信息','成功保存子流程！');
+												}
+											});
+											var myTaskView=Ext.getCmp("MyTaskGrid");
+											var appHomeTaskGrid=Ext.getCmp("appHomeTaskGrid");
+											if(appHomeTaskGrid!=null){
+												appHomeTaskGrid.getStore().reload();
+											}
+											if(myTaskView!=null){
+												//AppUtil.activateTab(myTaskView);
+												myTaskView.getStore().reload();
+											}
+											refreshTaskPanelView();
+										},
+										failure : function(fp, action) {
+											Ext.ux.Toast.msg('操作信息','操作出错，请联系管理员！');
+										}
+							});
+							// TODO
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}
+	},
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+			//title:'流程审批信息',
+			autoHeight : true,
+			columnWidth : 1,
+			autoScroll:true,
+			autoLoad:{
+				url:__ctxPath+ '/pages/redheadArticle/archiveIssueDetail.jsp?archivesId='+ ${archives_archivesId},
+			    nocache : true
+			}
+		});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			autoHeight : true,
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			//id : 'ArchivesForm',
+			defaults : {
+				anchor : '94%,96%'
+			},
+			items : [{
+						fieldLabel : '定稿说明(限500字)',
+						name : 'leaderRead.leaderOpinion',
+						autoScroll:true,
+						maxLength:500,
+						xtype:'textarea'
+					}/*,{
+						fieldLabel : '公文编号',
+						name : 'odnum',
+						xtype:'textfield',
+						id : 'odnum'
+					}*/,{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archives_archivesId}'
+					},{
+						name : 'archivesStatus',
+						xtype : 'hidden',
+						value : 5 //5代表公文状态为已复核,待归档
+					},{
+						name : 'leaderRead.checkName',
+						xtype : 'hidden',
+						value : 
+							#foreach ($v in $nextTrans)
+								'${v.source}'
+							#end
+					},{
+						name : 'leaderRead.depName',
+						xtype : 'hidden',
+						value : curUserInfo.depName
+					}]
+		});
+	}// end of init
+})

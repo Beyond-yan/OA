@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="FaGuiChuShouWen" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="141,18,81,51" name="收文登记">
+      <transition g="-101,-8" name="to 处室负责人审签" to="处室负责人审签"/>
+   </start>
+   <task g="94,116,141,55" name="处室负责人审签">
+      <transition g="-77,-17" name="to 负责人送出" to="负责人送出"/>
+   </task>
+   <task g="90,332,149,56" name="处室分管负责人审签">
+      <transition g="-67,-8" name="to 处室承办" to="处室承办"/>
+   </task>
+   <task g="97,446,135,52" name="处室承办">
+      <transition g="-66,-8" name="to 内勤存档" to="内勤存档"/>
+   </task>
+   <task g="103,556,122,53" name="内勤存档">
+      <transition g="-42,-10" name="to 结束" to="结束"/>
+   </task>
+   <end g="141,656,171,96" name="结束"/>
+   <task g="340,113,134,57" name="重新登记">
+      <transition g="-47,-18" name="to 处室负责人审签" to="处室负责人审签"/>
+   </task>
+   <decision g="140,227,94,60" name="负责人送出">
+      <transition g="-125,-17" name="to 处室分管负责人审签" to="处室分管负责人审签">
+      	<condition expr="#{officeNext=='1'}"/>
+      </transition>
+      <transition g="407,251:-131,-17" name="to 重新发起" to="重新登记">
+      	<condition expr="#{officeNext=='0'}"/>
+      </transition>
+   </decision>
+</process>

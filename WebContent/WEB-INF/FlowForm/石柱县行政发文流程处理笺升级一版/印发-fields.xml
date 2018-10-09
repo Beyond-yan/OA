@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="HQNext" label="会签后流向" type="varchar" length="100" isShowed="true" />
+	<field name="lastNext" label="部门后流向" type="varchar" length="100" isShowed="true" />
+	<field name="depExerId" label="部门节点执行者id" type="varchar" length="100" isShowed="true" />
+	<field name="flowAssignId"  type="varchar" length="0" isShowed="false" />
+	
+	<field name="archivesNo" label="流程编号" type="varchar" length="100" isShowed="false" />
+	<field name="fileSnConfig" label="编号方法" type="varchar" length="100" isShowed="false" />
+	<field name="depOption" label="编号方式" type="varchar" length="100" isShowed="false" />
+</fields>

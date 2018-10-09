@@ -1,0 +1,192 @@
+MeetingRecordDep = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		MeetingRecordDep.superclass.constructor.call(this, {
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 650,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/meeting/MeetingRecordDetail.jsp?meetingId=${meetingId}',
+				nocache : true
+			}
+		});
+		
+		Ext.Ajax.request({
+			url : __ctxPath + '/meeting/getOutMeeting.do?id=${meetingId}',
+			method:'post',
+			success : function(response, options) {
+				var r = eval("("+response.responseText+")");
+				Ext.getCmp('msg_content').setValue(""+(new Date().format('Y年m月d日 H时i分'))+"，在，由"+r.data.holdDep+",召开关于"+r.data.name+"，请示。委办公室。");
+			}
+		});
+		
+		
+		this.formPanel = new Ext.FormPanel({
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [{
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0 0 5px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '短信通知:',
+							width : 105
+						}, {
+							id : 'MeetingRecordDep.attendLeaders',
+							//allowBlank:false,
+							xtype : 'textfield',
+							width : 445,
+							readOnly : true
+						}, {
+							id : 'MeetingRecordDep.leaderIds',
+							xtype : 'hidden'
+						}, {
+							xtype : 'button',
+							width : 80,
+							iconCls : 'menu-department',
+							text : '参会人员',
+							handler : function() {
+								var url = __ctxPath + '/system/depLeadersTreeDepartment.do?depIds='+ curUserInfo.depId;
+								DepLeaders.getView(
+									function(userIds, userNames) {
+										Ext.getCmp('MeetingRecordDep.attendLeaders').setValue(userNames);
+										Ext.getCmp('MeetingRecordDep.leaderIds').setValue(userIds);
+									}, false, null,url).show();
+							}
+						}]
+			
+				},{
+					xtype : 'container',
+					style : 'padding:0 0 5px;',
+					layout : 'column',
+					defaults : {
+						border : false
+					},
+					items : [{
+								xtype : 'label',
+								text : '短信内容',
+								width : 105
+							}, {
+								id:'msg_content',
+								//allowBlank:false,
+								xtype : 'textarea',
+								maxLength :100,
+								width : 440,
+								height: 60
+							}]
+				},{
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '承办意见',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									id:'leaderRead_leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440,
+									height:40
+								},{
+									xtype : 'button',
+									text : '常用批示语',
+									style:'padding-top:10px;',
+									iconCls : 'menu-new-document',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('leaderRead_leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : msgPanel.getCmpByName('sendMail').getValue(),
+					sendMsg  : msgPanel.getCmpByName('sendMsg').getValue(),
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				},
+				success : function(fp, action) {
+					var myMask = new Ext.LoadMask(Ext.getBody(), {
+						msg:"正在提交数据...",
+						removeMask :true
+					});
+					myMask.show();
+					Ext.Ajax.request({
+							url : __ctxPath + '/meeting/noticeOutMeeting.do',
+							params : {
+								'uids' : Ext.getCmp('MeetingRecordDep.leaderIds').getValue(),
+								'content' : Ext.getCmp('msg_content').getValue()
+							},
+							method:'post',
+							success : function(response, options) {
+								myMask.hide(); 
+								Ext.ux.Toast.msg('操作信息', '成功保存！');
+								AppUtil.removeTab('ProcessForm' + panel.taskId);
+								refreshTaskPanelView();
+							},
+							failure : function(fp, action) {
+								myMask.hide();
+								Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+							}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

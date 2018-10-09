@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 会议通知 -->
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.meetingNotice.MeetingNotice" table="meeting_notice" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="noticeId" column="NOTICE_ID" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="subject" type="java.lang.String" update="true" insert="true" access="property" column="SUBJECT" length="255" not-null="false" unique="false"/>  
+    <property name="host" type="java.lang.String" update="true" insert="true" access="property" column="HOST" length="40" not-null="false" unique="false"/>  
+    <property name="holdDep" type="java.lang.String" update="true" insert="true" access="property" column="HOLD_DEP" length="255" not-null="false" unique="false"/>  
+    <property name="meetingDate" type="java.util.Date" update="true" insert="true" access="property" column="MEETING_DATE" length="7" not-null="true" unique="false"/>  
+    <property name="meetingPlace" type="java.lang.String" update="true" insert="true" access="property" column="MEETING_PLACE" length="255" not-null="false" unique="false"/>  
+    <property name="meetingState" type="java.lang.String" update="true" insert="true" access="property" column="MEETING_STATE" length="20" not-null="false" unique="false"/>  
+    <property name="reviewUser" type="java.lang.Long" update="true" insert="true" access="property" column="REVIEW_USER" length="19" not-null="false" unique="false"/>  
+    <property name="departureTime" type="java.util.Date" update="true" insert="true" access="property" column="DEPARTURE_TIME" length="7" not-null="false" unique="false"/>  
+    <property name="departurePlace" type="java.lang.String" update="true" insert="true" access="property" column="DEPARTURE_PLACE" length="255" not-null="false" unique="false"/>
+    <property name="vehicleInfo" type="java.lang.String" update="true" insert="true" access="property" column="VEHICLE_INFO" length="255" not-null="false" unique="false"/>
+    <property name="driverInfo" type="java.lang.String" update="true" insert="true" access="property" column="DRIVER_INFO" length="255" not-null="false" unique="false"/>
+    <property name="mainDep" type="java.lang.String" update="true" insert="true" access="property" column="MAIN_DEP" length="255" not-null="false" unique="false"/>
+    <property name="mainDepId" type="java.lang.Long" update="true" insert="true" access="property" column="MAIN_DEP_ID" length="19" not-null="false" unique="false"/>
+    <property name="status" type="java.lang.Short" update="true" insert="true" access="property" column="STATUS" length="5" not-null="true" unique="false"/>  
+    <property name="createTime" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_TIME" length="7" not-null="false" unique="false"/>  
+    <property name="creator" type="java.lang.String" update="true" insert="true" access="property" column="CREATOR" length="200" not-null="false" unique="false"/>  
+    <property name="creatorId" type="java.lang.Long" update="true" insert="true" access="property" column="CREATEOR_ID" length="19" not-null="false" unique="false"/>
+    <property name="createDep" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_DEP" length="200" not-null="false" unique="false"/>  
+    <property name="createDepId" type="java.lang.Long" update="true" insert="true" access="property" column="CREATE_DEP_ID" length="19" not-null="false" unique="false"/>
+    <property name="runId" type="java.lang.Long" update="true" insert="true" access="property" column="RUNID" length="19" not-null="false" unique="false"/>
+    <property name="attendLeaders" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_LEADERS" length="1000" not-null="false" unique="false"/>  
+    <property name="attendLeadersName" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_LEADERSNAME" length="1000" not-null="false" unique="false"/>  
+    <property name="attendPersons" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_PERSONS" length="2000" not-null="false" unique="false"/>  
+    <property name="attendPersonsName" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_PERSONSNAME" length="2000" not-null="false" unique="false"/>  
+	
+	<set name="docs" table="MEETING_NOTICE_DOCS" lazy="true" cascade="save-update" sort="unsorted">
+		<key>
+			<column name="NOTICEID"/>
+		</key>
+		<many-to-many column="fileId" class="com.gdssoft.oa.model.system.FileAttach"/>
+	</set>    
+  </class> 	
+</hibernate-mapping>

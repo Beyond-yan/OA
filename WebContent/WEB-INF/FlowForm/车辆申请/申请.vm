@@ -1,0 +1,484 @@
+﻿CarApplyStartFormMy = Ext.extend(Ext.Panel, {
+	// 构造函数 - 开始
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		// 必须先初始化组件
+
+		this.initUIComponents();
+		CarApplyStartFormMy.superclass.constructor.call(this, {
+					id : 'CarApplyStartFormWinMy',
+					layout : 'form',
+					items : [this.formPanel],
+					modal : true,
+					// height : 400,
+					iconCls : 'menu-archive-draft',
+					width : 550,
+					maximizable : true,
+					title : '重庆市交委用车申请单',
+					buttonAlign : 'center',
+					buttons : [{
+								text : '保存并启动流程',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}]
+				});
+	},// 构造函数 - 结束
+
+	// 初始化界面控件 - 开始
+	initUIComponents : function() {
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id : 'CarApplyStartFormMy',
+			frame : false,
+			border : true,
+			defaults : {
+				width : 400,
+				anchor : '98%,98%'
+			},
+			bodyStyle : 'padding-top:5px;padding-left:5px;',
+			formId : 'CarApplyStartFormIdMy',
+			defaultType : 'textfield',
+			items : [{
+						fieldLabel : '申请人',
+						name : 'carApply.proposer',
+						id : 'proposer',
+						xtype : 'hidden',
+						value : curUserInfo.fullname
+					}, {
+						fieldLabel : '申请人',
+						name : 'carApply.operatorId',
+						id : 'operatorId',
+						xtype : 'hidden',
+						value : curUserInfo.fullname
+					}, {
+						name : 'carApply.applyId',
+						id : 'applyId',
+						xtype : 'hidden',
+						value : this.applyId == null ? '' : this.applyId
+					}, {
+						name : 'appUserId',
+						id : 'appUserId',
+						value : curUserInfo.userId,
+						xtype : 'hidden'
+					}, {
+						name : 'carApply.userId',
+						id : 'userId',
+						value : curUserInfo.userId,
+						xtype : 'hidden'
+					}, {
+						name : 'departmentId',
+						id : 'departmentId',
+						xtype : 'hidden',
+						value : curUserInfo.depId
+					}, {
+						xtype : 'container',
+						style : 'padding-left:0px;margin-bottom:4px;',
+						id : 'depContainer',
+						layout : 'column',
+						items : [{
+									xtype : 'label',
+									style : 'padding-left:0px;',
+									text : '用车部门:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									name : 'carApply.department',
+									id : 'department',
+									value : curUserInfo.depName,
+									allowBlank : false,
+									editable : false,
+									readOnly : true,
+									width : 180
+								}, {
+									xtype : 'button',
+									iconCls : 'btn-dep-sel',
+									text : '选择部门',
+									handler : function() {
+										DepSelector2.getView(
+												function(id, name) {
+													Ext.getCmp('department')
+															.setValue(name);
+													Ext.getCmp('departmentId')
+															.setValue(id);
+												}, true).show();
+									}
+								}, {
+									xtype : 'button',
+									text : '清除记录',
+									style : 'padding-left:5px',
+									iconCls : 'reset',
+									handler : function() {
+										Ext.getCmp('department').setValue('');
+										Ext.getCmp('departmentId').setValue('');
+									}
+								}, {
+									xtype : 'button',
+									style : 'padding-left:5px',
+									text : '车况参考',
+									disabled : '${approvalStatus}' == 3
+											? true
+											: false,
+									iconCls : 'btn-car',
+									handler : function() {
+										/*
+										 * var
+										 * st=Ext.getCmp("startTime").getValue();
+										 * var
+										 * et=Ext.getCmp("endTime").getValue();
+										 * if(null==st||""==st){
+										 * Ext.MessageBox.show({ title : '操作信息',
+										 * msg : '请选择用车时间！', buttons :
+										 * Ext.MessageBox.OK, icon :
+										 * 'ext-mb-error' }); return;
+										 * 
+										 * }else if(null==et||""==et){
+										 * Ext.MessageBox.show({ title : '操作信息',
+										 * msg : '请选择结束时间！', buttons :
+										 * Ext.MessageBox.OK, icon :
+										 * 'ext-mb-error' }); return; }
+										 */
+										/*
+										 * var startTime = Ext.util.Format.date(
+										 * Ext.getCmp("startTime") .getValue(),
+										 * 'Y-m-d H:i'); var endTime =
+										 * Ext.util.Format.date(Ext
+										 * .getCmp("endTime") .getValue(),
+										 * 'Y-m-d H:i'); if (startTime >=
+										 * endTime) { Ext.MessageBox.show({
+										 * title : '操作信息', msg : '用车时间应小于结束时间！',
+										 * buttons : Ext.MessageBox.OK, icon :
+										 * 'ext-mb-error' }); return; }
+										 */
+										CarReferSelector.getView().show();
+									}
+								}]
+					}, {
+						xtype : 'container',
+						style : 'padding-left:0px;margin-bottom:4px;',
+						layout : 'column',
+						items : [{
+									xtype : 'label',
+									style : 'padding-left:0px;',
+									text : '用车人:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									name : 'carApply.userFullname',
+									id : 'userFullname',
+									value : curUserInfo.fullname,
+									allowBlank : false,
+									editable : false,
+									readOnly : true,
+									width : 180
+								}, {
+									xtype : 'button',
+									iconCls : 'btn-user-sel',
+									text : '选择人员',
+									handler : function() {
+										var depId = Ext.getCmp('departmentId')
+												.getValue();;
+										DeptOfUserSelector.getView(
+												function(id, name) {
+													Ext.getCmp('userFullname')
+															.setValue(name);
+												}, false, null, depId).show();
+
+									}
+								}, {
+									xtype : 'button',
+									text : '清除记录',
+									style : 'padding-left:5px',
+									iconCls : 'reset',
+									handler : function() {
+										Ext.getCmp('userFullname').setValue('');
+									}
+								}]
+					}, {
+						fieldLabel : '用车人数',
+						name : 'carApply.peopleAmount',
+						id : 'peopleAmount',
+						allowBlank : false,
+						xtype : 'numberfield'
+					}, {
+						fieldLabel : '原因',
+						name : 'carApply.reason',
+						id : 'reason',
+						allowBlank : false,
+						xtype : 'textarea'
+					}, {
+						fieldLabel : '用车时间',
+						name : 'carApply.startTime',
+						id : 'startTime',
+						xtype : 'datetimefield',
+						format : 'Y-m-d H:i',
+						// value:new Date(),
+						allowBlank : false,
+						editable : false
+					}, /*
+						 * { xtype : 'container', style :
+						 * 'padding-left:0px;margin-bottom:4px;', id :
+						 * 'onDutyTime2', layout : 'column', items : [{ xtype :
+						 * 'label', style : 'padding-left:0px;', text : '开始时间',
+						 * width : 105 }, { xtype : 'timefield', allowBlank :
+						 * false, name : 'carApply.onDutyTime', id :
+						 * 'onDutyTime', format : 'H:i', width : 600 }] //
+						 * G标示为24时计时法] } ,
+						 */{
+						fieldLabel : '结束时间',
+						name : 'carApply.endTime',
+						id : 'endTime',
+						allowBlank : false,
+						editable : false,
+						// value:new Date(),
+						xtype : 'datetimefield',
+						format : 'Y-m-d H:i'
+					}, /*
+						 * { xtype : 'container', style :
+						 * 'padding-left:0px;margin-bottom:5px;', id :
+						 * 'offDutyTime2', layout : 'column', items : [{ xtype :
+						 * 'label', style : 'padding-left:0px;', text : '截止时间',
+						 * width : 105 }, { xtype : 'timefield', // style :
+						 * 'padding-left:0px;', allowBlank : false, name :
+						 * 'carApply.offDutyTime', id : 'offDutyTime', format :
+						 * 'H:i', width : 600 }] // G标示为24时计时法] // } , {
+						 * fieldLabel : '出发地点', name : 'carApply.fromSite', id :
+						 * 'fromSite' },
+						 */{
+						fieldLabel : '到达地点',
+						allowBlank : false,
+						name : 'carApply.toSite',
+						id : 'toSite'
+					}, {
+						fieldLabel : '备注',
+						name : 'carApply.notes',
+						id : 'notes',
+						xtype : 'textarea',
+						value : ' '
+					}, {
+						name : 'departflowAssignStartId',
+						id : 'departflowAssignStartId',
+						xtype : 'hidden'
+					}, {
+						
+						name : 'carApply.approvalStatus',
+						id:'CarApplyStartFormMy.approvalStatus',
+						xtype : 'hidden',// ---------新增字段
+						value : '2'
+				},{
+						
+						name : 'carApply.carNo',
+						xtype : 'hidden',// ---------新增字段
+						value : ''
+				},{
+						
+						name : 'carApply.driver',
+						xtype : 'hidden',// ---------新增字段
+						value : ''
+				}
+			]
+		});// end of the formPanel
+		/*
+		 * var iseffective = Ext.getCmp('iseffective').getValue(); if
+		 * (iseffective == '1') { Ext.getCmp('onDutyTime2').hide();
+		 * Ext.getCmp('offDutyTime2').hide();
+		 * Ext.getCmp('offDutyTime').allowBlank = true;
+		 * Ext.getCmp('onDutyTime').allowBlank = true; }
+		 */
+
+		/*
+		 * if (this.applyId == null) { Ext.getCmp('userFullname').setValue('');
+		 * Ext.getCmp('proposer').setValue('');
+		 * Ext.getCmp('userId').setValue(''); this.formPanel.getForm().load({
+		 * deferredRender : false, url : __ctxPath + '/system/getAppUser.do',
+		 * waitMsg : '正在载入数据...', success : function(form, action) {
+		 * Ext.getCmp('appUserId') .setValue(action.result.data[0].userId);
+		 * Ext.getCmp('department')
+		 * .setValue(action.result.data[0].department.depName);
+		 * Ext.getCmp('departmentId')
+		 * .setValue(action.result.data[0].department.depId); } }) }
+		 */
+
+		if (applyId != null && applyId != 'undefined') {
+			this.formPanel.getForm().load({
+				deferredRender : false,
+				url : __ctxPath + '/admin/getCarApply.do?applyId='
+						+ applyId,
+				waitMsg : '正在载入数据...',
+				success : function(form, action) {
+				},
+				failure : function(form, action) {
+					Ext.ux.Toast.msg('编辑', '载入失败');
+				}
+			});
+		};
+		// end of the load formPanel
+	},// 初始化界面控件 - 结束
+
+	// 保存并启动申请流程 - 开始
+	save : function() {
+		var fp = Ext.getCmp('CarApplyStartFormMy');
+		// var applyId = null;
+		if (fp.getForm().isValid()) {
+			var defId = this.defId;
+			var startTime = Ext.util.Format.date(Ext.getCmp("startTime")
+							.getValue(), 'Y-m-d H:i');
+			var endTime = Ext.util.Format.date(
+					Ext.getCmp("endTime").getValue(), 'Y-m-d H:i');
+			if (startTime >= endTime) {
+				Ext.MessageBox.show({
+							title : '操作信息',
+							msg : '用车时间应小于结束时间！',
+							buttons : Ext.MessageBox.OK,
+							icon : 'ext-mb-error'
+						});
+				return;
+			}
+
+			fp.getForm().submit({
+				url : __ctxPath + '/admin/saveCarFlowCarApply.do',
+				params : {
+					startTime : Ext.util.Format.date(Ext.getCmp("startTime")
+									.getValue(), 'Y-m-d H:i'),
+					endTime : Ext.util.Format.date(Ext.getCmp("endTime")
+									.getValue(), 'Y-m-d H:i')
+				},
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				success : function(fp, action) {
+					var rollFileObj = Ext.decode(action.response.responseText);
+					var nextApplyId = rollFileObj.applyId;
+					var department = Ext.getCmp('department').getValue();
+					var departmentId = Ext.getCmp('departmentId').getValue();
+					var userFullname = Ext.getCmp('userFullname').getValue();
+					var peopleAmount = Ext.getCmp('peopleAmount').getValue();
+					// var proposer = Ext.getCmp('proposer').getValue();
+					var reason = Ext.getCmp('reason').getValue();
+					var startDate = Ext.getCmp('startTime').getValue();
+					var startT = Ext.util.Format.date(startDate, 'Y-m-d H:i');
+					// var onDutyTime = Ext.getCmp('onDutyTime').getValue();
+
+					// var offDutyTime = Ext.getCmp('offDutyTime').getValue();
+					var endDate = Ext.getCmp('endTime').getValue();
+
+					var endT = Ext.util.Format.date(endDate, 'Y-m-d H:i');
+
+					// var fromSite = Ext.getCmp('fromSite').getValue();
+					var toSite = Ext.getCmp('toSite').getValue();
+					var notes = Ext.getCmp('notes').getValue();
+					var approvalStatus = Ext.getCmp('CarApplyStartFormMy.approvalStatus')
+							.getValue();
+					// var ishavecardriver =
+					// Ext.getCmp('ishavecardriver').getValue();
+					// var iseffective = Ext.getCmp('iseffective').getValue();
+					var userId = Ext.getCmp('appUserId').getValue();
+					// var flowAssignId =
+					// Ext.getCmp('departflowAssignStartId').getValue();
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					if (fp != null) {
+						var myMask = new Ext.LoadMask(Ext.getBody(), {
+							msg : '正在提交处理，请稍等！',
+							removeMask : true
+								// 完成后移除
+							});
+						myMask.show();
+						Ext.Ajax.request({
+							url : __ctxPath + '/flow/saveProcessActivity.do',
+							params : {
+								defId : defId,
+								department : department,
+								departmentId : departmentId,
+								// proposer : proposer,
+								userFullname : userFullname,
+								reason : reason,
+								peopleAmount : peopleAmount,
+								startDate : startT,
+								// onDutyTime : onDutyTime,
+								endDate : endT,
+								// offDutyTime : offDutyTime,
+								// fromSite : fromSite,
+								toSite : toSite,
+								notes : notes,
+								approvalStatus : approvalStatus,
+								acceptId : nextApplyId,
+								// ishavecardriver : ishavecardriver,
+								// iseffective : iseffective,
+								userId : userId,
+								sendMail : sendMail,
+								sendMsg : sendMsg,
+								sendInfo : sendInfo,
+								// flowAssignId : flowAssignId,
+								// 启动工作流
+								// rollFileId:rollFileId,
+								startFlow : true
+							},
+							success : function(resp, options) {
+								myMask.hide();
+								var proJson = resp.responseText;
+								proJson = eval("(" + proJson + ")");
+								var processInsId = proJson.runId;
+								// alert(processInsId);
+								// 提交流程ID
+								Ext.Ajax.request({
+									url : __ctxPath
+											+ '/admin/saveCarFlowCarApply.do',
+									params : {
+										'carApply.applyId' : nextApplyId,
+										'carApply.processRun.runId' : processInsId,
+										startTime : Ext.util.Format.date(Ext
+														.getCmp("startTime")
+														.getValue(),
+												'Y-m-d H:i'),
+										endTime : Ext.util.Format.date(Ext
+														.getCmp("endTime")
+														.getValue(),
+												'Y-m-d H:i')
+									},
+									success : function(response, options) {
+									}
+								});
+								Ext.ux.Toast.msg('操作信息', '成功启动车辆流程申请');
+								var tabPanel = Ext.getCmp('centerTabPanel');
+
+								tabPanel.remove(Ext.getCmp('ProcessRunStart'
+										+ defId));
+								// 刷新列表窗口
+								if (Ext.getCmp('TsItserviceApplyGrid') != null) {
+									Ext.getCmp('TsItserviceApplyGrid')
+											.getStore().reload();
+								}
+								// 刷新列表窗口
+								if (Ext.getCmp('CarApplyGrid') != null) {
+									Ext.getCmp('CarApplyGrid').getStore()
+											.reload();
+								}
+								if (Ext.getCmp('VehicleUsingAssignGrid') != null) {
+									Ext.getCmp('VehicleUsingAssignGrid').getStore()
+											.reload();
+								}
+							  if (Ext.getCmp('VehicleApplyAssignGrid') != null) {
+									Ext.getCmp('VehicleApplyAssignGrid').getStore()
+											.reload();
+								}
+								refreshTaskPanelView();
+
+							}
+						});
+					}
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : 'ext-mb-error'
+							});
+
+					Ext.getCmp('CarApplyStartFormWinMy').close();
+				}
+			});
+		}
+	}// 保存并启动申请流程 - 结束
+})

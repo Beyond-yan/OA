@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="DisciplineSectionSentFilesGZY01" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="436,3,57,45" name="拟稿">
+      <transition g="-65,-12" name="to 处室初核" to="处室初核"/>
+   </start>
+   <task g="394,84,127,57" name="处室初核">
+      <transition g="-32,-12" name="to 初核结果" to="初核结果"/>
+   </task>
+   <decision g="435,173,62,46" name="初核结果">
+      <transition g="-36,-17" name="to 重新发起" to="重新发起">
+      	<condition expr="#{checkNext=='3'}"/>
+      </transition>
+      <transition g="693,244;693,358:-40,-8" name="to 办公室审核" to="办公室审核">
+      	<condition expr="#{checkNext=='2'}"/>
+      </transition>
+      <transition g="-36,-13" name="to 处室复核" to="处室复核">
+      	<condition expr="#{checkNext=='4'}"/>
+      </transition>
+      <transition name="to 处室会签" to="处室会签" g="317,198:-29,18">
+      	<condition expr="#{checkNext=='1'}"/>
+      </transition>
+   </decision>
+   <task g="403,392,128,57" name="办公室审核">
+      <transition g="-66,-8" name="to 审核结果" to="审核结果"/>
+   </task>
+   <task g="619,167,132,56" name="重新发起">
+      <transition g="681,111:-65,-17" name="to 处室初核" to="处室初核"/>
+   </task>
+   <task g="631,390,132,57" name="领导会签">
+      <transition g="-29,-18" name="to 办公室审核" to="办公室审核"/>
+   </task>
+   <decision g="441,490,25,26" name="审核结果">
+      <transition g="697,514:-99,-16" name="to 领导会签" to="领导会签">
+      	<condition expr="#{auditNext=='2'}"/>
+      </transition>
+      <transition g="-42,-11" name="to 签发" to="签发">
+      	<condition expr="#{auditNext=='3'}"/>
+      </transition>
+      <transition name="to 处室会签" to="处室会签" g="319,513:-33,-52">
+      	<condition expr="#{auditNext=='1'}"/>
+      </transition>
+   </decision>
+   <task g="396,568,133,53" name="签发">
+      <transition g="-45,-9" name="to 编号" to="编号"/>
+   </task>
+   <task g="395,659,136,53" name="编号">
+      <transition g="-90,-7" name="to 生成电子公文" to="生成电子公文"/>
+   </task>
+   <task g="393,744,139,55" name="生成电子公文">
+      <transition g="-45,-7" name="to 分发" to="分发"/>
+   </task>
+   <task g="396,827,137,50" name="分发">
+      <transition g="-43,-6" name="to 结束" to="结束"/>
+   </task>
+   <end g="441,911,61,54" name="结束"/>
+   <task g="394,246,132,54" name="处室复核">
+      <transition g="-39,-8" name="to 复核结果" to="复核结果"/>
+   </task>
+   <task g="254,314,132,52" name="处室会签">
+      <transition name="to 会签结果" to="会签结果" g="-69,-22"/>
+   </task>
+   <decision g="440,315,48,48" name="复核结果">
+      <transition g="-48,-14" name="to 办公室审核" to="办公室审核">
+      	<condition expr="#{fuheNext=='2'}"/>
+      </transition>
+      <transition g="-27,-21" name="to 处室会签" to="处室会签">
+      	<condition expr="#{fuheNext=='1'}"/>
+      </transition>
+   </decision>
+   <decision g="157,315,48,48" name="会签结果">
+      <transition name="to 办公室审核" to="办公室审核" g="183,422:25,-25">
+      	<condition expr="#{huiqNext=='3'}"/>
+      	</transition>
+      <transition name="to 处室复核" to="处室复核" g="189,278:22,-23">
+      	<condition expr="#{huiqNext=='2'}"/>
+      	</transition>
+      <transition name="to 处室初核" to="处室初核" g="179,116:30,-25">
+      	<condition expr="#{huiqNext=='1'}"/>
+      	</transition>
+   </decision>
+</process>

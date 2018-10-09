@@ -1,0 +1,453 @@
+TidyFileView = Ext.extend(Ext.Panel, {
+	// viewConfig:[],
+	// 构造函数
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		var jsArr=[
+		           __ctxPath + '/js/arch/TidyFileForm.js',
+			   	];
+		$ImportSimpleJs(jsArr,null);	
+		// 初始化组件
+		this.initUIComponents();
+		// 调用父类构造
+		TidyFileView.superclass.constructor.call(this, {
+					id : 'TidyFileView',
+					title : '归档审核',
+					region : 'center',
+					layout : 'border',
+					modal : true,
+					height : 200,
+					width : 800,
+					maximizable : true,
+					buttonAlign : 'center',
+					items : [this.centerPanel, this.eastPanel]
+					,
+					listeners : {
+						afterrender : function(View) {
+							var vW=View.getInnerWidth();
+							View.eastPanel.setWidth(vW/2);
+						
+						}
+
+					}
+
+				});
+	},// end of constructor
+	// 初始化组件
+	initUIComponents : function() {
+
+		var afNo = new Ext.form.ComboBox({
+					mode : 'local',
+					lazyInit : false,
+					forceSelection : true,
+					editable : false,
+					triggerAction : 'all',
+					width : 50,
+					store : new Ext.data.JsonStore({
+								url : __ctxPath + "/arch/listArchFond.do",
+								autoLoad : true,
+								autoShow : true,
+								// reader configs
+								root : 'result',
+								fields : ['archFondId', 'afNo'],
+								listeners : {
+									'load' : function(store, records, options) {
+									}
+								}
+							}),
+					valueField : 'archFondId',
+					displayField : 'afNo'
+
+				})
+		afNo.on('select', function(combo, record, index) {
+			Ext.getCmp('TidyFileSearchPanel').getForm()
+					.findField('TidyFileView.Q_afNo_S_EQ').setValue(record
+							.get('archFondId'));
+
+			Ext.getCmp('TidyFileView.Search.rollNo.ComboBox').getStore().load({
+						params : {
+
+							'Q_archFond.archFondId_L_EQ' : record.data.archFondId
+						}
+					});
+			Ext.getCmp('TidyFileView.Search.rollNo.ComboBox').reset();
+			Ext.getCmp('TidyFileSearchPanel').getForm()
+					.findField('TidyFileView.Q_rollNo_S_EQ').reset();
+
+		});
+		var rollNo = new Ext.form.ComboBox({
+					id : 'TidyFileView.Search.rollNo.ComboBox',
+					width : 50,
+					mode : 'local',
+					lazyInit : false,
+					forceSelection : true,
+					editable : false,
+					triggerAction : 'all',
+					store : new Ext.data.JsonStore({
+								url : __ctxPath + "/arch/listArchRoll.do",
+								autoLoad : true,
+								autoShow : true,
+								// reader configs
+								root : 'result',
+								idProperty : 'rollId',
+								fields : ['rollId', 'rollNo', 'afNo']
+							}),
+					valueField : 'rollId',
+					displayField : 'rollNo',
+					listeners : {
+						// TidyFileView.Q_rollNo_S_EQ
+						'select' : function(combo, record, index) {
+							Ext.getCmp('TidyFileSearchPanel').getForm()
+									.findField('TidyFileView.Q_rollNo_S_EQ')
+									.setValue(record.get('rollId'));
+
+						}
+					}
+				});
+
+	
+
+		this.fileRecord = Ext.data.Record.create([{
+					name : 'rollFileId',
+					type : 'int'
+				}, 'afNo', 'createTime', 'creatorName', 'creatorId',
+				'archStatus', 'proTypeId', 'typeName', 'openStyle', 'rollNo',
+				'fileName', 'fileNo', 'fileNo', 'catNo', 'seqNo', 'pageNo',
+				'pageNums', 'secretLevel', 'timeLimit', 'keyWords', 'keyWords',
+				'content', 'fileTime', 'notes', 'dutyPerson', 'archRoll',
+				'globalType']);
+
+		this.memoryProxy = new Ext.data.HttpProxy({
+					url : __ctxPath + "/arch/listRollFile.do"
+				});
+		this.jsonReader = new Ext.data.JsonReader({
+					root : 'result',
+					totalProperty : 'totalCounts',
+					idProperty : "rollFileId"
+				}, this.fileRecord);
+		this.mystore = new Ext.data.Store({
+					proxy : this.memoryProxy,
+					reader : this.jsonReader
+				});
+
+		this.rowAtction = new Ext.ux.grid.RowActions({
+					header : '管理',
+					width : 55,
+					actions : [{
+								iconCls : 'btn-readdocument',
+								qtip : '预览附件',
+								style : 'margin:0 3px 0 3px'
+							}
+
+							, {
+
+								iconCls : 'btn-showDetail',
+								qtip : '查看',
+								style : 'margin:0 3px 0 3px'
+
+							}
+
+					],
+					listeners : {
+						scope : this,
+						'action' : this.onRowAction
+					}
+				});
+		var sm = new Ext.grid.CheckboxSelectionModel();
+		this.filesGrid = new Ext.grid.GridPanel({
+			frame : false,
+			border : false,
+			region : 'center',
+			// 使用RowActions
+			rowActions : true,
+			id : 'TidyFileGrid',
+			//height : 400,
+			store : this.mystore,
+			bbar : new HT.PagingBar({
+						store : this.mystore
+					}),
+			sm : sm,
+			plugins : this.rowAtction,
+			viewConfig : {
+				forceFit : true,
+				autoFill : true
+			},
+			columns : [sm,
+					// new Ext.grid.RowNumberer(),
+					{
+				header : 'rollFileId',
+				dataIndex : 'rollFileId',
+				sortable : true,
+				hidden : true
+			}
+
+					, {
+						header : '全宗号',
+						sortable : true,
+						width : 55,
+						dataIndex : 'archRoll',
+						renderer : function(archRoll) {
+							if (archRoll) {
+								return archRoll.archFond.afNo;
+							}
+						}
+					}, {
+						header : '案卷号',
+						sortable : true,
+						width : 55,
+						dataIndex : 'archRoll',
+						renderer : function(archRoll) {
+							if (archRoll)
+								return archRoll.rollNo;
+						}
+					}
+
+					, {
+						header : '文件题名',
+						sortable : true,
+						dataIndex : 'fileName'
+					}
+
+
+					, {
+						header : '归档状态',
+						sortable : true,
+						dataIndex : 'archStatus',
+						width : 65,
+						renderer : function(v) {
+							switch (v) {
+								case 0 :
+									return '未归档';
+									break;
+								case 1 :
+									return '已归档';
+									break;
+							}
+						}
+					}, this.rowAtction]
+				// end of columns
+			});
+		this.centerPanel = new Ext.Panel({
+					title : '待归档文件详细信息',
+					region : 'center',
+					layout : 'fit',
+					frame : false,
+					border : true,
+					items : [this.filesGrid],
+					listeners : {
+						afterlayout : function(centerPanel) {
+							var ch = centerPanel.getInnerHeight();
+							Ext.getCmp('TidyFileGrid').setHeight(ch);
+
+						}
+
+					}
+
+				});
+
+		this.selectPanel = new Ext.Panel({
+					frame : true,
+					border : false,
+					hideBorders : true,
+					width : 35,
+					region : 'west',
+					layout : {
+						type : 'vbox',
+						pack : 'center',
+						align : 'stretch'
+					},
+					defaults : {
+						margins : '0 0 5 0'
+					},
+					items : [{
+								xtype : 'button',
+								iconCls : 'btn-down',
+								scope : this,
+								handler : this.up
+							}, {
+								xtype : 'button',
+								iconCls : 'btn-top',
+								scope : this,
+								handler : this.down
+							}]
+				})
+		this.commentPanel = new Ext.Panel({
+			frame : true,
+			border : false,
+			hideBorders : true,
+			width : 35,
+			region : 'west',
+			layout : {
+				type : 'vbox',
+				pack : 'center',
+				align : 'stretch'
+			},
+			defaults : {
+				margins : '0 0 5 0'
+			},
+			items : [{
+						xtype : 'button',
+						iconCls : 'btn-down',
+						scope : this,
+						handler : this.up
+					}, {
+						xtype : 'button',
+						iconCls : 'btn-top',
+						scope : this,
+						handler : this.down
+					}]
+		})
+
+		this.tidyFileForm = new TidyFileForm({
+					frame : true,
+					id : 'TidyFileFormWin',
+					region : 'center'
+				}).show();
+
+		this.eastPanel = new Ext.Panel({
+					frame : false,
+					border : false,
+					region : 'east',
+					//width : 400,
+					layout : 'border',
+					id : 'TidyFileViewEastPanel',
+					items : [this.selectPanel, this.tidyFileForm]
+
+				});
+
+		// this.filesGrid.addListener('rowdblclick', this.rowClick);
+
+	},// end of the initComponents()
+	up : function() {
+		var filesGrid = Ext.getCmp('TidyFileGrid');
+		var selectRecords = filesGrid.getSelectionModel().getSelections();
+		if (selectRecords.length == 0) {
+			Ext.ux.Toast.msg("信息", "请选择要移动的记录！");
+			return;
+		}
+		for (i = 0; i < selectRecords.length; i++) {
+			if (selectRecords[i].data.archStatus == '1') {
+				selectRecords.splice(i, 1);
+				i--;
+			}
+		}
+		if (selectRecords.length == 0) {
+
+			Ext.ux.Toast.msg("信息", "所选择的文件件已归档！");
+			return;
+
+		}
+
+		// var upRecords=[];
+		// for(i=0;i<selectRecords.length;i++){
+		// upRecords.push(selectRecords[i].data);
+		// filesGrid.getStore().remove(selectRecords[i]);
+		// }
+		// for(i=0;i<this.tidyFileForm.store.getTotalCount();i++){
+		// var record=this.tidyFileForm.store.getAt(i);
+		// upRecords.push(record.data);
+		// }
+		//		
+		// this.tidyFileForm.store.loadData({
+		// 'success':true,
+		// 'totalProperty':upRecords.length,
+		// 'result': upRecords
+		// });
+		for (i = 0; i < selectRecords.length; i++) {
+			this.tidyFileForm.store.add(selectRecords[i]);
+
+			filesGrid.getStore().remove(selectRecords[i]);
+		}
+
+		// this.tidyFileForm.store.commitChanges();
+		// filesGrid.getStore().commitChanges();
+		this.tidyFileForm.gridPanel.getBottomToolbar().moveFirst();
+
+	},
+	down : function() {
+		var filesGrid = Ext.getCmp('TidyFileGrid');
+		var gridPanel = this.tidyFileForm.gridPanel;
+		var store = this.tidyFileForm.store;
+		var selectRecords = gridPanel.getSelectionModel().getSelections();
+		if (selectRecords.length == 0) {
+			Ext.ux.Toast.msg("信息", "请选择要移动的记录！");
+			return;
+		}
+		for (i = 0; i < selectRecords.length; i++) {
+
+			store.remove(selectRecords[i]);
+			filesGrid.getStore().add(selectRecords[i]);
+		}
+		// store.commitChanges();
+		// filesGrid.getStore().commitChanges();
+		// filesGrid.getBottomToolbar().moveFirst();
+
+	},
+	// 重置查询表单
+	reset : function() {
+		this.searchPanel.getForm().reset();
+	},
+	// 按条件搜索
+	search : function() {
+		$search({
+					searchPanel : this.searchPanel,
+					gridPanel : this.filesGrid
+				});
+	},
+	viewFile : function(record) {
+
+		Ext.Ajax.request({
+					url : __ctxPath + '/arch/listRollFileList.do',
+					method : 'POST',
+					async : false,
+					success : function(response, opts) {
+
+						var obj = Ext.decode(response.responseText);
+						var viewConfig = [];
+						for (i = 0; i < obj.result.length; i++) {
+							viewConfig.push({
+										fileName : obj.result[i].fileAttach.fileName,
+										filePath : obj.result[i].fileAttach.filePath
+									});
+						}
+
+						new ViewFileWindow({
+									viewConfig : viewConfig,
+									startIndex : 0
+								}).show();
+					},
+
+					failure : function(response, opts) {
+
+					},
+					params : {
+
+						'Q_rollFile.rollFileId_L_EQ' : record.data.rollFileId,
+						dir : 'ASC',
+						sort : 'sn'
+					}
+				});
+
+	},
+	showFile : function(record) {
+
+		new MyBorrowFileViewWindow({
+					rollFileId : record.data.rollFileId,
+					archStatus : record.data.archStatus
+				}).show();
+	},
+	// 行的Action
+	onRowAction : function(grid, record, action, row, col) {
+
+		switch (action) {
+			case 'btn-readdocument' :
+				this.viewFile.call(this, record);
+				break;
+			case 'btn-showDetail' :
+				this.showFile.call(this, record);
+				break;
+			default :
+				break;
+		}
+	}
+})

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="DisciplineSectionSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="436,45,57,45" name="拟稿">
+      <transition g="-65,-12" name="to 处室核稿" to="处室核稿"/>
+   </start>
+   <task g="397,137,127,57" name="处室核稿">
+      <transition g="-65,-10" name="to 核稿结果" to="核稿结果"/>
+   </task>
+   <decision g="436,235,62,46" name="核稿结果">
+      <transition g="-56,-16" name="to 处室会签(部门发起)" to="处室会签(部门发起)">
+      	<condition expr="#{checkNext=='1'}"/>
+      </transition>
+      <transition g="-77,-11" name="to 办公室审核" to="办公室审核">
+      	<condition expr="#{checkNext=='2'}"/>
+      </transition>
+      <transition name="to 重新发起" to="重新发起" g="-36,-17">
+      	<condition expr="#{checkNext=='3'}"/>
+      </transition>
+   </decision>
+   <task g="161,231,150,58" name="处室会签(部门发起)">
+      <transition g="236,167:32,-19" name="to 处室核稿" to="处室核稿"/>
+   </task>
+   <task g="397,354,128,57" name="办公室审核">
+      <transition g="-66,-8" name="to 审核结果" to="审核结果"/>
+   </task>
+   <task name="重新发起" g="616,232,132,56">
+      <transition name="to 处室核稿" to="处室核稿" g="680,164:-65,-17"/>
+   </task>
+   <task g="158,354,154,58" name="处室会签(办公室发起)">
+      <transition g="-35,-17" name="to 办公室审核" to="办公室审核"/>
+   </task>
+   <task g="629,352,132,57" name="领导会签">
+      <transition g="-29,-18" name="to 办公室审核" to="办公室审核"/>
+   </task>
+   <decision g="437,469,25,26" name="审核结果">
+      <transition g="235,494:26,-19" name="to 处室会签(办公室发起)" to="处室会签(办公室发起)">
+      	<condition expr="#{auditNext=='1'}"/>
+      </transition>
+      <transition g="696,493:-99,-16" name="to 领导会签" to="领导会签">
+      	<condition expr="#{auditNext=='2'}"/>
+      </transition>
+      <transition g="-42,-11" name="to 签发" to="签发">
+      	<condition expr="#{auditNext=='3'}"/>
+      </transition>
+   </decision>
+   <task g="396,568,133,53" name="签发">
+      <transition g="-45,-9" name="to 编号" to="编号"/>
+   </task>
+   <task g="395,659,136,53" name="编号">
+      <transition g="-90,-7" name="to 生成电子公文" to="生成电子公文"/>
+   </task>
+   <task g="393,744,139,55" name="生成电子公文">
+      <transition g="-45,-7" name="to 分发" to="分发"/>
+   </task>
+   <task g="396,827,137,50" name="分发">
+      <transition g="-43,-6" name="to 结束" to="结束"/>
+   </task>
+   <end g="441,911,61,54" name="结束"/>
+</process>

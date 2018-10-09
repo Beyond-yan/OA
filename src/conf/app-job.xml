@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<!-- Scheduling -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="archiveToFileJobTrigger" />
+				<ref bean="archiveReceiveTrigger" />
+				<ref bean="updatearchiveTrigger" />
+				<!--<ref bean="carRepairJobTrigger" />
+				<ref bean="roomFeeJobTrigger" />
+				<ref bean="waterAndPowerFeeJobTrigger" />
+				<ref bean="conferenceStatusTrigger" />
+				<ref bean="carStatusJobTrigger" />
+				<ref bean="dutyRegisterJobTrigger" />
+				<ref bean="dineChargeJobTrigger" />
+				<ref local="smsMobileTrigger"/>-->
+			</list>
+		</property>
+	</bean>
+
+	<bean id="archiveToFileJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 每日凌晨1点-->
+		<property name="cronExpression" value="0 0/2 * * * ?" /> 
+	   <property name="jobDetail" ref="archiveToFileJobDetail"/>
+	</bean>
+	 <bean id="archiveToFileJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="archiveToFileJob"></property>
+        <property name="targetMethod" value="sentArchiveToFile"></property>
+    </bean>
+	<bean id="archiveToFileJob" class="com.gdssoft.oa.job.ArchivesJob">
+		<property name="archivesService" ref="archivesService" />
+		<property name="docFilesService" ref="docFilesService" />
+		<property name="sysSchemaConfigService" ref="sysSchemaConfigService"/>
+	</bean>
+	
+	
+	 <bean id="archiveReceiveTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 每日凌晨1点-->
+		<property name="cronExpression" value="0 0/2 * * * ?" /> 
+	   <property name="jobDetail" ref="archiveReceiveDetail"/>
+	</bean>
+	 <bean id="archiveReceiveDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="archiveReceiveJob"></property>
+        <property name="targetMethod" value="sentReceiveArchive"></property>
+    </bean>
+	<bean id="archiveReceiveJob" class="com.gdssoft.oa.job.ArchivesJob">
+		<property name="archivesService" ref="archivesService" />
+		<property name="docFilesService" ref="docFilesService" />
+		<property name="sysSchemaConfigService" ref="sysSchemaConfigService"/>
+	</bean>
+<!-- 修改超过一年的公文状态为已完成  -->
+	 <bean id="updatearchiveTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 每日凌晨1点-->
+		<property name="cronExpression" value="0 0/2 * * * ?" /> 
+	   <property name="jobDetail" ref="updatearchiveDetail"/>
+	</bean>
+	 <bean id="updatearchiveDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="updateJob"></property>
+        <property name="targetMethod" value="updateArchive"></property>
+    </bean>
+	<bean id="updateJob" class="com.gdssoft.oa.job.ArchivesJob">
+		<property name="archivesService" ref="archivesService" />
+		<property name="sysSchemaConfigService" ref="sysSchemaConfigService"/>
+	</bean>
+</beans>

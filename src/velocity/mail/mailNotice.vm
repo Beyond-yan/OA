@@ -1,0 +1,8 @@
+<html>
+	<title></title>
+	<body>
+		<p>${appUser.fullname}您好:</p>
+		<p>协同办公管理系统于${curDateStr}审核完成您发起的${defName}~</p>
+		<br/>本邮件来自协同办公管理系统统自动产生，不需回复。
+	</body>
+</html>

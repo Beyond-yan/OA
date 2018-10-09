@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="zhbOption" label="综合部意见结果" type="varchar" isShowed="false"/>
+</fields>

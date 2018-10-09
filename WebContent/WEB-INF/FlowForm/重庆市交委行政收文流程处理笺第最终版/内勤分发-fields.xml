@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fenfaOption"  type="long" length="0" isShowed="false" />
+	<field name="officeExerId" label="内勤办理人" type="long" length="0" isShowed="false" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="false" />
+	<field name="leader2UserIds" label="leader2UserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="leader2UserIdsLengths" label="leader2UserIdsLengths" type="varchar" length="100" isShowed="true" />
+</fields>

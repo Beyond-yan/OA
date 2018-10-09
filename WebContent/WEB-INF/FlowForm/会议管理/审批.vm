@@ -1,0 +1,166 @@
+conferenceView = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	// 内嵌FormPanel
+	formPanel : null,
+	// 内嵌FormPanel
+	displayPanel : null,
+	// 构造函数
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		// 必须先初始化组件
+		this.initUIComponents();
+		conferenceView.superclass.constructor.call(this, {
+					id : 'conferenceView',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					width : 700,
+					height:700,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}',2)
+									}),new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'拒绝',
+									   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}',3)
+									})
+									#set ($count=$count+1)
+								#end
+								]
+				});
+	},// end of the constructor
+	// 初始化组件
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			id : 'conferencePanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url:__ctxPath+ '/pages/admin/conferenceDetail.jsp?confId=${confId}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'conferenceRecordFormView',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [
+				{
+						name : 'conference.confId',
+						id : 'confId',
+						xtype : 'hidden',
+						value : '${confId}'
+					},{
+						// fieldLabel : '审批状态',
+						// hiddenName : 'carApply.approvalStatus',
+						name:'conference.applyStatus',
+						id : 'applyStatus',
+						xtype : 'hidden'// ---------新增字段
+//						value : '2'
+					}/*
+						 * ,{ xtype:"htmleditor", name:"des", anchor:"100%",
+						 * fieldLabel:"审批意见", height:150, width:300 }
+						 */]
+		});
+	},
+	/**
+	 * 保存记录
+	 */
+	save : function(formPanel, panel, signalName, activityName,NewApplyStatus) {
+
+				var fp = Ext.getCmp('conferenceRecordFormView');
+				Ext.getCmp('applyStatus').setValue(NewApplyStatus);
+				var abcde = Ext.getCmp('applyStatus').getValue();
+				alert(abcde);
+		// var applyId = null;
+		if (fp.getForm().isValid()) {
+			fp.getForm().submit({
+				url : __ctxPath + '/admin/saveConference.do',
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				success : function() {	Ext.ux.Toast.msg('操作信息', '成功保存！');	
+				// var opinion= panel.formPanel.getCmpByName('des').getValue();
+		if (formPanel.getForm().isValid()) {
+			// var chooseDirection;
+			// var option =
+			// formPanel.getCmpByName('directionOption').getGroupValue();
+			// if(option=='2'){Ext.getCmp('officeReceiveRecordFormView.userId').setValue(100188);}
+			// var userId = formPanel.getCmpByName('userId').getValue();
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			// var comments=formPanel.getCmpByName('askOpinion').getValue();
+	
+				result='已登记';	
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					// chooseDirection : chooseDirection,
+					// ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					// flowAssignId: userId,
+					// opinion:opinion,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					status:result/*
+									 * , comments:comments
+									 */
+				},
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '成功保存！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					var myTaskView = Ext.getCmp("MyTaskGrid");
+					var appHomeTaskGrid = Ext
+							.getCmp("appHomeTaskGrid");
+					if (appHomeTaskGrid != null) {
+						appHomeTaskGrid.getStore().reload();
+					}
+					if (myTaskView != null) {
+						// AppUtil.activateTab(taskView);
+						myTaskView.getStore().reload();
+					}
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});	
+								  
+			
+		}},
+				failure : function() {
+						Ext.MessageBox.show({
+									title : '操作信息',
+									msg : '信息保存出错，请联系管理员！',
+									buttons : Ext.MessageBox.OK,
+									icon : 'ext-mb-error'
+								});}
+			})}
+		
+		
+		
+		
+	}// end of save
+})

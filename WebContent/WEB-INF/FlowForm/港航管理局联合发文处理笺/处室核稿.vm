@@ -1,0 +1,268 @@
+GHGLJLHASentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GHGLJLHASentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'GHGLJCSHGGHGLJLHASentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 650,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			id : 'GHGLJLHASentArchiveDepCheckPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/ganghanglianheSentFiles/SentArchiveDetail.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'GHGLJLHASentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'GHGLJCSHGGHGLJLHASentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),
+{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						width : 100,
+						items : [{
+							boxLabel : '委属单位处室会签',
+							name : 'depOption',
+							inputValue : 1,
+							checked : true,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHASentArchiveDepCheck.signDep').show();
+										Ext.getCmp('GHGLJLHASentArchiveDepCheck.signerNames').allowBlank = false;
+										//Ext.getCmp('GHGLJLHSentArchiveDepCheck.Leaders').hide();
+										//Ext.getCmp('GHGLJLHSentArchiveDepCheck.LeaderNames').allowBlank = true;
+									}
+								}
+							}
+						}, {
+							boxLabel : '办公室会签',
+							name : 'depOption',
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHASentArchiveDepCheck.signDep').hide();
+										Ext.getCmp('GHGLJLHASentArchiveDepCheck.signerNames').allowBlank = true;
+										//Ext.getCmp('GHGLJLHSentArchiveDepCheck.Leaders').hide();
+										//Ext.getCmp('GHGLJLHSentArchiveDepCheck.LeaderNames').allowBlank = true;
+									}
+								}
+							}
+						}, {
+							boxLabel : '退回发起人',
+							name : 'depOption',
+							inputValue : 3,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHASentArchiveDepCheck.signDep').hide();
+										Ext.getCmp('GHGLJLHASentArchiveDepCheck.signerNames').allowBlank = true;
+										//Ext.getCmp('GHGLJLHSentArchiveDepCheck.Leaders').hide();
+										//Ext.getCmp('GHGLJLHSentArchiveDepCheck.LeaderNames').allowBlank = true;
+									}
+								}
+							}
+						}],
+						fieldLabel : '审批步骤'
+					}, {
+						xtype : 'container',
+						id : 'GHGLJLHASentArchiveDepCheck.signDep',
+						layout : 'column',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '会签部门:',
+									width : 105
+								}, {
+									id : 'GHGLJLHASentArchiveDepCheck.signerNames',
+									xtype : 'textfield',
+									width : 445,
+									allowBlank : false,
+									readOnly : true
+								}, {
+									id : 'GHGLJLHASentArchiveDepCheck.signdepIds',
+									xtype : 'hidden'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles=100152,100156';
+										DepLeaders.getView(
+												function(userIds, userNames) {
+													Ext.getCmp('GHGLJLHASentArchiveDepCheck.signdepIds').setValue(userIds);
+													Ext.getCmp('GHGLJLHASentArchiveDepCheck.signerNames')
+															.setValue(userNames);
+												}, false, null,url).show();
+									}
+								}]
+					}, /*{
+						id : 'GHGLJLHSentArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						hidden : true,
+						style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '负 责 人:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : 445,
+									readOnly : true,
+									id : 'GHGLJLHSentArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									name : 'SentArchiveDepCheck.LeaderIds',
+									id : 'GHGLJLHviceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择领导',
+									handler : function() {
+										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles=100152,100156&depIds='+curUserInfo.depId;
+										DepLeaders.getView(
+											function(userIds, userNames) {
+												Ext.getCmp('GHGLJLHviceLeaderIds').setValue(userIds);
+												Ext.getCmp('GHGLJLHSentArchiveDepCheck.LeaderNames')
+														.setValue(userNames);
+											}, true, null,url).show();
+									}
+								}]
+					},*/ {
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审核意见',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '选择常用批示语',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('GHGLJLHASentArchiveDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();		
+			var depLeaderOption;
+			
+			var params = {
+					firstNext:option,//部门下一步审核人
+					depExerId:curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			
+			if (1 == option ) {	//委属单位处室会签
+				var signUserIds = Ext.getCmp('GHGLJLHASentArchiveDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+					signUserIds : signUserIds,
+					destName : '委属单位处室会签'
+				});
+			}/* else if (2 == option ) { //办公室会签
+				Ext.apply(params,{
+					//flowAssignId : Ext.getCmp('GHGLJLHviceLeaderIds').getValue()
+				});
+			}*/else if (3 == option ) {	//重新发起
+				Ext.apply(params,{
+					flowAssignId : '${flowCreatorId}'
+				});
+			} 
+			
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '成功保存！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

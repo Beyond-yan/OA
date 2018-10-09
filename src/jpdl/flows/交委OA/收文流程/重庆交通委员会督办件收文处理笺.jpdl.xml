@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="DBReceiveArchives" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="409,85,48,48" name="收文登记">
+		<transition g="-100,-7" name="to 办公室主任拟办" to="办公室主任拟办"/>
+	</start>
+	<task g="378,175,111,52" name="办公室主任拟办">
+		<transition g="-65,-17" name="to 拟办跳转" to="拟办跳转"/>
+	</task>
+	<task g="376,350,107,52" name="督办安排">
+		<transition g="-41,-6" name="to 批示" to="批示"/>
+	</task>
+	<decision g="405,440,48,48" name="批示">
+		<transition g="-64,-9" name="to 内勤分发" to="内勤分发">
+			<condition expr="#{flowNext=='2'}"/>
+		</transition>
+		<transition g="-33,-19" name="to 领导批示1" to="领导批示1">
+			<condition expr="#{flowNext=='1'}"/>
+		</transition>
+	</decision>
+	<task g="210,439,116,52" name="领导批示1">
+		<transition g="266,375:9,-20" name="to 督办安排" to="督办安排"/>
+	</task>
+	<task g="378,516,103,52" name="内勤分发">
+		<transition g="-89,-17" name="to 内勤分发跳转" to="内勤分发跳转"/>
+	</task>
+	<task g="377,690,103,52" name="处内拟办">
+		<transition g="-68,-21" name="to 处室结果" to="处室结果"/>
+	</task>
+	<task g="381,905,100,52" name="处内承办">
+		<transition g="-73,-3" name="to 承办结果" to="承办结果"/>
+	</task>
+	<end g="409,1199,48,48" name="结束"/>
+	<task g="378,1059,103,51" name="内勤归档">
+      <transition name="to 归档选择" to="归档选择" g="-73,-11"/>
+	</task>
+	<decision g="407,983,65,22" name="承办结果">
+		<transition g="-68,-10" name="to 内勤归档" to="内勤归档">
+			<condition expr="#{underNext=='2'}"/>
+		</transition>
+		<transition g="-37,-20" name="to 处内传阅" to="处内传阅">
+			<condition expr="#{underNext=='1'}"/>
+		</transition>
+	</decision>
+	<decision g="410,265,48,48" name="拟办跳转">
+		<transition g="-38,-15" name="to 重新登记" to="重新登记">
+			<condition expr="#{nibanNext=='0'}"/>
+		</transition>
+		<transition g="-65,-17" name="to 督办安排" to="督办安排">
+			<condition expr="#{nibanNext=='1'}"/>
+		</transition>
+	</decision>
+	<task g="557,262,92,52" name="重新登记">
+		<transition g="602,199:-104,-21" name="to 办公室主任拟办" to="办公室主任拟办"/>
+	</task>
+	<task g="530,605,100,52" name="处内协办">
+		<transition g="582,715:-65,-17" name="to 处内拟办" to="处内拟办"/>
+	</task>
+	<decision g="403,609,48,48" name="内勤分发跳转">
+		<transition g="-65,-4" name="to 处内拟办" to="处内拟办">
+			<condition expr="#{nqffNext=='0'}"/>
+		</transition>
+		<transition g="-31,-16" name="to 处内协办" to="处内协办">
+			<condition expr="#{nqffNext=='1'}"/>
+		</transition>
+		<transition g="-37,-22" name="to 领导批示2" to="领导批示2">
+			<condition expr="#{nqffNext=='2'}"/>
+		</transition>
+		<transition g="505,595;635,593;638,931:-68,-21" name="to 处内承办" to="处内承办">
+			<condition expr="#{nqffNext=='3'}"/>
+		</transition>
+		<transition g="511,571;679,569;685,1154:-44,-21" name="to 结束" to="结束">
+			<condition expr="#{nqffNext=='4'}"/>
+		</transition>
+	</decision>
+	<task g="550,983,111,51" name="处内传阅">
+		<transition g="607,1084:-95,-23" name="to 内勤归档" to="内勤归档"/>
+	</task>
+	<decision g="405,803,48,48" name="处室结果">
+		<transition g="-68,-21" name="to 处内承办" to="处内承办">
+			<condition expr="#{isLeader=='no'}"/>
+		</transition>
+		<transition g="-34,-24" name="to 领导批示3" to="领导批示3">
+			<condition expr="#{isLeader=='yes'}"/>
+		</transition>
+      <transition name="to 处内副处拟办" to="处内副处拟办" g="-23,-49">
+      		<condition expr="#{isLeader=='tran'}"/>
+      </transition>
+	</decision>
+	<task g="210,608,118,52" name="领导批示2">
+		<transition g="269,542:-3,-21" name="to 内勤分发" to="内勤分发"/>
+	</task>
+	<task g="212,801,125,52" name="领导批示3">
+		<transition g="274,716:3,-21" name="to 处内拟办" to="处内拟办"/>
+	</task>
+   <task name="处内副处拟办" g="489,798,125,55">
+      <transition name="to 处内承办" to="处内承办" g="551,899:-69,-22"/>
+   </task>
+   <task name="转办" g="227,1136,109,52">
+      <transition name="to 结束" to="结束" g="282,1222:-45,-22"/>
+   </task>
+   <decision name="归档选择" g="407,1137,48,48">
+      <transition name="to 转办" to="转办" g="-14,-21">
+      		<condition expr="#{endNext=='1'}"/>
+      </transition>
+      <transition name="to 结束" to="结束" g="-57,-12">
+      		<condition expr="#{endNext=='2'}"/>
+      </transition>
+   </decision>
+</process>

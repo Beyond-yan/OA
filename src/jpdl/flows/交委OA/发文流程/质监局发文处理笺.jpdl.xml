@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="ZZJSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="301,27,48,48" name="拟稿">
+      <transition g="-104,-21" name="to 部门负责人核稿" to="部门负责人核稿"/>
+   </start>
+   <task g="270,118,114,52" name="部门负责人核稿">
+      <transition g="-68,-21" name="to 核稿结果" to="部门核稿结果"/>
+   </task>
+   <task g="289,322,92,52" name="办公室核稿">
+      <transition g="-68,-21" name="to 审核结果" to="审核结果"/>
+   </task>
+   <decision g="306,235,48,48" name="部门核稿结果">
+      <transition g="-80,-21" name="to 办公室核稿" to="办公室核稿">
+        <condition expr="#{OfficeNext=='1'}"/>
+      </transition>
+      <transition g="-68,-21" name="to 处室会签" to="处室会签">
+        <condition expr="#{OfficeNext=='2'}"/>
+      </transition>
+   </decision>
+   <decision g="312,425,48,48" name="审核结果">
+      <transition g="-44,-21" name="to 签发" to="签发">
+       <condition expr="#{depNext=='2'}"/>
+      </transition>
+      <transition g="408,444:-92,-21" name="to 分管领导会签" to="分管领导会签">
+      <condition expr="#{depNext=='1'}"/>
+      </transition>
+   </decision>
+   <task g="435,227,92,52" name="处室会签">
+      <transition g="486,145:-104,-21" name="to 部门负责人核稿" to="部门负责人核稿"/>
+   </task>
+   <task g="296,533,92,52" name="签发">
+      <transition g="-44,-21" name="to 编号" to="编号"/>
+   </task>
+   <task g="301,666,92,52" name="编号">
+      <transition g="-44,-21" name="to 校对" to="校对"/>
+   </task>
+   <task g="302,781,92,52" name="校对">
+      <transition g="-29,-3" name="to 分发" to="分发"/>
+   </task>
+   <task g="450,416,92,52" name="分管领导会签">
+      <transition g="496,345:-44,-21" name="to 签发" to="办公室核稿"/>
+   </task>
+   <task g="300,875,92,52" name="分发">
+      <transition g="-44,-21" name="to 结束" to="结束"/>
+   </task>
+   <end g="322,973,48,48" name="结束"/>
+</process>

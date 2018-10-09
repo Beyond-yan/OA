@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="archivesId" label="primaryKey" type="long" isShowed="false" />
+	<field name="defId" type="varchar" isShowed="false" />
+	<field name="curUserdepId" label="当前用户部门id" type="varchar" length="1000" isShowed="false" />
+	<field name="fileIds" label="附件id" type="varchar" length="1000" isShowed="false" />
+	<field name="userId" label="流程发起人" type="long" length="0" isShowed="false" />
+	<field name="chooseDirection"  type="long" length="0" isShowed="false" />
+	<field name="depIds" label="主办部门ids" type="varchar" length="1000" isShowed="false" />
+	<field name="nextuserId" label="拟稿下一步执行人" type="varchar" isShowed="false" />
+</fields>

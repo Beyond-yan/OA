@@ -1,0 +1,326 @@
+DuBanSectionInnertakeView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		DuBanSectionInnertakeView.superclass.constructor.call(this, {
+					id : 'DuBanSectionInnertakeViewWin',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 690,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									}),
+									new Ext.Button({
+									   iconCls:'btn-changeTask',
+									   text:'退回',
+									   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	backsetp:function(formPanel,panel,activityName){
+		Ext.getCmp('DuBanSectionInnertakeFormView.oneLeaderNames').allowBlank=true;
+		if (!formPanel.getForm().isValid()){return false;}
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId;
+				var docParams=Ext.getCmp("DBCNCBSentArchiveDepCheckForm.reFileId");
+	 			formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : formPanel.getCmpByName('leaderOpinion').getValue(),
+								destName : prevDestName,
+								status : '退回',
+								//看是否指定了执行人员
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+							/*Ext.Ajax.request({
+								url : __ctxPath + "/archive/updateArchDocsArchives.do",
+								params : {
+										  arcRecfileIds : Ext.getCmp('DBCNCBSentArchiveDepCheckForm.reFileId').getValue(),
+										  'archives.archivesId':'${archivesId}'
+										  },
+								method : 'POST',
+								success : function(fp, action) {
+										 Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+										 AppUtil.removeTab('ProcessForm' + panel.taskId);
+										 refreshTaskPanelView();
+		                        },
+								failure : function(fp, action) {
+									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+								}
+							});*/
+							 Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	/**
+	 * 保存公文的方法,传入公文状态作为参数
+	 */
+	onSave : function(formPanel, panel, signalName, activityName) {
+		/*var option='';
+		var result='';
+		if(!curUserInfo.isOfficeDirector&&!curUserInfo.isOfficeDeputyDirector){
+			option=2;
+			result='呈内勤归档';
+		}else{
+			option = formPanel.getCmpByName('option').getGroupValue();
+			if(option==1){
+				result='呈处内承办';
+			}else{
+			    result='呈内勤归档';
+			}
+		}*/
+		var userId = Ext.getCmp('DuBanSectionInnertakeFormView.userId').getValue();
+		var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+		var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+		var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+		var comments=formPanel.getCmpByName('leaderOpinion').getValue();
+		var params={
+			taskId : panel.taskId,
+			signalName : signalName,
+			activityName : activityName,
+			sendMail : sendMail,
+			sendMsg : sendMsg,
+			undertakeId : userId,
+			sendInfo : sendInfo,
+			comments:comments
+		};
+		var organizeIds=Ext.getCmp('DuBanSectionInnertakeViewWin.viceLeaderIds').getValue();
+		if(organizeIds!=null&&organizeIds!=''){
+			Ext.apply(params,{
+				underNext : 1,
+				destName : '处内传阅',
+				signUserIds : organizeIds
+			});
+		}else{
+			if(userId!=0){
+				Ext.apply(params,{
+					underNext : 2,
+					flowAssignId:userId
+				});
+			}
+		}
+		if (formPanel.getForm().isValid()) {
+			formPanel.getForm().submit({
+						method : 'POST',
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						params : params,
+						waitMsg : '正在提交数据...',
+						success : function(fp, action) {
+							Ext.ux.Toast.msg("操作信息", "审核成功！");
+							AppUtil.removeTab('ProcessForm' + taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}
+	},
+
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					autoHeight : true,
+					columnWidth : 1,
+					id:'JWDBCNCBArchiveReceiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/chongqingReceiveArchives/dubanreceivefiles.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=JWDBCNCBArchiveReceiveDetailPanel',
+						nocache : true
+					}
+				});
+				var initStore = new Ext.data.SimpleStore({
+					url : __ctxPath + '/system/getInnersByDepIdsAppUser.do?depIds=${departmentId}',
+					autoLoad : true,
+					fields : ['userId', 'fullname']
+				});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : 'DuBanSectionInnertakeFormView',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			// id : 'ArchivesForm',
+			items : [{
+						id : 'DuBanSectionInnertakeView.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+							xtype : 'label',
+							text : '处内传阅:',
+							width : 105
+						}, {
+							xtype : 'textfield',
+							width : '60%',
+							readOnly : true,
+							id : 'DuBanSectionInnertakeViewWin.organizeLeaderNames'
+						}, {
+							xtype : 'hidden',
+							id : 'DuBanSectionInnertakeViewWin.viceLeaderIds'
+						}, {
+							xtype : 'button',
+							iconCls : 'menu-department',
+							style:'padding-left:5px;',
+							text : '选择处室',
+							handler : function() {
+								roles = roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID')+',1272407';
+								var url= __ctxPath +  '/system/depLeadersTreeDepartment.do?roles=' + roles;
+								DepLeaders.getView(
+									function(userIds, fullnames) {
+										Ext.getCmp('DuBanSectionInnertakeViewWin.viceLeaderIds').setValue(userIds);
+										Ext.getCmp('DuBanSectionInnertakeViewWin.organizeLeaderNames').setValue(fullnames);
+									},false, null,url
+								).show();
+							}
+						}, {
+							xtype : 'button',
+							text : '清除人员',
+							iconCls : 'reset',
+							handler : function() {
+								Ext.getCmp('DuBanSectionInnertakeViewWin.organizeLeaderNames')
+									.setValue('');
+								Ext.getCmp('DuBanSectionInnertakeViewWin.viceLeaderIds')
+									.setValue('');
+							}
+						}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						id : 'DuBanSectionInnertakeFormView.underTakeLeader',
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '内勤存档:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '60%',
+									readOnly : true,
+									allowBlank:false,
+									id : 'DuBanSectionInnertakeFormView.oneLeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'DuBanSectionInnertakeFormView.userId',
+									value : 0
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style:'padding-left:5px;',
+									text : '选择人员',
+									handler : function() {
+										var url= __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID')+',1272407';
+										DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('DuBanSectionInnertakeFormView.userId').setValue(userIds);
+											Ext.getCmp('DuBanSectionInnertakeFormView.oneLeaderNames').setValue(fullnames);
+										},true, null,url).show();
+									}
+								}]
+					},{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '承办意见',
+				   					id:'DuBanSectionInnertakeFormView.leaderOpinion',
+									name : 'leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:415
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('DuBanSectionInnertakeFormView.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										},{
+			   id : 'DBCNCBSentArchiveDepCheckForm.reFileId',
+			   xtype : 'hidden'
+					}]
+					  		}]
+						}]
+		});
+	}// end of init
+})

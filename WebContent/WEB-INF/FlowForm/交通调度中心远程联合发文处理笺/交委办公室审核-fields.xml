@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="officeLeaderOption" label="办公室审核下步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="officeExerId" label="部门节点执行者id" type="varchar" length="100" isShowed="true" />
+</fields>

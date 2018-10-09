@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-2.5.xsd 
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+   	
+	<aop:aspectj-autoproxy/> 
+	<context:annotation-config/>
+   	
+	<context:component-scan base-package="com.gdssoft.oa.service"/>
+
+	<tx:annotation-driven transaction-manager="txManager"/>
+    
+	<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+    
+	<bean id="logAspect" class="com.gdssoft.core.log.LogAspect"/>
+	
+	<aop:config>
+		<aop:pointcut id="servicePointCut" expression="execution(* com.gdssoft.oa.service..*(..))"/>
+		<aop:pointcut id="servicePointCut2" expression="execution(* com.gdssoft.core.service..*(..))"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointCut"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="servicePointCut2"/>
+		
+		<!-- 
+			<aop:aspect ref="logAspect">
+				<aop:pointcut id="logPointCut" expression="execution(* com.gdssoft.oa.action..*(..))"/>
+				<aop:around pointcut-ref="logPointCut" method="doSystemLog"/>
+			</aop:aspect>
+			 -->
+	</aop:config>
+	
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="is*" read-only="true"/>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<bean id="jbpmService" class="com.gdssoft.oa.service.flow.impl.JbpmServiceImpl"/>
+	
+	<!-- add the bean you define here -->
+	
+	<!-- 领导日程 -->
+	<bean id="leaderActivitiesService" class="com.gdssoft.oa.service.leaderActivities.impl.LeaderActivitiesServiceImpl">
+		<constructor-arg index="0" ref="leaderActivitiesDao"/>
+	</bean>
+	<!-- 外出人员管理 -->
+	<bean id="outPersonService" class="com.gdssoft.oa.service.out.impl.OutPersonServiceImpl">
+		<constructor-arg index="0" ref="outPersonDao"/>
+	</bean>
+	<!-- 里程管理 -->
+	<bean id="mileagesService" class="com.gdssoft.oa.service.mileages.impl.MileagesServiceImpl">
+		<constructor-arg index="0" ref="mileagesDao"/>
+	</bean>
+	<bean id="appUserService" class="com.gdssoft.oa.service.system.impl.AppUserServiceImpl">
+		<constructor-arg index="0" ref="appUserDao"/>
+	</bean>
+	
+	<bean id="newsTypeService" class="com.gdssoft.oa.service.info.impl.NewsTypeServiceImpl">
+		<constructor-arg index="0" ref="newsTypeDao"/>
+	</bean>
+   	 
+	<bean id="noticeService" class="com.gdssoft.oa.service.info.impl.NoticeServiceImpl">
+		<constructor-arg index="0" ref="noticeDao"/>
+	</bean>
+	<bean id="appRoleService" class="com.gdssoft.oa.service.system.impl.AppRoleServiceImpl">
+		<constructor-arg index="0" ref="appRoleDao"/>
+	</bean>
+   	 
+	<bean id="departmentService" class="com.gdssoft.oa.service.system.impl.DepartmentServiceImpl">
+		<constructor-arg index="0" ref="departmentDao"/>  
+	</bean>
+	<bean id="departmentAllService" class="com.gdssoft.oa.service.system.impl.DepartmentAllServiceImpl">
+		<constructor-arg index="0" ref="departmentAllDao"/>  
+	</bean>
+	<bean id="companyService" class="com.gdssoft.oa.service.system.impl.CompanyServiceImpl">
+		<constructor-arg index="0" ref="companyDao"/>   	 	
+	</bean>
+	<bean id="shortMessageService" class="com.gdssoft.oa.service.info.impl.ShortMessageServiceImpl">
+		<constructor-arg index="0" ref="shortMessageDao"/>   	 	
+	</bean>
+	<bean id="inMessageService" class="com.gdssoft.oa.service.info.impl.InMessageServiceImpl">
+		<constructor-arg index="0" ref="inMessageDao"/>
+	</bean>
+	<bean id="fileAttachService" class="com.gdssoft.oa.service.system.impl.FileAttachServiceImpl">
+		<constructor-arg index="0" ref="fileAttachDao"/>
+	</bean>
+	<bean id="reportTemplateService" class="com.gdssoft.oa.service.system.impl.ReportTemplateServiceImpl">
+		<constructor-arg index="0" ref="reportTemplateDao"/>
+	</bean>
+	<bean id="docFolderService" class="com.gdssoft.oa.service.document.impl.DocFolderServiceImpl">
+		<constructor-arg index="0" ref="docFolderDao"/>
+	</bean>
+	<bean id="documentService" class="com.gdssoft.oa.service.document.impl.DocumentServiceImpl">
+		<constructor-arg index="0" ref="documentDao"/>
+	</bean>
+	<bean id="newsService" class="com.gdssoft.oa.service.info.impl.NewsServiceImpl">
+		<constructor-arg index="0" ref="newsDao"/>
+	</bean>
+	<bean id="mailFolderService" class="com.gdssoft.oa.service.communicate.impl.MailFolderServiceImpl">
+		<constructor-arg index="0" ref="mailFolderDao"/>
+	</bean>
+	<bean id="mailService" class="com.gdssoft.oa.service.communicate.impl.MailServiceImpl">
+		<constructor-arg index="0" ref="mailDao"/>
+	</bean>
+	<bean id="mailBoxService" class="com.gdssoft.oa.service.communicate.impl.MailBoxServiceImpl">
+		<constructor-arg index="0" ref="mailBoxDao"/>
+	</bean>
+	<bean id="phoneBookService" class="com.gdssoft.oa.service.communicate.impl.PhoneBookServiceImpl">
+		<constructor-arg index="0" ref="phoneBookDao"/>
+	</bean>
+	<bean id="phoneGroupService" class="com.gdssoft.oa.service.communicate.impl.PhoneGroupServiceImpl">
+		<constructor-arg index="0" ref="phoneGroupDao"/>
+	</bean>
+	<bean id="docPrivilegeService" class="com.gdssoft.oa.service.document.impl.DocPrivilegeServiceImpl">
+		<constructor-arg index="0" ref="docPrivilegeDao"/>
+	</bean>
+	<bean id="proTypeService" class="com.gdssoft.oa.service.flow.impl.ProTypeServiceImpl">
+		<constructor-arg index="0" ref="proTypeDao"/>
+	</bean>
+	<bean id="proDefinitionService" class="com.gdssoft.oa.service.flow.impl.ProDefinitionServiceImpl">
+		<constructor-arg index="0" ref="proDefinitionDao"/>
+	</bean>
+	<bean id="proUserAssignService" class="com.gdssoft.oa.service.flow.impl.ProUserAssignServiceImpl">
+		<constructor-arg index="0" ref="proUserAssignDao"/>
+	</bean>
+	<bean id="processRunService" class="com.gdssoft.oa.service.flow.impl.ProcessRunServiceImpl">
+		<constructor-arg index="0" ref="processRunDao"/>
+	</bean>
+	<bean id="formDataService" class="com.gdssoft.oa.service.flow.impl.FormDataServiceImpl">
+		<constructor-arg index="0" ref="formDataDao"/>
+	</bean>
+	<bean id="processFormService" class="com.gdssoft.oa.service.flow.impl.ProcessFormServiceImpl">
+		<constructor-arg index="0" ref="processFormDao"/>
+	</bean>
+	<bean id="processFormNextTaskService" class="com.gdssoft.oa.service.flow.impl.ProcessFormNextTaskServiceImpl">
+		<constructor-arg index="0" ref="processFormNextTaskDao"/>
+	</bean>
+	<bean id="flowTaskService" class="com.gdssoft.oa.service.flow.impl.TaskServiceImpl">
+		<constructor-arg index="0" ref="taskDao"/>
+	</bean>
+	<bean id="regionService" class="com.gdssoft.oa.service.system.impl.RegionServiceImpl">
+		<constructor-arg index="0" ref="regionDao"/>
+	</bean>
+	<bean id="appointmentService" class="com.gdssoft.oa.service.task.impl.AppointmentServiceImpl">
+		<constructor-arg index="0" ref="appointmentDao"/>
+	</bean>
+	<bean id="calendarPlanService" class="com.gdssoft.oa.service.task.impl.CalendarPlanServiceImpl">
+		<constructor-arg index="0" ref="calendarPlanDao"/>
+	</bean>
+	<bean id="cartRepairService" class="com.gdssoft.oa.service.admin.impl.CartRepairServiceImpl">
+		<constructor-arg index="0" ref="cartRepairDao"/>
+		<property name="carService" ref="carService"></property>
+	</bean>
+	<bean id="carApplyService" class="com.gdssoft.oa.service.admin.impl.CarApplyServiceImpl">
+		<constructor-arg index="0" ref="carApplyDao"/>
+	</bean>
+	<bean id="planTypeService" class="com.gdssoft.oa.service.task.impl.PlanTypeServiceImpl">
+		<constructor-arg index="0" ref="planTypeDao"/>
+	</bean>
+	<bean id="workPlanService" class="com.gdssoft.oa.service.task.impl.WorkPlanServiceImpl">
+		<constructor-arg index="0" ref="workPlanDao"/>
+	</bean>
+	<bean id="appFunctionService" class="com.gdssoft.oa.service.system.impl.AppFunctionServiceImpl">
+		<constructor-arg index="0" ref="appFunctionDao"/>
+	</bean>
+	<bean id="funUrlService" class="com.gdssoft.oa.service.system.impl.FunUrlServiceImpl">
+		<constructor-arg index="0" ref="funUrlDao"/>
+	</bean>
+	<bean id="holidayRecordService" class="com.gdssoft.oa.service.personal.impl.HolidayRecordServiceImpl">
+		<constructor-arg index="0" ref="holidayRecordDao"/>
+	</bean>
+	<bean id="dutySectionService" class="com.gdssoft.oa.service.personal.impl.DutySectionServiceImpl">
+		<constructor-arg index="0" ref="dutySectionDao"/>
+	</bean>
+	<bean id="dutySystemService" class="com.gdssoft.oa.service.personal.impl.DutySystemServiceImpl">
+		<constructor-arg index="0" ref="dutySystemDao"/>
+	</bean>
+	<bean id="dutyService" class="com.gdssoft.oa.service.personal.impl.DutyServiceImpl">
+		<constructor-arg index="0" ref="dutyDao"/>
+	</bean>
+	<bean id="dutyRegisterService" class="com.gdssoft.oa.service.personal.impl.DutyRegisterServiceImpl">
+		<constructor-arg index="0" ref="dutyRegisterDao"/>
+	</bean>
+	<bean id="planAttendService" class="com.gdssoft.oa.service.task.impl.PlanAttendServiceImpl">
+		<constructor-arg index="0" ref="planAttendDao"/>
+	</bean>
+	<bean id="userSubService" class="com.gdssoft.oa.service.system.impl.UserSubServiceImpl">
+		<constructor-arg index="0" ref="userSubDao"/>
+	</bean>
+	<bean id="errandsRegisterService" class="com.gdssoft.oa.service.personal.impl.ErrandsRegisterServiceImpl">
+		<constructor-arg index="0" ref="errandsRegisterDao"/>
+	</bean>
+	<bean id="sysConfigService" class="com.gdssoft.oa.service.system.impl.SysConfigServiceImpl">
+		<constructor-arg index="0" ref="sysConfigDao"/>
+	</bean>
+	<bean id="newsCommentService" class="com.gdssoft.oa.service.info.impl.NewsCommentServiceImpl">
+		<constructor-arg index="0" ref="newsCommentDao"/>
+	</bean>
+	<bean id="reportParamService" class="com.gdssoft.oa.service.system.impl.ReportParamServiceImpl">
+		<constructor-arg index="0" ref="reportParamDao"/>
+	</bean>
+	<bean id="dictionaryService" class="com.gdssoft.oa.service.system.impl.DictionaryServiceImpl">
+		<constructor-arg index="0" ref="dictionaryDao"/>
+	</bean>
+	<bean id="standSalaryService" class="com.gdssoft.oa.service.hrm.impl.StandSalaryServiceImpl">
+		<constructor-arg index="0" ref="standSalaryDao"/>
+	</bean>
+	<bean id="salaryItemService" class="com.gdssoft.oa.service.hrm.impl.SalaryItemServiceImpl">
+		<constructor-arg index="0" ref="salaryItemDao"/>
+	</bean>
+	<bean id="standSalaryItemService" class="com.gdssoft.oa.service.hrm.impl.StandSalaryItemServiceImpl">
+		<constructor-arg index="0" ref="standSalaryItemDao"/>
+	</bean>
+	<bean id="hireIssueService" class="com.gdssoft.oa.service.hrm.impl.HireIssueServiceImpl">
+		<constructor-arg index="0" ref="hireIssueDao"/>
+	</bean>
+	<bean id="resumeService" class="com.gdssoft.oa.service.hrm.impl.ResumeServiceImpl">
+		<constructor-arg index="0" ref="resumeDao"/>
+	</bean>
+	<bean id="archivesTypeService" class="com.gdssoft.oa.service.archive.impl.ArchivesTypeServiceImpl">
+		<constructor-arg index="0" ref="archivesTypeDao"/>
+	</bean>
+	<bean id="archTemplateService" class="com.gdssoft.oa.service.archive.impl.ArchTemplateServiceImpl">
+		<constructor-arg index="0" ref="archTemplateDao"/>
+	</bean>
+	<bean id="archRecTypeService" class="com.gdssoft.oa.service.archive.impl.ArchRecTypeServiceImpl">
+		<constructor-arg index="0" ref="archRecTypeDao"/>
+	</bean>
+	<bean id="jobChangeService" class="com.gdssoft.oa.service.hrm.impl.JobChangeServiceImpl">
+		<constructor-arg index="0" ref="jobChangeDao"/>
+	</bean>
+	<bean id="jobService" class="com.gdssoft.oa.service.hrm.impl.JobServiceImpl">
+		<constructor-arg index="0" ref="jobDao"/>
+	</bean>
+	<bean id="empProfileService" class="com.gdssoft.oa.service.hrm.impl.EmpProfileServiceImpl">
+		<constructor-arg index="0" ref="empProfileDao"/>
+	</bean>
+	<bean id="archivesDepService" class="com.gdssoft.oa.service.archive.impl.ArchivesDepServiceImpl">
+		<constructor-arg index="0" ref="archivesDepDao"/>
+	</bean>
+	<bean id="archivesDocService" class="com.gdssoft.oa.service.archive.impl.ArchivesDocServiceImpl">
+		<constructor-arg index="0" ref="archivesDocDao"/>
+	</bean>
+	<bean id="archivesDocExtService" class="com.gdssoft.oa.service.archive.impl.ArchivesDocExtServiceImpl">
+		<constructor-arg index="0" ref="archivesDocExtDao"/>
+	</bean>
+	<bean id="docExtHistoryService" class="com.gdssoft.oa.service.archive.impl.DocExtHistoryServiceImpl">
+		<constructor-arg index="0" ref="docExtHistoryDao"/>
+	</bean>
+	<bean id="docHistoryService" class="com.gdssoft.oa.service.archive.impl.DocHistoryServiceImpl">
+		<constructor-arg index="0" ref="docHistoryDao"/>
+	</bean>
+	<bean id="salaryPayoffService" class="com.gdssoft.oa.service.hrm.impl.SalaryPayoffServiceImpl">
+		<constructor-arg index="0" ref="salaryPayoffDao"/>
+	</bean>
+	<bean id="formDefService" class="com.gdssoft.oa.service.flow.impl.FormDefServiceImpl">
+		<constructor-arg index="0" ref="formDefDao"/>
+	</bean>
+	<bean id="archivesService" class="com.gdssoft.oa.service.archive.impl.ArchivesServiceImpl">
+		<constructor-arg index="0" ref="archivesDao"/>
+	</bean>
+	<bean id="archivesHandleService" class="com.gdssoft.oa.service.archive.impl.ArchivesHandleServiceImpl">
+		<constructor-arg index="0" ref="archivesHandleDao"/>
+	</bean>
+	<bean id="leaderReadService" class="com.gdssoft.oa.service.archive.impl.LeaderReadServiceImpl">
+		<constructor-arg index="0" ref="leaderReadDao"/>
+	</bean>
+	<bean id="archDispatchService" class="com.gdssoft.oa.service.archive.impl.ArchDispatchServiceImpl">
+		<constructor-arg index="0" ref="archDispatchDao"/>
+	</bean>
+	<bean id="archivesAttendService" class="com.gdssoft.oa.service.archive.impl.ArchivesAttendServiceImpl">
+		<constructor-arg index="0" ref="archivesAttendDao"/>
+	</bean>
+	<bean id="archFlowConfService" class="com.gdssoft.oa.service.archive.impl.ArchFlowConfServiceImpl">
+		<constructor-arg index="0" ref="archFlowConfDao"/>
+	</bean>
+	<bean id="archRecUserService" class="com.gdssoft.oa.service.archive.impl.ArchRecUserServiceImpl">
+		<constructor-arg index="0" ref="archRecUserDao"/>
+	</bean>
+	<bean id="archHastenService" class="com.gdssoft.oa.service.archive.impl.ArchHastenServiceImpl">
+		<constructor-arg index="0" ref="archHastenDao"/>
+	</bean>
+	<bean id="indexDisplayService" class="com.gdssoft.oa.service.system.impl.IndexDisplayServiceImpl">
+		<constructor-arg index="0" ref="indexDisplayDao"/>
+	</bean>
+	<bean id="systemLogService" class="com.gdssoft.oa.service.system.impl.SystemLogServiceImpl">
+		<constructor-arg index="0" ref="systemLogDao"/>
+	</bean>
+	<bean id="appTipsService" class="com.gdssoft.oa.service.info.impl.AppTipsServiceImpl">
+		<constructor-arg index="0" ref="appTipsDao"/>
+	</bean>
+	<bean id="outMailUserSetingService" class="com.gdssoft.oa.service.communicate.impl.OutMailUserSetingServiceImpl">
+		<constructor-arg index="0" ref="outMailUserSetingDao"/>
+	</bean>
+	<bean id="outMailService" class="com.gdssoft.oa.service.communicate.impl.OutMailServiceImpl">
+		<constructor-arg index="0" ref="outMailDao"/>
+	</bean>
+	<bean id="outMailFolderService" class="com.gdssoft.oa.service.communicate.impl.OutMailFolderServiceImpl">
+		<constructor-arg index="0" ref="outMailFolderDao"/>
+	</bean>
+	<bean id="boardrooService" class="com.gdssoft.oa.service.admin.impl.BoardrooServiceImpl">
+		<constructor-arg index="0" ref="boardrooDao"/>
+	</bean>
+	<!-- 新增  行政管理-会议类型设置 -->
+	<bean id="boardTypeService" class="com.gdssoft.oa.service.admin.impl.BoardTypeServiceImpl">
+		<constructor-arg index="0" ref="boardTypeDao"></constructor-arg>
+	</bean>
+	<bean id="globalTypeService" class="com.gdssoft.oa.service.system.impl.GlobalTypeServiceImpl">
+		<constructor-arg index="0" ref="globalTypeDao"/>
+	</bean>
+	<bean id="confSummaryService" class="com.gdssoft.oa.service.admin.impl.ConfSummaryServiceImpl">
+		<constructor-arg index="0" ref="confSummaryDao"/>
+	</bean>
+	<bean id="suggestBoxService" class="com.gdssoft.oa.service.info.impl.SuggestBoxServiceImpl">
+		<constructor-arg index="0" ref="suggestBoxDao"/>
+	</bean>
+	<bean id="conferenceSerivce" class="com.gdssoft.oa.service.admin.impl.ConferenceServiceImpl">
+		<constructor-arg index="0" ref="conferenceDao"/>
+	</bean>
+	<bean id="confPrivilegeService" class="com.gdssoft.oa.service.admin.impl.ConfPrivilegeServiceImpl">
+		<constructor-arg index="0" ref="confPrivilegeDao"/>
+	</bean>
+	<bean id="userAgentService" class="com.gdssoft.oa.service.system.impl.UserAgentServiceImpl">
+		<constructor-arg index="0" ref="userAgentDao"/>
+	</bean>
+	<bean id="mobileMsgService" class="com.gdssoft.oa.service.communicate.impl.MobileMsgServiceImpl">
+		<constructor-arg index="0" ref="mobileMsgDao"/>
+	</bean>
+	<bean id="contractEventService" class="com.gdssoft.oa.service.hrm.impl.ContractEventServiceImpl">
+		<constructor-arg index="0" ref="contractEventDao"/>
+	</bean>
+	<bean id="contractAttachService" class="com.gdssoft.oa.service.hrm.impl.ContractAttachServiceImpl">
+		<constructor-arg index="0" ref="contractAttachDao"/>
+	</bean>
+	<bean id="userContractService" class="com.gdssoft.oa.service.hrm.impl.UserContractServiceImpl">
+		<constructor-arg index="0" ref="userContractDao"/>
+	</bean>
+	<bean id="regulationService" class="com.gdssoft.oa.service.admin.impl.RegulationServiceImpl">
+		<constructor-arg index="0" ref="regulationDao"/>
+	</bean>
+	<bean id="paintTemplateService" class="com.gdssoft.oa.service.document.impl.PaintTemplateServiceImpl">
+		<constructor-arg index="0" ref="paintTemplateDao"/>
+	</bean>
+	<bean id="sealService" class="com.gdssoft.oa.service.document.impl.SealServiceImpl">
+		<constructor-arg index="0" ref="sealDao"/>
+	</bean>
+	<bean id="smsMobileService" class="com.gdssoft.oa.service.communicate.impl.SmsMobileServiceImpl">
+		<constructor-arg index="0" ref="smsMobileDao"/>
+	</bean>
+	<bean id="smsHistoryService" class="com.gdssoft.oa.service.communicate.impl.SmsHistoryServiceImpl">
+		<constructor-arg index="0" ref="smsHistoryDao"/>
+	</bean>
+	<bean id="carOilCardService" class="com.gdssoft.oa.service.admin.impl.CarOilCardServiceImpl">
+		<constructor-arg index="0" ref="carOilCardDao"/>
+	</bean>
+	<bean id="carPassFeeCardService" class="com.gdssoft.oa.service.admin.impl.CarPassFeeCardServiceImpl">
+		<constructor-arg index="0" ref="carPassFeeCardDao"/>
+	</bean>
+	<bean id="carInsuranceService" class="com.gdssoft.oa.service.admin.impl.CarInsuranceServiceImpl">
+		<constructor-arg index="0" ref="carInsuranceDao"/>
+	</bean>
+	<bean id="odCommonCommentsService" class="com.gdssoft.oa.service.archive.impl.OdCommonCommentsServiceImpl">
+		<constructor-arg index="0" ref="odCommonCommentsDao"/>
+	</bean>
+	<bean id="odFlowtypeService" class="com.gdssoft.oa.service.archive.impl.OdFlowtypeServiceImpl">
+		<constructor-arg index="0" ref="odFlowtypeDao"/>
+	</bean>
+	<bean id="odPersonalSignService" class="com.gdssoft.oa.service.archive.impl.OdPersonalSignServiceImpl">
+		<constructor-arg index="0" ref="odPersonalSignDao"/>
+	</bean>
+	<bean id="carService" class="com.gdssoft.oa.service.admin.impl.CarServiceImpl">
+		<constructor-arg index="0" ref="carDao"/>
+		<property name="carInsuranceService" ref="carInsuranceService"></property>
+		<property name="cartRepairService" ref="cartRepairService"></property>
+		<property name="carApplyService" ref="carApplyService"></property>
+	</bean>
+	<bean id="carUsingService" class="com.gdssoft.oa.service.admin.impl.CarUsingServiceImpl">
+		<constructor-arg index="0" ref="carUsingDao"/>
+	</bean>
+	<bean id="carDriverService" class="com.gdssoft.oa.service.admin.impl.CarDriverServiceImpl">
+		<constructor-arg index="0" ref="carDriverDao"/>
+	</bean>
+	<bean id="confRoomEquipService" class="com.gdssoft.oa.service.admin.impl.ConfRoomEquipServiceImpl">
+		<constructor-arg index="0" ref="confRoomEquipDao"/>
+	</bean>
+	<bean id="confAttendService" class="com.gdssoft.oa.service.admin.impl.ConfAttendServiceImpl">
+		<constructor-arg index="0" ref="confAttendDao"/>
+	</bean>
+	<bean id="carCardHistoryService" class="com.gdssoft.oa.service.admin.impl.CarCardHistoryServiceImpl">
+		<constructor-arg index="0" ref="carCardHistoryDao"/>
+	</bean>
+	<bean id="workSummaryService" class="com.gdssoft.oa.service.summary.impl.WorkSummaryServiceImpl">
+		<constructor-arg index="0" ref="workSummaryDao"/>
+	</bean>
+	<bean id="workSummarySumService" class="com.gdssoft.oa.service.summary.impl.WorkSummarySumServiceImpl">
+		<constructor-arg index="0" ref="workSummarySumDao"/>
+	</bean>
+	<bean id="departmentSummaryService" class="com.gdssoft.oa.service.summary.impl.DepartmentSummaryServiceImpl">
+		<constructor-arg index="0" ref="departmentSummaryDao"/>
+	</bean>
+	<bean id="personnelEmployeeService" class="com.gdssoft.oa.service.personal.impl.PersonnelEmployeeServiceImpl">
+		<constructor-arg index="0" ref="personnelEmployeeDao"/>
+	</bean>
+	<bean id="addrbookOuterService" class="com.gdssoft.oa.service.personal.impl.AddrbookOuterServiceImpl">
+		<constructor-arg index="0" ref="addrbookOuterDao"/>
+	</bean>
+	<bean id="sealApplyService" class="com.gdssoft.oa.service.flow.impl.SealApplyServiceImpl">
+		<constructor-arg index="0" ref="sealApplyDao"/>
+	</bean>
+	<bean id="personnelLeaveApplyService" class="com.gdssoft.oa.service.personal.impl.PersonnelLeaveApplyServiceImpl">
+		<constructor-arg index="0" ref="personnelLeaveApplyDao"/>
+	</bean>
+	<bean id="personnelCardHistoryService" class="com.gdssoft.oa.service.personal.impl.PersonnelCardHistoryServiceImpl">
+		<constructor-arg index="0" ref="personnelCardHistoryDao"/>
+	</bean>
+	<bean id="myToDoListService" class="com.gdssoft.oa.service.point.MyToDoListServiceImpl">
+		<property name="taskService" ref="flowTaskService"></property>
+		<property name="appUserService" ref="appUserService"></property>
+		<property name="sysConfigService" ref="sysConfigService"></property>
+		<!-- 20121115 add ccuserProcessService -->
+		<property name="ccuserProcessService" ref="ccuserProcessService"></property>
+		<property name="processRunService" ref="processRunService"></property>
+	</bean>
+	<bean id="addressbookService" class="com.gdssoft.oa.service.personal.impl.AddressbookServiceImpl">
+		<constructor-arg index="0" ref="addressbookDao"/>
+	</bean>
+	<bean id="snGeneratorService" class="com.gdssoft.oa.service.system.impl.SnGeneratorServiceImpl">
+		<constructor-arg index="0" ref="snGeneratorDao"/>
+	</bean>
+	<bean id="processReportService" class="com.gdssoft.oa.service.flow.impl.ProcessReportServiceImpl">
+		<constructor-arg index="0" ref="processReportDao"/>
+	</bean>
+	<bean id="ccuserProcessService" class="com.gdssoft.oa.service.flow.impl.CcuserProcessServiceImpl">
+		<constructor-arg index="0" ref="ccuserProcessDao"/>
+	</bean>
+	<bean id="appTeamService" class="com.gdssoft.oa.service.system.impl.AppTeamServiceImpl">
+		<constructor-arg index="0" ref="appTeamDao"/>
+	</bean>
+	<bean id="odCirUserService" class="com.gdssoft.oa.service.archive.impl.OdCirUserServiceImpl">
+		<constructor-arg index="0" ref="odCirUserDao"/>
+	</bean>
+	<bean id="odCirPaperService" class="com.gdssoft.oa.service.archive.impl.OdCirPaperServiceImpl">
+		<constructor-arg index="0" ref="odCirPaperDao"/>
+	</bean>
+	<bean id="flowStatisticsReportService" class="com.gdssoft.oa.service.flow.impl.FlowStatisticsReportServiceImpl">
+		<constructor-arg index="0" ref="flowStatisticsReportDao"/>
+	</bean>
+	<bean id="taskAgentService" class="com.gdssoft.oa.service.flow.impl.TaskAgentServiceImpl">
+		<constructor-arg index="0" ref="taskAgentDao"/>
+	</bean>
+   	
+	<bean id="repairRecArchiveService" class="com.gdssoft.oa.service.archive.impl.RepairRecArchiveServiceImpl">
+		<constructor-arg index="0" ref="repairRecArchiveDao"/>
+	</bean>
+	<bean id="vPersonalcardinfoService" class="com.gdssoft.oa.service.personal.impl.VPersonalcardinfoServiceImpl">
+		<constructor-arg index="0" ref="vPersonalcardinfoDao"/>
+	</bean>
+	<bean id="lawsService" class="com.gdssoft.oa.service.law.impl.LawsServiceImpl">
+		<constructor-arg index="0" ref="lawsDao"/>
+	</bean>
+	<bean id="lawsTypeService" class="com.gdssoft.oa.service.law.impl.LawsTypeServiceImpl">
+		<constructor-arg index="0" ref="lawsTypeDao"/>
+	</bean>
+	<bean id="lawsAuthorService" class="com.gdssoft.oa.service.law.impl.LawsAuthorServiceImpl">
+		<constructor-arg index="0" ref="lawsAuthorDao"/>
+	</bean>
+	<bean id="docFilesService" class="com.gdssoft.oa.service.system.impl.DocFilesServiceImpl">
+		<constructor-arg index="0" ref="docFilesDao"/>
+	</bean>
+	<bean id="docDirectoryService" class="com.gdssoft.oa.service.system.impl.DocDirectoryServiceImpl">
+		<constructor-arg index="0" ref="docDirectoryDao"/>
+	</bean>
+	<bean id="docFileListService" class="com.gdssoft.oa.service.system.impl.DocFileListServiceImpl">
+		<constructor-arg index="0" ref="docFileListDao"/>
+	</bean>
+	<bean id="carCostRecordService" class="com.gdssoft.oa.service.admin.impl.CarCostRecordServiceImpl">
+		<constructor-arg index="0" ref="carCostRecordDao"/>
+	</bean>
+	<bean id="carCostTypeService" class="com.gdssoft.oa.service.admin.impl.CarCostTypeServiceImpl">
+		<constructor-arg index="0" ref="carCostTypeDao"/>
+	</bean>
+	<bean id="carCostRecordDetailService" class="com.gdssoft.oa.service.admin.impl.CarCostRecordDetailServiceImpl">
+		<constructor-arg index="0" ref="carCostRecordDetailDao"/>
+	</bean>
+	<!-- 流程编号管理 -->
+	<bean id="fileSnConfigService" class="com.gdssoft.oa.service.snconfig.impl.FileSnConfigServiceImpl">
+		<constructor-arg index="0" ref="fileSnConfigDao"/>
+	</bean>
+	<bean id="flowSnConfigService" class="com.gdssoft.oa.service.snconfig.impl.FlowSnConfigServiceImpl">
+		<constructor-arg index="0" ref="flowSnConfigDao"/>
+	</bean>
+	<!-- 值班管理 -->
+	<bean id="dutyPlanService" class="com.gdssoft.oa.service.duty.impl.DutyPlanServiceImpl">
+		<constructor-arg index="0" ref="dutyPlanDao"/>
+	</bean>
+	<bean id="dutySignRecordService" class="com.gdssoft.oa.service.duty.impl.DutySignRecordServiceImpl">
+		<constructor-arg index="0" ref="dutySignRecordDao"/>
+	</bean>
+	<bean id="dutyStaffService" class="com.gdssoft.oa.service.duty.impl.DutyStaffServiceImpl">
+		<constructor-arg index="0" ref="dutyStaffDao"/>
+	</bean>
+	<bean id="flowTaskReportService" class="com.gdssoft.oa.service.flow.impl.FlowTaskReportServiceImpl">
+		<constructor-arg index="0" ref="flowTaskReportDao"/>
+	</bean>
+	<!-- start:  Generated for OutMeeting From Template: app-service.xml.beansvm  -->
+	<bean id="outMeetingService" class="com.gdssoft.oa.service.meeting.impl.OutMeetingServiceImpl">
+		<constructor-arg index="0" ref="outMeetingDao"/>
+	</bean>
+	<!-- end:  Generated for OutMeeting From Template: app-service.xml.beansvm  -->
+   
+	<!--常用单位-->
+	<bean id="commonUnitsService" class="com.gdssoft.oa.service.archive.impl.CommonUnitsServiceImpl">
+		<constructor-arg index="0" ref="commonUnitsDao"/>
+	</bean>
+	
+	<bean id="fileSnConfigOrderService" class="com.gdssoft.oa.service.snconfig.impl.FileSnConfigOrderServiceImpl">
+		<constructor-arg index="0" ref="fileSnConfigOrderDao"/>
+	</bean>
+	<bean id="mailAuthService" class="com.gdssoft.oa.service.point.MailAuthServiceImpl"/>
+	<!--旧OA数据查询-->
+	<bean id="jwAttachfileService" class="com.gdssoft.oa.service.jw.impl.JwAttachfileServiceImpl">
+		<constructor-arg index="0" ref="jwAttachfileDao"/>
+	</bean>
+	<bean id="jwArchivesService" class="com.gdssoft.oa.service.jw.impl.JwArchivesServiceImpl">
+		<constructor-arg index="0" ref="jwArchivesDao"/>
+	</bean>
+	<bean id="jwReceivedDocsService" class="com.gdssoft.oa.service.jw.impl.JwReceivedDocsServiceImpl">
+		<constructor-arg index="0" ref="jwReceivedDocsDao"/>
+	</bean>
+	<bean id="jwSentDocsService" class="com.gdssoft.oa.service.jw.impl.JwSentDocsServiceImpl">
+		<constructor-arg index="0" ref="jwSentDocsDao"/>
+	</bean>
+	<bean id="jwRecArchivesService" class="com.gdssoft.oa.service.jw.impl.JwRecArchivesServiceImpl">
+		<constructor-arg index="0" ref="jwRecArchivesDao"/>
+	</bean>
+	<bean id="jwSentArchivesService" class="com.gdssoft.oa.service.jw.impl.JwSentArchivesServiceImpl">
+		<constructor-arg index="0" ref="jwSentArchivesDao"/>
+	</bean>
+	<!--start: oa_common-->
+	<bean id="sysUserAllService" class="com.gdssoft.oa.service.system.impl.SysUserAllServiceImpl">
+		<constructor-arg index="0" ref="sysUserAllDao"/>
+	</bean>
+	<bean id="sysSchemaConfigService" class="com.gdssoft.oa.service.system.impl.SysSchemaConfigServiceImpl">
+		<constructor-arg index="0" ref="sysSchemaConfigDao"/>
+	</bean>
+	<bean id="sysOaSiteService" class="com.gdssoft.oa.service.system.impl.SysOaSiteServiceImpl">
+		<constructor-arg index="0" ref="sysOaSiteDao"/>
+	</bean>
+	<bean id="sysDepartmentConfigService" class="com.gdssoft.oa.service.system.impl.SysDepartmentConfigServiceImpl">
+		<constructor-arg index="0" ref="sysDepartmentConfigDao"/>
+	</bean>
+	<bean id="sysDataTransferService" class="com.gdssoft.oa.service.system.impl.SysDataTransferServiceImpl">
+		<constructor-arg index="0" ref="sysDataTransferDao"/>
+	</bean>
+	<bean id="sysDataTransferHisService" class="com.gdssoft.oa.service.system.impl.SysDataTransferHisServiceImpl">
+		<constructor-arg index="0" ref="sysDataTransferHisDao"/>
+	</bean>
+	<bean id="sysArchivesFilesService" class="com.gdssoft.oa.service.system.impl.SysArchivesFilesServiceImpl">
+		<constructor-arg index="0" ref="sysArchivesFilesDao"/>
+	</bean>
+	<bean id="sysArchivesFilesHisService" class="com.gdssoft.oa.service.system.impl.SysArchivesFilesHisServiceImpl">
+		<constructor-arg index="0" ref="sysArchivesFilesHisDao"/>
+	</bean>
+	<bean id="userContactsService" class="com.gdssoft.oa.service.point.UserContactsServiceImpl"/>
+	<bean id="sysInterfaceAccountService" class="com.gdssoft.oa.service.system.impl.SysInterfaceAccountServiceImpl">
+		<constructor-arg index="0" ref="sysInterfaceAccountDao"/>
+	</bean>
+	<bean id="sysServiceAccessLogService" class="com.gdssoft.oa.service.system.impl.SysServiceAccessLogServiceImpl">
+		<constructor-arg index="0" ref="sysServiceAccessLogDao"/>
+	</bean>
+	<bean id="sysServiceAccountService" class="com.gdssoft.oa.service.system.impl.SysServiceAccountServiceImpl">
+		<constructor-arg index="0" ref="sysServiceAccountDao"/>
+	</bean>
+	<bean id="sysServiceInterfaceService" class="com.gdssoft.oa.service.system.impl.SysServiceInterfaceServiceImpl">
+		<constructor-arg index="0" ref="sysServiceInterfaceDao"/>
+	</bean>
+	<!-- end: oa_common  -->
+	<bean id="archivesContactsService" class="com.gdssoft.oa.service.point.ArchivesContactsServiceImpl"/>
+	<bean id="receiveArchivesService"  class="com.gdssoft.oa.service.point.ReceiveArchivesServiceImpl"/>
+	<bean id="odArchivesccService" class="com.gdssoft.oa.service.archive.impl.OdArchivesccServiceImpl">
+		<constructor-arg index="0" ref="odArchivesccDao"/>
+	</bean>
+	<bean id="infoTypeService" class="com.gdssoft.oa.service.info.impl.InfoTypeServiceImpl">
+		<constructor-arg index="0" ref="infoTypeDao"/>
+	</bean>
+	<bean id="UserLoginService" class="com.gdssoft.oa.service.point.UserLoginServiceImpl"/>
+	<bean id="ArchivesMonitorService" class="com.gdssoft.oa.service.point.ArchivesMonitorServiceImpl"/>
+ 	<bean id="ActiivityService" class="com.gdssoft.oa.point.ActiivityServiceImpl"/>
+ 	<!-- 回收站 -->
+ 	<bean id="archivesRecycleLogService" class="com.gdssoft.oa.service.archive.impl.ArchivesRecycleLogServiceImpl">
+		<constructor-arg index="0" ref="archivesRecycleLogDao"/>
+	</bean>
+ 	<bean id="workContentService" class="com.gdssoft.oa.service.work.impl.WorkContentServiceImpl">
+		<constructor-arg index="0" ref="workContentDao"/>
+	</bean>
+ 	<bean id="workContentProcessService" class="com.gdssoft.oa.service.work.impl.WorkContentProcessServiceImpl">
+		<constructor-arg index="0" ref="workContentProcessDao"/>
+	</bean>
+	<bean id="sysMessageService" class="com.gdssoft.oa.service.system.impl.SysMessageServiceImpl">
+		<constructor-arg index="0" ref="sysMessageDao"/>
+	</bean>
+	<bean id="meetingTimesService" class="com.gdssoft.oa.service.meetingTimes.impl.MeetingTimesServiceImpl">
+		<constructor-arg index="0" ref="meetingTimesDao"/>
+	</bean>
+	<bean id="meetingNoticeService" class="com.gdssoft.oa.service.meetingNotice.impl.MeetingNoticeServiceImpl">
+		<constructor-arg index="0" ref="meetingNoticeDao"/>
+	</bean>
+</beans>

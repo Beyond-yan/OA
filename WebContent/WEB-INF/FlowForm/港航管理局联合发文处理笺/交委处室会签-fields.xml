@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fourthNext" label="部门后流向" type="varchar" length="100" isShowed="true" />
+   <field name="jiaoweichushiUserId" label="交委处室会签执行者id" type="varchar" length="100" isShowed="false" />
+</fields>

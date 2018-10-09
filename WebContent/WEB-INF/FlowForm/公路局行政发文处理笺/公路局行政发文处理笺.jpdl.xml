@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="gljSendNote" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="301,27,48,48" name="拟稿">
+		<transition g="-68,-21" name="to 拟稿结果" to="拟稿结果"/>
+	</start>
+	<decision g="301,102,48,48" name="拟稿结果">
+		<transition g="-80,-21" name="to 副处长核稿" to="副处长核稿">
+			<condition expr="#{depNext=='2'}"/>
+		</transition>
+		<transition g="182,124;184,336:-104,-21" name="to 部门负责人核稿" to="部门负责人核稿">
+			<condition expr="#{depNext=='1'}"/>
+		</transition>
+	</decision>
+	<task g="276,171,92,52" name="副处长核稿">
+		<transition g="-104,-21" name="to 副处长核稿结果" to="副处长核稿结果"/>
+	</task>
+	<task g="284,310,92,52" name="部门负责人核稿">
+		<transition g="-68,-21" name="to 核稿结果" to="部门核稿结果"/>
+	</task>
+	<task g="285,464,92,52" name="办公室审核">
+		<transition g="-68,-21" name="to 审核结果" to="审核结果"/>
+	</task>
+	<decision g="303,388,48,48" name="部门核稿结果">
+		<transition g="-80,-21" name="to 办公室审核" to="办公室审核">
+			<condition expr="#{roomNext=='1'}"/>
+		</transition>
+		<transition g="-44,-21" name="to 会签" to="会签">
+			<condition expr="#{roomNext=='2'}"/>
+		</transition>
+		<transition g="464,290:-68,-21" name="to 重新发起" to="重新发起">
+			<condition expr="#{roomNext=='3'}"/>
+		</transition>
+	</decision>
+	<decision g="310,538,48,48" name="审核结果">
+		<transition g="193,567:-104,-21" name="to 部门负责人核稿" to="部门负责人核稿">
+			<condition expr="#{officenext=='1'}"/>
+		</transition>
+		<transition g="-44,-21" name="to 签发" to="签发">
+			<condition expr="#{officenext=='2'}"/>
+		</transition>
+		<transition g="-75,-21" name="to 领导会签1" to="领导会签1">
+			<condition expr="#{officenext=='3'}"/>
+		</transition>
+	</decision>
+	<task g="438,389,92,52" name="会签">
+		<transition g="485,334:-104,-21" name="to 部门负责人核稿" to="部门负责人核稿"/>
+	</task>
+	<task g="293,622,92,52" name="签发">
+		<transition g="-68,-21" name="to 签发结果" to="签发结果"/>
+	</task>
+	<task g="303,814,92,52" name="编号">
+		<transition g="-92,-21" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<decision g="317,718,48,48" name="签发结果">
+		<transition g="-44,-21" name="to 编号" to="编号">
+			<condition expr="#{depNext=='1'}"/>
+		</transition>
+		<transition g="-44,-21" name="to 查阅" to="查阅">
+			<condition expr="#{depNext=='2'}"/>
+		</transition>
+	</decision>
+	<task g="133,721,92,52" name="查阅">
+		<transition g="179,843:-44,-21" name="to 编号" to="编号"/>
+	</task>
+	<task g="308,921,92,52" name="生成电子公文">
+		<transition g="-44,-21" name="to 分发" to="分发"/>
+	</task>
+	<task g="443,540,92,52" name="领导会签1">
+		<transition g="-75,-21" name="to 会签1结果" to="会签1结果"/>
+	</task>
+	<decision g="468,623,48,48" name="会签1结果">
+		<transition g="-44,-21" name="to 签发" to="签发">
+			<condition expr="#{createNext=='1'}"/>
+		</transition>
+		<transition g="-75,-21" name="to 领导会签2" to="领导会签2">
+			<condition expr="#{createNext=='2'}"/>
+		</transition>
+	</decision>
+	<task g="447,712,92,52" name="领导会签2">
+		<transition g="-44,-21" name="to 签发" to="签发"/>
+	</task>
+	<decision g="300,241,48,48" name="副处长核稿结果">
+		<transition g="-68,-21" name="to 重新发起" to="重新发起">
+			<condition expr="#{lastNext=='1'}"/>
+		</transition>
+		<transition g="-104,-21" name="to 部门负责人核稿" to="部门负责人核稿">
+			<condition expr="#{lastNext=='2'}"/>
+		</transition>
+	</decision>
+	<task g="429,237,92,52" name="重新发起">
+		<transition g="472,124:-68,-21" name="to 拟稿结果" to="拟稿结果"/>
+	</task>
+	<task g="315,1004,92,52" name="分发">
+      <transition name="to 确认办结" to="确认办结" g="-69,-22"/>
+	</task>
+	<end g="336,1221,48,48" name="结束"/>
+   <task name="确认办结" g="315,1111,92,52">
+      <transition name="to 结束" to="结束" g="-45,-22"/>
+   </task>
+</process>

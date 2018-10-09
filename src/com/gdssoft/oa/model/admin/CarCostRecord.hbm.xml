@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class
+		name="com.gdssoft.oa.model.admin.CarCostRecord" table="car_cost_record" select-before-update="false"
+		dynamic-update="false" dynamic-insert="false" optimistic-lock="version">
+		<id name="id" column="id" type="java.lang.Long" length="19">
+			<generator class="native"/>
+		</id>
+		<property name="itemQty" type="java.lang.Float" update="true" insert="true" access="property" column="item_qty" length="100" not-null="false" unique="false"/> 
+		<property name="totalAmt" type="java.lang.Float" update="true" insert="true" access="property" column="total_amt" length="100" not-null="false" unique="false"/> 
+		<property name="unitPrice" type="java.lang.Float" update="true" insert="true" access="property" column="unit_price" length="100" not-null="false" unique="false"/>  
+		<property name="costComment" type="java.lang.String" update="true" insert="true" access="property" column="cost_comment" length="500" not-null="false" unique="false"/>  
+		<property name="costDate" type="java.util.Date" update="true" insert="true" access="property" column="cost_date" length="19" not-null="false" unique="false"/>
+		<property name="createTime" type="java.util.Date" update="true" insert="true" access="property" column="create_date" length="19" not-null="false" unique="false"/>   
+		<property name="updateTime" type="java.util.Date" update="true" insert="true" access="property" column="update_date" length="19" not-null="false" unique="false"/>   
+		<property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="create_user" length="50" not-null="false" unique="false"/>   
+		<property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="update_user" length="50" not-null="false" unique="false"/>      
+		<many-to-one name="car" class="com.gdssoft.oa.model.admin.Car"> 
+			<column name="CAR_ID"/> 
+		</many-to-one> 
+    
+		<many-to-one name="carDriver" class="com.gdssoft.oa.model.admin.CarDriver"> 
+			<column name="COST_OPERATOR"/> 
+		</many-to-one> 
+    
+		<many-to-one name="costType" class="com.gdssoft.oa.model.admin.CarCostType"> 
+			<column name="COST_TYPE_ID"/> 
+		</many-to-one> 
+    
+		<set name="carCostRecordDetails"
+			table="car_cost_Record_detail"
+			lazy="false"
+			inverse="true"
+			cascade="all"
+			sort="unsorted"
+			>
+			<key>
+				<column name="record_id"/>
+			</key>
+			<one-to-many
+				class="com.gdssoft.oa.model.admin.CarCostRecordDetail"
+				/>
+		</set>     
+	</class>
+</hibernate-mapping>

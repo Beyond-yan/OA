@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="department" label="用车部门" type="varchar" length="0" isShowed="true" />
+    <field name="userFullname" label="用车人" type="varchar" length="0" isShowed="true" />
+	<field name="proposer" label="申请人" type="varchar" length="0" isShowed="true" />
+    <field name="reason" label="原因" type="varchar" length="0" isShowed="true" />
+    <field name="startTime" label="开始日期" type="varchar" length="0" isShowed="true" />
+    <field name="onDutyTime" label="开始时间" type="varchar" length="0" isShowed="true" />
+    <field name="endTime" label="截止日期" type="varchar" length="0" isShowed="true" />
+    <field name="offDutyTime" label="截止时间" type="varchar" length="0" isShowed="true" />
+    <field name="fromSite" label="出发地点" type="varchar" length="0" isShowed="true" />
+    <field name="toSite" label="到达地点" type="varchar" length="0" isShowed="true" />
+    <field name="notes" label="备注" type="varchar" length="0" isShowed="true" />
+    <field name="applyId" label="applyId" type="varchar" length="0" isShowed="false" />
+    <field name="ishavecardriver" label="ishavecardriver" type="varchar" length="0" isShowed="false" />
+    <field name="iseffective" label="iseffective" type="varchar" length="0" isShowed="false" />
+    <field name="defId" label="defId" type="varchar" length="0" isShowed="false" />
+    <field name="userId" label="userId" type="long" length="0" isShowed="false" />
+    <field name="flowAssignId" label="flowAssignId" type="varchar" length="0" isShowed="false" />
+</fields>

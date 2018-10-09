@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="ZGDisciplineCheckSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="509,32,91,62" name="拟稿">
+      <transition g="-64,-8" name="to 处室核稿" to="处室核稿"/>
+   </start>
+   <task g="462,123,143,54" name="处室核稿">
+      <transition g="-67,-9" name="to 核稿结果" to="核稿结果"/>
+   </task>
+   <decision g="507,217,48,56" name="核稿结果">
+      <transition g="-60,-17" name="to 处室会签(部门发起)" to="处室会签(部门发起)">
+      	<condition expr="#{inspectResult=='1'}"/>
+      </transition>
+      <transition g="-77,-17" name="to 办公室审核" to="办公室审核">
+      	<condition expr="#{inspectResult=='2'}"/>
+      </transition>
+      <transition name="to 重新发起" to="重新发起" g="-65,-17">
+      	<condition expr="#{inspectResult=='3'}"/>
+      </transition>
+   </decision>
+   <task g="198,211,151,55" name="处室会签(部门发起)">
+      <transition g="273,149:52,-19" name="to 处室核稿" to="处室核稿"/>
+   </task>
+   <task g="463,294,138,54" name="办公室审核">
+      <transition g="-69,-11" name="to 审核结果" to="审核结果"/>
+   </task>
+   <decision g="509,379,66,51" name="审核结果">
+      <transition g="272,404:52,-17" name="to 处室会签(办公室发起)" to="处室会签(办公室发起)">
+      	<condition expr="#{examineResult=='1'}"/>
+      </transition>
+      <transition g="782,402:-132,-19" name="to 领导会签" to="领导会签">
+      	<condition expr="#{examineResult=='2'}"/>
+      </transition>
+      <transition g="-41,-11" name="to 签发" to="签发">
+      	<condition expr="#{examineResult=='3'}"/>
+      </transition>
+   </decision>
+   <task g="194,296,156,52" name="处室会签(办公室发起)">
+      <transition g="-41,-19" name="to 办公室审核" to="办公室审核"/>
+   </task>
+   <task g="713,294,138,56" name="领导会签">
+      <transition g="-40,-18" name="to 办公室审核" to="办公室审核"/>
+   </task>
+   <task g="475,463,113,47" name="签发">
+      <transition g="-42,-8" name="to 编号" to="编号"/>
+   </task>
+   <task g="473,543,114,53" name="编号">
+      <transition g="-91,-7" name="to 生成电子公文" to="生成电子公文"/>
+   </task>
+   <task g="465,631,125,52" name="生成电子公文">
+      <transition g="-44,-10" name="to 分发" to="分发"/>
+   </task>
+   <end g="504,802,78,40" name="结束"/>
+   <task g="481,718,94,48" name="分发">
+      <transition g="-45,-9" name="to 结束" to="结束"/>
+   </task>
+   <task name="重新发起" g="710,213,140,53">
+      <transition name="to 处室核稿" to="处室核稿" g="779,150:-107,-18"/>
+   </task>
+</process>

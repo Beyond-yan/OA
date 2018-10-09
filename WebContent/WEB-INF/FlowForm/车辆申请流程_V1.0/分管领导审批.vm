@@ -1,0 +1,160 @@
+ChargePersonView=Ext.extend(Ext.Panel ,{
+	
+	// 构造函数
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+			
+		// 初始化组件
+		this.initUIComponents();
+		// 调用父类构造
+		ChargePersonView.superclass.constructor.call(this, {
+					id : 'ChargePersonView',
+					title : '分管领导审核',
+					region : 'center',
+					layout : 'form',
+					modal : true,
+					height : 780,
+					width : 700,
+					maximizable : true,
+					buttonAlign : 'center',
+					items : [this.detailPanel,this.formPanel],
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0),
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.save.createCallback(this,'${v.name}','${v.source}','${v.destination}')
+									})
+									#set ($count=$count+1)
+								#end
+					          ]
+
+				});
+	},// end of constructor
+	
+	initUIComponents : function(){
+		this.detailPanel = new Ext.Panel({
+			autoHeight : true,
+			columnWidth : 1,
+			autoScroll:true,
+			autoLoad:{
+				url:__ctxPath+ '/pages/common/carApplyInfo.jsp?archivesId='+ ${applyId},
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel(
+				{	
+					layout : 'form',
+					id : 'CarApplyForm',
+					frame : false,
+					border : true,
+					defaults : {
+						width : 500,
+						anchor : '98%,98%'
+					},
+					bodyStyle : 'padding-top:5px;padding-left:5px;',
+					formId : 'CarApplyFormId',
+					defaultType : 'textfield',
+					items : [
+
+								{
+									xtype:"htmleditor",
+									name:"des",
+									anchor:"100%",
+									fieldLabel:"审批意见",
+									height:150,
+									width:300
+								},
+								{
+									fieldLabel : '审核',
+									name : 'result',
+									id : 'result',
+									xtype : 'combo',
+									mode : 'local',
+									allowBlank : false,
+									editable : false,
+									triggerAction : 'all',
+									value : '1',
+									store : [ [ '1', '同意' ],
+											[ '2', '驳回' ] ]
+								}
+							]
+				});// end of the formPanel
+
+	},
+	
+	/**
+	 * 保存记录
+	 */
+	save : function(panel,signalName,taskName,destName) {
+		var taskId = panel.taskId;
+		var userId=${userId};
+		
+		var piId=${defId};
+		var opinion= panel.formPanel.getCmpByName('des').getValue();
+		var superOption= panel.formPanel.getCmpByName('result').getValue();
+		var applyRepId =${applyId};
+		var flowAssignId=null;
+		var resultRep=null;
+		if(superOption=='1'){
+			resultRep="同意";
+		}else {
+			resultRep="驳回";
+			flowAssignId=userId;
+				if(opinion==null||opinion==''||opinion==undefined){
+			Ext.Msg.alert("注意", "驳回必须填写意见！");
+			return;
+				}
+		}
+		var myMask = new Ext.LoadMask(Ext.getBody(), {
+							msg : '正在提交处理，请稍等！',
+							removeMask : true
+								// 完成后移除
+							});
+						myMask.show();
+		
+		var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+		var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			Ext.Ajax.request({
+				url:__ctxPath+ "/flow/nextProcessActivity.do",
+				params:{taskId:taskId,signalName:signalName,activityName:taskName,destName:destName,resultRep:resultRep,opinion:opinion,applyRepId:applyRepId,
+				        flowAssignId:flowAssignId,sendMail:sendMail,sendMsg:sendMsg,userId:userId,piId:piId,status:resultRep,comments:opinion},
+				method : 'POST',
+				success : function(response, opts) {
+					Ext.ux.Toast.msg("操作信息", "审核成功！");
+					if(superOption=='1'){
+
+						Ext.Ajax.request({
+							url:__ctxPath+ "/admin/updateStatusCarApply.do",
+							method : 'POST',
+							params:{
+							applyRepId:applyRepId
+						    },
+						    success : function(response, opts){
+						    	Ext.ux.Toast.msg("操作信息", "审核成功！");
+						    }
+						})
+						//业务逻辑操作
+					}
+					var tabPanel = Ext.getCmp('centerTabPanel');
+					
+					tabPanel.remove(Ext.getCmp('ProcessForm'+taskId));
+					//刷新列表窗口							
+					if(Ext.getCmp('TsItserviceApplyGrid') != null){								
+						Ext.getCmp('TsItserviceApplyGrid').getStore().reload();		
+						}							
+					refreshTaskPanelView();
+					myMask.hide();
+				},
+				failure : function(response, opts) {
+
+					
+				}
+			
+			});
+
+	}// end of save
+})

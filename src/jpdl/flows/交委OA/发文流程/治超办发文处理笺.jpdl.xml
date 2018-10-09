@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="ZCBSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="453,-9,48,48" name="拟稿">
+      <transition g="-44,-21" name="to 核稿" to="核稿"/>
+   </start>
+   <task g="432,56,92,52" name="核稿">
+      <transition g="-77,-21" name="to exclusive2" to="exclusive2"/>
+   </task>
+   <task g="442,193,92,52" name="签发">
+      <transition g="-77,-21" name="to exclusive1" to="exclusive1"/>
+   </task>
+   <decision g="465,285,48,48" name="exclusive1">
+      <transition g="-44,-21" name="to 编号" to="编号">
+        <condition expr="#{look=='2'}"/>
+      </transition>
+      <transition g="-44,-21" name="to 查阅" to="查阅">
+        <condition expr="#{look=='1'}"/>
+      </transition>
+   </decision>
+   <task g="259,282,92,52" name="查阅">
+      <transition g="301,222:-44,-21" name="to 签发" to="签发"/>
+   </task>
+   <task g="448,373,92,52" name="编号">
+      <transition g="-92,-21" name="to 生成电子公文" to="生成电子公文"/>
+   </task>
+   <task g="453,462,92,52" name="生成电子公文">
+      <transition g="-44,-21" name="to 分发" to="分发"/>
+   </task>
+   <task g="458,549,92,52" name="分发">
+      <transition g="-49,-21" name="to end1" to="end1"/>
+   </task>
+   <end g="481,627,48,48" name="end1"/>
+   <decision g="457,123,48,48" name="exclusive2">
+      <transition g="-44,-21" name="to 签发" to="签发">
+      <condition expr="#{depNext=='1'}"/></transition>
+      <transition g="-68,-21" name="to 重新发起" to="重新发起">
+      <condition expr="#{depNext=='2'}"/></transition>
+   </decision>
+   <task g="620,124,92,52" name="重新发起">
+      <transition g="665,80:-44,-21" name="to 核稿" to="核稿"/>
+   </task>
+</process>

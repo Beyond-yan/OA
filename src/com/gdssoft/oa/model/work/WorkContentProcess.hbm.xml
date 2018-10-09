@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.work.WorkContentProcess" table="WORK_CONTENT_PROCESS" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="id" column="ID" type="java.lang.Long"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="content" type="java.lang.String" update="true" insert="true" access="property" column="CONTENT" length="20" not-null="false" unique="false"/>  
+    <property name="workContentId" type="java.lang.Long" update="true" insert="true" access="property" column="WORK_CONTENT_ID" length="20" not-null="false" unique="false"/>  
+    <property name="createuser" type="java.lang.String" update="true" insert="true" access="property" column="CREATEUSER" length="10" not-null="false" unique="false"/>  
+  	<property name="createtime" type="java.util.Date" update="true" insert="true" access="property" column="CREATETIME"  not-null="false" unique="false"/>  
+  	<set name="processFiles" table="WORK_CONTENT_PROCESS_FILES" lazy="true" inverse="false">
+      <key column="PROCESSID"/>  
+		<many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="FILEID"/> 
+    </set>
+  </class> 
+</hibernate-mapping>

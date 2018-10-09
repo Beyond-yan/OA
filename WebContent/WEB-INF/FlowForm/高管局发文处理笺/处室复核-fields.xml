@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="roomNext" label="处室核稿后流向" type="varchar" length="100" isShowed="true" />
+</fields>

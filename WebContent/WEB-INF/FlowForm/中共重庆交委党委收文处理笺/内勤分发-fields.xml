@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="sentNext"  type="long" length="0" isShowed="false" />
+	<field name="proposeId" label="拟办负责人" type="long" length="0" isShowed="false" />
+	<field name="officeExerId" label="内勤办理人" type="long" length="0" isShowed="false" />
+</fields>

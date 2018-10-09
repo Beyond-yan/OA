@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="flowAssignId" label="下一步执行人ID" type="varchar" isShowed="false"/>
+	<field name="signUserIds" label="会签人员ID" type="varchar" isShowed="false"/>
+	<field name="depLeaderOption" label="流转结果" type="varchar" isShowed="false"/>
+	<field name="leaderRead.leaderOpinion" label="审核意见" type="varchar" length="1024"/>
+</fields>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="WorkNoticeRecord" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="387,33,48,48" name="收文登记">
+      <transition g="-105,-22" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </start>
+   <task g="340,131,143,53" name="办公室主任拟办">
+      <transition g="-93,-22" name="to 主任拟办结果" to="主任拟办结果"/>
+   </task>
+   <decision g="391,223,48,48" name="主任拟办结果">
+      <transition g="-69,-22" name="to 拟办分发" to="拟办分发">
+      		<condition expr="#{zhurResult=='1'}"/>
+      </transition>
+      <transition g="-69,-22" name="to 重新登记" to="重新登记">
+     	<condition expr="#{zhurResult=='2'}"/>
+      </transition>
+   </decision>
+   <task g="133,221,92,52" name="重新登记">
+      <transition g="179,157:-57,19" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </task>
+   <task g="340,316,143,56" name="拟办分发">
+      <transition g="-93,-22" name="to 拟办分发并发" to="拟办分发并发"/>
+   </task>
+   <task assignee="#{leaderUserId}" g="617,314,92,52" name="领导批示">
+      <transition g="-23,-22" name="to 拟办分发" to="拟办分发"/>
+   </task>
+   <task assignee="#{nibanUserId}" g="363,616,92,52" name="处室内勤">
+      <transition g="-87,-11" name="to 处内拟办" to="处内拟办"/>
+   </task>
+   <task g="364,702,92,52" name="处内拟办">
+      <transition g="-102,-12" name="to 处内办理分支" to="处内办理分支"/>
+   </task>
+   <foreach g="387,788,48,48" in="#{banliUserIds}" name="处内办理分支" var="banliUserId">
+      <transition g="-87,-17" name="to 处内办理" to="处内办理"/>
+   </foreach>
+   <task assignee="#{banliUserId}" g="365,879,92,52" name="处内办理">
+      <transition g="-107,-16" name="to 处内办理合并" to="处内办理合并"/>
+   </task>
+   <fork g="385,430,48,48" name="拟办分发并发">
+      <transition g="-93,-22" name="to 领导批示分支" to="领导批示分支"/>
+      <transition g="-100,-15" name="to 处室拟办分支" to="处室拟办分支"/>
+   </fork>
+   <foreach g="642,433,48,48" in="#{leaderUserIds}" name="领导批示分支" var="leaderUserId">
+      <transition g="-69,-22" name="to 领导批示" to="领导批示"/>
+   </foreach>
+   <foreach g="385,526,48,48" in="#{nibanUserIds}" name="处室拟办分支" var="nibanUserId">
+      <transition g="-84,-17" name="to 处室内勤" to="处室内勤"/>
+   </foreach>
+   <join g="387,972,48,48" multiplicity="200" name="处内办理合并">
+      <transition name="to 工作确认" to="工作确认" g="-76,-8"/>
+   </join>
+   <task g="368,1055,92,52" name="工作确认">
+      <transition name="to 确认结果" to="确认结果" g="-69,-22"/>
+   </task>
+   <decision name="确认结果" g="390,1135,48,48">
+      <transition name="to 结束" to="结束" g="-45,-22">
+      	<condition expr="#{querResult=='2'}"/>
+      </transition>
+      <transition name="to 拟办分发" to="拟办分发" g="189,1160;190,344:-69,-22">
+      	<condition expr="#{querResult=='1'}"/>
+      </transition>
+   </decision>
+   <end g="392,1234,48,48" name="结束"/>
+</process>

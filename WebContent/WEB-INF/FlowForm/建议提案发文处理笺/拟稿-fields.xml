@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+    <field name="flowStartUserId"  type="varchar" length="0" isShowed="false" />
+	<field name="fileIds" label="附件id" type="varchar" length="1000" isShowed="false" />
+    <field name="flowAssignId"  type="varchar" length="0" isShowed="false" />
+    <field name="archivesId"  type="varchar" length="0" isShowed="false" />
+    <field name="defId" type="varchar" isShowed="false"/>
+    <field name="isReserveNo" type="varchar" length="10" isShowed="true"/>
+</fields>

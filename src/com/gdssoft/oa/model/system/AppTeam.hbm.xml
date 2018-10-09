@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.system.AppTeam"
+        table="app_team"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="teamId"
+            column="team_id"
+            type="java.lang.Long"
+            length="19"
+        >
+            <generator class="native">
+            </generator>
+        </id>
+         <property
+            name="teamName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="team_name"
+            length="50"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="teamDesc"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="team_desc"
+            length="200"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createTime"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="create_time"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>
+			<column name="creator_id" />
+		</many-to-one>
+		
+		<set name="members" table="user_team" cascade="save-update" inverse="false" lazy="true">
+      		<key column="teamId"/>
+		   <many-to-many fetch="join" class="com.gdssoft.oa.model.system.AppUser" column="userId"/> 
+       </set>  
+    </class>
+</hibernate-mapping>

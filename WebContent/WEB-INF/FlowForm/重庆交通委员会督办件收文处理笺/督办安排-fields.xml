@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="departmentId" label="主办部门ID" type="varchar" isShowed="false"/>
+	<field name="flowNext" label="流程下一步执行" type="varchar" isShowed="false"/>
+	<field name="duBanAnPaiUserId" label="督办安排负责人" type="varchar" isShowed="false"/>
+</fields>

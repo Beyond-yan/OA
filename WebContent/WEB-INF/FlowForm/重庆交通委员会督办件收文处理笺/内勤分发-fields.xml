@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="nqffNext" label="指派结果" type="varchar" isShowed="false"/>
+	<field name="nqffNextUserId" label="协办后执行人" type="varchar" length="320" isShowed="false"/>
+	<field name="officeExerId" label="内勤办理人" type="long" length="0" isShowed="false" />
+</fields>

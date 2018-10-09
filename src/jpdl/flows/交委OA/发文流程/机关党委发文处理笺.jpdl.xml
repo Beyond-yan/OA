@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="JGDWSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+<start g="255,10,48,48" name="拟稿">
+		<transition g="-31,-13" name="to 处室初核" to="处室初核"/>
+	</start>
+	<task g="222,111,119,52" name="处室初核">
+		<transition g="-29,-16" name="to 初核送出" to="初核送出"/>
+	</task>
+	<decision g="260,220,48,48" name="初核送出">
+		<transition g="-18,-13" name="to 会签" to="处室会签(部门发起)">
+			<condition expr="#{depNext=='1'}"/>
+		</transition>
+		<transition g="391,244;395,487:-95,-135" name="to 办公室审核" to="办公室审核">
+			<condition expr="#{depNext=='3'}"/>
+		</transition>
+		<transition g="-37,-9" name="to 处室复核" to="处室复核">
+		   <condition expr="#{depNext=='2'}"/>
+		</transition>
+      <transition g="321,198;400,198:-24,-12" name="to 重新发起" to="重新发起">
+         <condition expr="#{depNext=='4'}"/>
+      </transition>
+	</decision>
+	<task g="69,219,124,52" name="处室会签(部门发起)">
+      <transition g="128,195;187,194:-23,5" name="to 处室初核" to="处室初核"/>
+	</task>
+	<task g="224,304,126,52" name="处室复核">
+		<transition g="-28,-7" name="to 处室送出" to="处室送出"/>
+	</task>
+	<task g="242,460,92,52" name="办公室审核">
+		<transition g="-33,-5" name="to 办公室送出" to="办公室送出"/>
+	</task>
+	<task g="38,562,144,52" name="处室会签(办公室发起)">
+		<transition g="109,484:-14,-15" name="to 办公室审核" to="办公室审核"/>
+	</task>
+	<decision g="264,564,48,48" name="办公室送出">
+		<transition g="-70,-21" name="to 处室会签(办公室发起)" to="处室会签(办公室发起)">
+			<condition expr="#{officeNext=='1'}"/>
+		</transition>
+		<transition g="-21,-17" name="to 领导会签" to="领导会签">
+			<condition expr="#{officeNext=='2'}"/>
+		</transition>
+		<transition g="-16,-1" name="to 签发" to="签发">
+			<condition expr="#{officeNext=='4'}"/>
+		</transition>
+      <transition g="229,653;13,652;12,327:156,-14" name="to 处室复核" to="处室复核">
+          <condition expr="#{officeNext=='3'}"/>
+      </transition>
+	</decision>
+	<decision g="263,384,48,48" name="处室送出">
+		<transition g="-36,-9" name="to 办公室审核" to="办公室审核">
+			<condition expr="#{roomNext=='1'}"/>
+		</transition>
+      <transition g="43,405;43,336;38,135:128,55" name="to 处室初核" to="处室初核">
+         <condition expr="#{roomNext=='2'}"/>
+      </transition>
+	</decision>
+	<decision g="259,966,48,48" name="生成电子公文完成">
+		<transition g="386,990;386,694:-46,154" name="to 签发" to="签发">
+			<condition expr="#{createNext=='1'}"/>
+		</transition>
+		<transition g="-17,-14" name="to 分发" to="分发">
+			<condition expr="#{createNext=='2'}"/>
+		</transition>
+	</decision>
+	<task g="389,559,92,52" name="领导会签">
+		<transition g="434,519:-68,-15" name="to 办公室审核" to="办公室审核"/>
+	</task>
+	<task g="241,666,92,52" name="签发">
+		<transition g="-19,-9" name="to 编号" to="编号"/>
+	</task>
+	<task g="240,771,92,52" name="编号">
+		<transition g="-62,-9" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="238,869,93,52" name="生成电子公文">
+		<transition g="-64,-4" name="to 生成电子公文完成" to="生成电子公文完成"/>
+	</task>
+	<task g="237,1050,92,52" name="分发">
+		<transition g="-17,-9" name="to 结束" to="结束"/>
+	</task>
+	<end g="261,1134,48,48" name="结束"/>
+   <task g="470,219,92,52" name="重新发起">
+      <transition g="513,136:-65,-17" name="to 处室初核" to="处室初核"/>
+   </task>
+</process>

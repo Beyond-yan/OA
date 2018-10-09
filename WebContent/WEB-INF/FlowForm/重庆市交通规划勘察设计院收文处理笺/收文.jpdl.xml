@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="shejiyuanshouwen" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="398,34,50,46" name="收文登记">
+      <transition g="-65,-17" name="to 登记结果" to="登记结果"/>
+   </start>
+   <decision g="397,123,46,45" name="登记结果">
+      <transition g="-101,-17" name="to 办公室主任拟办" to="办公室主任拟办">
+      	<condition expr="#{chooseDirection=='1'}"/>
+      </transition>
+      <transition g="267,148;267,312;389,313:-65,-17" name="to 拟办分发" to="拟办分发">
+      	<condition expr="#{chooseDirection=='2'}"/>
+      </transition>
+   </decision>
+   <task g="355,214,132,58" name="办公室主任拟办">
+      <transition g="-65,-17" name="to 拟办分发" to="拟办分发"/>
+   </task>
+   <task g="363,328,118,54" name="拟办分发">
+      <transition g="-65,-17" name="to 拟办结果" to="拟办结果"/>
+   </task>
+   <decision g="397,435,78,44" name="拟办结果">
+      <transition g="-22,-16" name="to 领导批示" to="领导批示">
+      	<condition expr="#{isOfficeLeader=='yes'}"/>
+      </transition>
+      <transition g="642,459:-65,-17" name="to 重新登记" to="重新登记">
+      	<condition expr="#{isOfficeLeader=='resave'}"/>
+      </transition>
+      <transition name="to 处室办理" to="处室办理" g="-69,-22">
+      	<condition expr="#{isOfficeLeader=='banli'}"/>
+      </transition>
+      <transition name="to 结束" to="结束" g="-45,-22">
+      	<condition expr="#{isOfficeLeader=='end'}"/>
+      </transition>
+   </decision>
+   <task g="175,429,121,57" name="领导批示">
+      <transition g="235,356:22,-17" name="to 拟办分发" to="拟办分发"/>
+   </task>
+   <task g="503,330,128,50" name="处室办理">
+      <transition name="to 拟办分发" to="拟办分发" g="-69,-22"/>
+   </task>
+   <end g="398,532,36,45" name="结束"/>
+   <task g="574,215,133,56" name="重新登记">
+      <transition g="638,147:-65,-17" name="to 登记结果" to="登记结果"/>
+   </task>
+</process>

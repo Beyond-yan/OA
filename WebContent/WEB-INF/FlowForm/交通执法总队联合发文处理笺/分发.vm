@@ -1,0 +1,108 @@
+TrafficEnforceTeamSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		TrafficEnforceTeamSentArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 650,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/chongqingSentArchives/TrafficEnforceTeamSentFiles.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/updateFileSharedArchives.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [{	xtype:'hidden',
+						name:'archives.archivesId',
+						value:'${archivesId}'
+					},{
+						xtype : 'radiogroup',
+						fieldLabel : '是否共享',
+						items : [{
+									boxLabel : '共享',
+									name : 'archives.isShared',
+									checked : true,
+									inputValue : 1
+								}, {
+									boxLabel : '不共享',
+									name : 'archives.isShared',
+									inputValue : 0
+						}]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			result='完成';		
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					status:result,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg
+					//comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				success:function(fp, action){
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '分发成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				 }
+			});
+		}
+	}// end of save
+})

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="sz_recieve_new_20171216" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="239,11,48,48" name="收文登记">
+      <transition g="-45,-22" name="to 拟办" to="拟办"/>
+   </start>
+   <task g="217,74,92,52" name="拟办">
+      <transition g="-69,-22" name="to 拟办结果" to="拟办结果"/>
+   </task>
+   <foreach g="237,146,48,48" in="#{foreachUserIds}" name="拟办结果" var="foreachUserId">
+      <transition g="-79,-22" name="to 审核选择" to="审核选择"/>
+   </foreach>
+   <task assignee="#{foreachUserId}" g="163,292,92,52" name="办理">
+      <transition g="-93,-22" name="to 审核办理结果" to="审核办理结果"/>
+   </task>
+   <task assignee="#{foreachUserId}" g="271,292,92,52" name="审核">
+      <transition g="22,-22" name="to 审核办理结果" to="审核办理结果"/>
+   </task>
+   <decision g="242,374,48,48" name="审核办理结果">
+      <transition g="136,400;135,170:-72,-22" name="to 拟办结果" to="拟办结果">
+      	<condition expr="#{transactOpt=='1'}"/>
+      </transition>
+      <transition g="-69,-22" name="to 合并" to="合并">
+      	<condition expr="#{transactOpt=='2'}"/>
+      </transition>
+   </decision>
+   <decision g="238,218,48,48" name="审核选择">
+      <transition g="-48,-16" name="to 办理" to="办理">
+		<condition expr="#{toDoOpt=='1'}"/>
+	  </transition>
+      <transition g="6,-16" name="to 审核" to="审核">
+		<condition expr="#{toDoOpt=='2'}"/>
+	  </transition>
+   </decision>
+   <join g="245,448,48,48" multiplicity="#{foreachUserIdsLengths}" name="合并">
+      <transition g="-52,-22" name="to 确认办结" to="确认办结"/>
+   </join>
+   <end g="247,579,48,48" name="结束"/>
+   <task g="224,513,92,52" name="确认办结">
+      <transition g="-45,-22" name="to 结束" to="结束"/>
+   </task>
+</process>

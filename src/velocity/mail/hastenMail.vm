@@ -1,0 +1,7 @@
+<html>
+	<title></title>
+	<body>
+		<p>${appUser.fullname}您好:</p>
+		<p>${content}</p>
+	</body>
+</html>

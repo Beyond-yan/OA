@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="GBK"?>
+<process name="CDZReceiveArchivesFiles" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="370,30,50,50" name="收文登记">
+		<transition g="-48,-17" name="to 办公室审核" to="办公室审核" />
+	</start>
+	<task g="330,130,120,50" name="办公室审核">
+		<transition g="-48,-17" name="to 审核结果" to="审核结果" />
+	</task>
+	<decision g="370,230,50,50" name="审核结果">
+		<transition g="-48,-17" name="to 站领导批示" to="站领导批示">
+			<condition expr="#{shenheResult=='1'}" />
+		</transition>
+		<transition g="-48,-17" name="to 处室拟办" to="处室拟办">
+			<condition expr="#{shenheResult=='2'}" />
+		</transition>
+	</decision>
+	<task g="500,230,120,50" name="站领导批示">
+		<transition g="560,155:-48,-17" name="to 办公室审核" to="办公室审核" />
+	</task>
+	<task g="330,330,120,50" name="处室拟办">
+		<transition g="-48,-17" name="to 拟办结果" to="拟办结果" />
+	</task>
+	<decision g="370,430,50,50" name="拟办结果">
+		<transition g="-48,-17" name="to 协办处室" to="协办处室">
+			<condition expr="#{nibanResult=='1'}" />
+		</transition>
+		<transition g="-48,-17" name="to 处室承办" to="处室承办">
+			<condition expr="#{nibanResult=='2'}" />
+		</transition>
+	</decision>
+	<task g="500,430,120,50" name="协办处室">
+		<transition g="560,555:-48,7" name="to 处室承办" to="处室承办" />
+	</task>
+	<task g="330,530,120,50" name="处室承办">
+		<transition g="-28,-17" name="to 归档" to="归档" />
+	</task>
+	<task g="330,630,120,50" name="归档">
+		<transition g="-28,-17" name="to 结束" to="结束" />
+	</task>
+	<end g="370,730,50,50" name="结束" />
+</process> 

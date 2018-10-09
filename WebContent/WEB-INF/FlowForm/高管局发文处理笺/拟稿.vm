@@ -1,0 +1,554 @@
+GGJSentFilesStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GGJSentFilesStart.superclass.constructor.call(this, {
+					id : 'GGJSentFilesStart',
+					title : '高管局发文处理笺',
+					layout : 'form',
+					iconCls : 'menu-archive-draft',
+					modal : true,
+					width : 900,
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [{
+								text : '启动流程',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}]
+				});
+	},
+	save : function() {
+		Ext.getCmp('GGJSentArchiveStart.reviewUserName').setValue(Ext
+				.get('GGJ_flowAssignId').dom.value);
+		var defId = this.defId;
+		if (this.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}
+		if (this.formPanel.getForm().isValid()) {
+			var formPanel = this.formPanel;
+
+			var docParams = [];
+			for (var i = 0, cnt = this.store.getCount(); i < cnt; i++) {
+				docParams.push(this.store.getAt(i).data);
+			}
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					docs : Ext.encode(docParams)
+				},
+				success : function(fp, action) {
+					var archivesId = action.result.archivesId;
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					var fileIds = Ext.getCmp('GGJsentAttachments.fileIds')
+							.getValue();
+					var flowAssignId = Ext.getCmp('GGJ_flowAssignId').getValue();
+					var isReserveNo=formPanel.getCmpByName('archives.isReserveNo').getGroupValue();
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/saveProcessActivity.do',
+						method : 'post',
+						waitMsg : '正在发起流程...',
+						params : {
+							defId : defId,
+							isReserveNo:isReserveNo,
+							flowStartUserId:curUserInfo.userId,
+							flowAssignId:flowAssignId,
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo:sendInfo,
+							archivesId : archivesId,
+							fileIds : fileIds?fileIds:'_',
+							startFlow : true
+						},
+						success : function(response, options) {
+							Ext.Ajax.request({
+								url : __ctxPath + '/archive/updateRunIdArchives.do',
+								params : {
+									'archivesId' : archivesId,
+									'runId' : options.result.runId
+								},
+								method:'post',
+								success : function(response, options) {
+									Ext.ux.Toast.msg('操作信息', '拟稿成功！');
+									Ext.getCmp('centerTabPanel').remove(Ext
+											.getCmp('ProcessRunStart' + defId));
+									refreshTaskPanelView();
+								}
+							});
+						}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	initUIComponents : function() {
+		this.docGridPanel = new ArchivesUtil({
+					panelId : 'GGJSentFilesStart',
+					isStart : true,
+					archivesId : this.archivesId
+					}).getGridPanelWithFullTools();
+		var fp=this.formPanel = new Ext.FormPanel({
+			id : 'GGJSentFilesForm',
+			url : __ctxPath + '/archive/saveNormalArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 80,
+			width : 900,
+			padding : '5px',
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 200,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+								fieldLabel : "拟稿部门",
+								//name : 'archives.issueDep',
+								id : 'GGJsentDoc.issueDep',
+								value : curUserInfo.depName,
+								readOnly : true
+							},  {
+								xtype : 'combo',
+								name : 'archives.sources',
+								triggerAction : 'all',
+								editable : false,
+								fieldLabel : '行文方向',
+								store : ['上行文', '平行文', '下行文']
+							}, {
+								xtype : 'combo',
+								fieldLabel : '发文单位',
+								name : 'archives.issueDep',
+								triggerAction : 'all',
+								mode :'local',
+								listWidth :240,
+								editable : false,
+								store : ['重庆市交通委员会','中共重庆市交通委员会', '中共重庆市交通委员会机关党委',
+										'中共重庆市交通纪律检查委员会', '共青团重庆市交通委员会',
+										'重庆市交通委员会直属机关工会','高管局']
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '缓急',
+								triggerAction : 'all',
+								allowBlank : true,
+								editable : false,
+								name : 'archives.urgentLevel',
+								emptyText : '急缓程度',
+								store : ['特急', '急件', '加急', '平急']
+							}, {
+								fieldLabel : '拟稿',
+								name : "archives.issuer",
+								readOnly : true,
+								value : curUserInfo.fullname
+							}, {
+								xtype : 'combo',
+								fieldLabel : '文种',
+								hiddenName : "archives.archivesType.typeId",
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/archive/comboArchivesType.do',
+											autoLoad : true,
+											fields : ['typeId', 'typeName']
+										})
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '密级',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank : true,
+								name : 'archives.privacyLevel',
+								id:'poarchives.privacyLevel',
+								emptyText : '密级程度',
+								store : ['一般', '秘密', '机密', '绝密'],
+								listeners: {
+									'select':function(combo){
+										if(combo.getValue()!='一般'){
+											Ext.getCmp('GGJSentArchiveStart.public').allowBlank=true;
+											Ext.getCmp('GGJSentArchiveStart.public').disable();						
+											Ext.getCmp('GGJ_unPublicReasons').allowBlank=true,
+											Ext.getCmp('GGJ_unPublicReasons').disable();
+											Ext.getCmp('hiddIsPublic').setValue(0);
+			                                Ext.getCmp('hiddUnPublicReasons').setValue(null);
+			                                Ext.getCmp('GGJ_unPublicReasons').setValue(null);
+			                               // Ext.getCmp('GGJ_unPublicReasons').allowBlank = true;
+			                                Ext.getCmp('hiddIsPublic').setDisabled(false);
+		                                    Ext.getCmp('hiddUnPublicReasons').setDisabled(false);
+		                                    
+		                                   // Ext.getCmp('GGJSentFilesCounts').show();
+											//Ext.getCmp('GGJSentFilesCounts').el.parent().parent().show();
+											//Ext.getCmp('GGJSentFilesCounts').allowBlank = false;
+										}else{
+											Ext.getCmp('GGJSentArchiveStart.public').reset();
+											Ext.getCmp('GGJSentArchiveStart.public').setDisabled(false);
+											Ext.getCmp('GGJSentArchiveStart.public').allowBlank=false;
+											Ext.getCmp('GGJ_unPublicReasons').allowBlank=false,
+											Ext.getCmp('GGJ_unPublicReasons').setDisabled(false);
+											Ext.getCmp('hiddIsPublic').disable();
+		                                    Ext.getCmp('hiddUnPublicReasons').disable();
+		                                    
+				                            //Ext.getCmp('GGJSentFilesCounts').hide();
+											//Ext.getCmp('GGJSentFilesCounts').el.parent().parent().hide();
+											//Ext.getCmp('GGJSentFilesCounts').allowBlank = true;
+										}
+										}
+									}
+							}, {
+								xtype : "hidden",
+								name : "archives.reviewUserName",
+								id : "GGJSentArchiveStart.reviewUserName"
+							}, {
+								xtype : "combo",
+								// hiddenName : "archives.reviewUserName",
+								hiddenName : "archives.reviewUser",
+								id:'GGJ_flowAssignId',
+								fieldLabel : "核稿",
+								valueField : 'flowAssignId',
+								displayField : 'flowAssignName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/system/arrLeadersAppUser.do?roles='+roleMap.get('officeDeputyDirectorRoleID')+','+roleMap.get('officeDirectorRoleID'),
+											autoLoad : true,
+											fields : ['flowAssignId',
+													'flowAssignName']
+										})
+							}, {
+								xtype : 'numberfield',
+								name : 'archives.fileCounts',
+								id : 'GGJSentFilesCounts',
+								fieldLabel : '份数',
+								value : 1
+							}, {
+								xtype : 'hidden',
+								name : 'archives.archType',
+								value : 0
+							}]
+				}]
+			}, {
+				xtype:'hidden',
+				name:'archives.issuerId',
+				value:curUserInfo.userId
+			},{
+				xtype : 'textfield',
+				name : 'archives.subject',
+				allowBlank : false,
+				width : '95.5%',
+				fieldLabel : '标题'
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style : 'padding:0px 0px 0px 0px;',
+							text : '主送：',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.sendTo',
+							width : '77%',
+							id : 'GGJsentDoc.recDepNames'
+						}, {
+							style : 'padding-left:5px;',
+							xtype : 'button',
+							iconCls : 'menu-department',
+							text : '常用主送单位',
+							handler : function() {
+								UnitsSelector.getView(
+										function(depIds, depNames) {
+											Ext.getCmp('GGJsentDoc.recDepNames')
+													.setValue(depNames);
+										}, false,1).show();
+							}
+						}]
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : true,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style : 'padding:0px 0px 0px 0px;',
+							text : '抄送：',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.ccTo',
+							width : '77%',
+							id : 'GGJsentDoc.ccNames'
+						}, {
+							xtype : 'button',
+							style : 'padding-left:5px;',
+							iconCls : 'menu-department',
+							text : '常用抄送单位',
+							handler : function() {
+								UnitsSelector.getView(
+										function(depIds, depNames) {
+											Ext.getCmp('GGJsentDoc.ccNames')
+													.setValue(depNames);
+										}, false,2).show();
+							}
+						}]
+			}, {
+				xtype : 'fieldset',
+				style:'padding-top:6px',
+				border : false,
+				defaults : {
+					anchor : '98%,98%'
+				},
+				items : [this.docGridPanel]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					padding : '5px',
+					border : false
+				},
+				items : [{
+							columnWidth : .8,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id : 'GGJsentAttachments.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 4px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .2,
+							padding : '5px 0 0 20px',
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document',
+										judge_size : 'no',
+										upload_autostart : true,
+										callback : function(data) {
+											var fileIds = Ext.getCmp('GGJsentAttachments.fileIds');
+											var filePanel = Ext.getCmp('GGJsentAttachments.personFilePanel');
+
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+
+												Ext.DomHelper
+														.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'GGJsentAttachments.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext.getCmp('GGJsentAttachments.fileIds');
+									var filePanel = Ext.getCmp('GGJsentAttachments.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								id : 'GGJsentAttachments.fileIds',
+								name : 'fileIds'
+							}]
+						}]
+			},{
+			id:'GGJNGSentArchivesIsReserveNoRadioForm',
+			border:false,
+			layout:'form',
+			labelWidth:105,
+			items:{
+				xtype : 'radiogroup',
+				fieldLabel : '是否使用预约编号',
+				allowBlank: false,
+				hideParent:true,
+				id:'GGJNGSentArchivesIsReserveNoRadio',
+				items : [{
+							boxLabel : '是',
+							name : 'archives.isReserveNo',
+							inputValue : 1
+						}, {
+							boxLabel : '否',
+							name : 'archives.isReserveNo',
+								inputValue : 0
+							}]
+				}
+			}, {
+				border : false,
+				layout : 'form',
+				labelWidth : 105,
+				items : {
+					xtype : 'radiogroup',
+					fieldLabel : '是否规范性文件',
+					allowBlank : false,
+					items : [{
+								boxLabel : '是',
+								name : 'archives.isStandard',
+								inputValue : 1
+							}, {
+								boxLabel : '否',
+								name : 'archives.isStandard',
+								// checked : true,
+								inputValue : 0
+							}]
+				}
+			}, {
+				border : false,
+				layout : 'form',
+				labelWidth : 105,
+				items : {
+					xtype : 'radiogroup',
+					fieldLabel : '是否公开到外网',
+					allowBlank : false,
+					id : 'GGJSentArchiveStart.public',
+					items : [{
+						boxLabel : '是',
+						name : 'archives.isPublic',
+						inputValue : 1,
+						listeners : {
+							check : function(checkbox, checked) {
+								if (checked) {
+									Ext.getCmp('hiddIsPublic').disable();
+									Ext.getCmp('hiddUnPublicReasons').disable();
+									Ext.getCmp('GGJ_unPublicReasons')
+											.setValue(null);
+									Ext.getCmp('_GGJ_unPublicReasons').hide();
+									Ext.getCmp('GGJ_unPublicReasons').allowBlank = true;
+								}
+							}
+						}
+					}, {
+						boxLabel : '否',
+						name : 'archives.isPublic',
+						// checked : true,
+						inputValue : 0,
+						listeners : {
+							check : function(checkbox, checked) {
+								if (checked) {
+									Ext.getCmp('hiddIsPublic').disable();
+									Ext.getCmp('hiddUnPublicReasons').disable();
+									Ext.getCmp('_GGJ_unPublicReasons').show();
+									Ext.getCmp('GGJ_unPublicReasons').allowBlank = false;
+								}
+							}
+						}
+					}]
+				}
+			}, {
+				id : '_GGJ_unPublicReasons',
+				border:false,
+				layout:'form',
+				items:[{
+					xtype : 'textarea',
+					fieldLabel : '不公开原因',
+					hideParent :true,
+					id:'GGJ_unPublicReasons',
+					name : 'archives.unPublicReasons',
+					allowBlank : false,
+					maxLength :500,
+					width : 650
+				}]
+			},{
+				xtype:'hidden',
+				disabled:true,
+				name:'archives.isPublic',
+				id:'hiddIsPublic'
+			},{
+				xtype:'hidden',
+				disabled:true,
+				name:'archives.unPublicReasons',
+				id:'hiddUnPublicReasons'
+			}]
+		});
+		var did=defId;
+		Ext.Ajax.request({
+						url : __ctxPath + '/snconfig/listByPageFileSnConfigOrder.do',
+						params : {
+							'flowId' : did,
+							'userId':curUserInfo.userId,
+							'isUsed':0
+						},
+						method:'post',
+						success : function(response, options) {
+							var af=Ext.util.JSON.decode(response.responseText).result;
+							if(af==""){
+							  Ext.getCmp('GGJNGSentArchivesIsReserveNoRadioForm').hide();
+							  fp.getCmpByName('archives.isReserveNo').setValue(0);
+							  Ext.getCmp('GGJNGSentArchivesIsReserveNoRadio').allowBlank=true;
+							}else{
+							Ext.getCmp('GGJNGSentArchivesIsReserveNoRadioForm').show();
+							Ext.getCmp('GGJNGSentArchivesIsReserveNoRadio').allowBlank=false;
+							}
+						}
+		});
+	}
+})

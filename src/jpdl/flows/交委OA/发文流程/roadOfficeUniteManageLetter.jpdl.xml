@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="roadOfficeUniteManageLetter" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="489,34,143,82" name="拟稿">
+      <transition g="-65,-11" name="to 处室核稿" to="处室核稿"/>
+	</start>
+	<end g="495,1059,118,78" name="结束"/>
+	<task g="449,120,128,50" name="处室核稿">
+      <transition g="-65,-10" name="to 核稿结果" to="核稿结果"/>
+	</task>
+	<decision g="488,214,74,57" name="核稿结果">
+      <transition g="-49,-19" name="to 委属单位处室会签" to="委属单位处室会签">
+      	<condition expr="#{checkManuscriptResult=='1'}"/>
+      </transition>
+      <transition g="-38,-17" name="to 重新发起" to="重新发起">
+      	<condition expr="#{checkManuscriptResult=='3'}"/>
+      </transition>
+      <transition g="-124,-11" name="to 委属单位办公室审核" to="委属单位办公室审核">
+      	<condition expr="#{checkManuscriptResult=='2'}"/>
+      </transition>
+	</decision>
+	<task g="444,296,138,51" name="委属单位办公室审核">
+      <transition g="-114,-9" name="to 委属单位领导签发" to="委属单位领导签发"/>
+	</task>
+	<task g="230,210,136,54" name="委属单位处室会签">
+      <transition g="298,144:45,-22" name="to 处室核稿" to="处室核稿"/>
+	</task>
+	<task g="447,385,129,50" name="委属单位领导签发">
+      <transition g="-101,-9" name="to 交委办公室审核" to="交委办公室审核"/>
+	</task>
+	<task g="446,474,132,47" name="交委办公室审核">
+      <transition g="-64,-12" name="to 审核结果" to="审核结果"/>
+	</task>
+	<decision g="487,568,69,55" name="审核结果">
+      <transition g="-41,-17" name="to 交委处室会签" to="交委处室会签">
+      	<condition expr="#{examineResult=='1'}"/>
+      </transition>
+      <transition g="-41,-12" name="to 签发" to="签发">
+      	<condition expr="#{examineResult=='2'}"/>
+      </transition>
+	</decision>
+	<task g="458,652,109,47" name="签发">
+      <transition g="-64,-12" name="to 签发确认" to="签发确认"/>
+	</task>
+	<task g="256,566,124,50" name="交委处室会签">
+      <transition g="317,497:14,-18" name="to 交委办公室审核" to="交委办公室审核"/>
+	</task>
+	<task g="466,823,99,42" name="编号">
+      <transition g="-89,-10" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<decision g="490,737,76,57" name="签发确认">
+      <transition g="-34,-18" name="to 领导会签" to="领导会签">
+      	<condition expr="#{lotSendResult=='1'}"/>
+      </transition>
+      <transition g="-40,-10" name="to 编号" to="编号">
+      	<condition expr="#{lotSendResult=='2'}"/>
+      </transition>
+	</decision>
+	<task g="607,738,102,46" name="领导会签">
+      <transition g="656,673:-57,-17" name="to 签发" to="签发"/>
+	</task>
+	<task g="462,901,111,44" name="生成电子公文">
+      <transition g="-41,-10" name="to 分发" to="分发"/>
+	</task>
+	<task g="471,980,93,43" name="分发">
+      <transition g="-43,-10" name="to 结束" to="结束"/>
+	</task>
+	<task g="638,210,132,53" name="重新发起">
+      <transition g="702,143:-90,-21" name="to 处室核稿" to="处室核稿"/>
+	</task>
+</process>

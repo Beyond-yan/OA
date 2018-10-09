@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.gdssoft.oa.model.personal.VPersonalcardinfo" table="v_PersonalCardInfo">		
+		<id name="id" column="ID" type="java.lang.String">			
+		</id>
+		<property name="username" type="java.lang.String" update="false"
+			insert="false" access="property" column="username" length="256" not-null="false"
+			unique="false" />
+		<property name="dep" type="java.lang.String" update="false"
+			insert="false" access="property" column="Dep" length="256"
+			not-null="false" unique="false" />
+		<property name="fullname" type="java.lang.String" update="false"
+			insert="false" access="property" column="fullname" length="19" not-null="false"
+			unique="false" />
+						
+		<property name="useType" type="java.lang.String" update="false"
+			insert="false" access="property" column="UseType" length="256"
+			not-null="false" unique="false" />
+		<property name="useTime" type="java.util.Date" update="false"
+			insert="false" access="property" column="useTime"
+			not-null="false" unique="false" />		
+			
+		<property name="xfposmoney" type="java.lang.String" update="false"
+			insert="false" access="property" column="XFPosMoney" length="256"
+			not-null="false" unique="false" />			
+		<property name="xfcardmoney" type="java.lang.String" update="false"
+			insert="false" access="property" column="XFCardMoney" length="256"
+			not-null="false" unique="false" />																	
+	</class>
+</hibernate-mapping>

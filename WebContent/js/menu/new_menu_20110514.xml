@@ -1,0 +1,426 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Menus>
+	<Items id="MyEMail" text="个人邮箱" iconCls="menu-info" isPublic="true">
+		<!-- <Item id="WriteEMail" text="写邮件" iconCls="menu-create-mail" />
+		<Item id="ReceivedEMail" text="收件箱" iconCls="menu-receive-mail" />
+		<Item id="SentEMail" text="发件箱" iconCls="menu-send-mail" />
+		<Item id="DraftEMail" text="草稿箱" iconCls="menu-draft-mail" />
+		<Item id="DeletedEMail" text="废纸篓" iconCls="menu-trash-mail" /> -->
+	</Items>
+	
+	<Items id="AdminAffair" text="行政办公" iconCls="menu-admin-affair">
+		<Items id="OfficalDocPublish" text="公文发布" iconCls="menu-offdoc-publish">
+			<Item id="CompanyPublish" text="公司发文" iconCls="menu-company-publish" />
+			<Item id="DeptPublish" text="部门发文" iconCls="menu-dept-publish" />
+			<Item id="OutsideDoc" text="外来文件" iconCls="menu-outside-doc" />
+			<Item id="OfficalDocArchive" text="公文归档" iconCls="menu-offdoc-archive" />
+			<Item id="ArchiveDocQuery" text="归档公文查询" iconCls="menu-archivedoc-query" />
+		</Items>
+		
+		<Items id="InfoPublish" text="信息发布" iconCls="menu-info-publish">
+			<Item id="CompanyNews" text="公司新闻" iconCls="menu-company-news" />
+			<Item id="NotifyBulletin" text="通知公告" iconCls="menu-notify-bulletin" />
+			<Item id="PersonnelInfo" text="人事信息" iconCls="menu-personnel-info" />
+			<Item id="MetroNews" text="地铁新闻" iconCls="menu-metro-news" />
+			<Item id="BasicLevelEvent" text="基层动态" iconCls="menu-basiclevel-event" />
+			<Item id="ServiceInfo" text="服务资讯" iconCls="menu-service-info" />
+			<Item id="StandardMagmt" text="标准管理" iconCls="menu-standard-magmt" />
+			<Item id="AffairAnnouncement" text="业务通告" iconCls="menu-affair-announce" />
+			<Item id="JobMonitorBulletin" text="督办公告" iconCls="menu-jobmonitor-bulletin" />
+		</Items>
+		
+		<Items id="HumanResource" text="人力资源" iconCls="menu-human-resource">
+			<Item id="OutResearchApply" text="外出调研申请" iconCls="menu-outresearch-apply" />
+			<Item id="ContactApply" text="设计联络申请" iconCls="menu-contact-apply" />
+			<Item id="OutBusinessApply" text="出差申请" iconCls="menu-outbusiness-apply" />
+		</Items>
+		
+		<Items id="InfoMagmt" text="信息化管理" iconCls="menu-info-magmt">
+			<Item id="TroubleReport" text="故障申报" iconCls="menu-trouble-report" />
+		</Items>
+		
+		<Items id="LogisticsService" text="後勤服务" iconCls="menu-logistics-service">
+			<Item id="ConferenceApply" text="会议申请" iconCls="menu-conference-apply" />
+			<Item id="CarApply" text="机动车申请" iconCls="menu-car-apply" />
+			<Item id="ReceptionApply" text="公关接待申请" iconCls="menu-reception-apply" />
+		</Items>
+		
+		<Items id="FinanceSettlement" text="财务结算" iconCls="menu-finance-settlement">
+			<Item id="OffsetApply" text="费用报销申请" iconCls="menu-offset-apply" />
+			<Item id="PreBorrowingApply" text="预借款申请" iconCls="menu-preborrow-apply" />
+		</Items>
+		
+		<Items id="TaskMagmt" text="任务管理" iconCls="menu-task-magmt">
+			<Item id="JobPlan" text="工作计划" iconCls="menu-job-plan" />
+			<Item id="JobRecord" text="工作记录" iconCls="menu-job-record" />
+			<Item id="JobSummary" text="工作总结" iconCls="menu-job-summary" />
+		</Items>
+		
+		<Items id="JobMonitor" text="工作督办" iconCls="menu-job-monitor">
+			<Item id="JobApply" text="申报工作" iconCls="menu-job-apply" />
+			<Item id="JobPublish" text="发布工作" iconCls="menu-job-publish" />
+			<Item id="JobAssign" text="指派工作" iconCls="menu-job-assign" />
+			<Item id="JobUndertake" text="承办及处理" iconCls="menu-job-undertake" />
+			<Item id="JobExamine" text="审批提交" iconCls="menu-job-examine" />
+			<Item id="JobSummaryReport" text="汇总上报" iconCls="menu-jobsummary-report" />
+		</Items>
+		
+		<Items id="AffairOperationMagmt" text="运营管理" iconCls="menu-affairoperation-magmt">
+			<Item id="BusinessCaseApply" text="招投标标案申请" iconCls="menu-buscase-apply" />
+			<Item id="CaseArchiveApply" text="标案归档申请" iconCls="menu-casearchive-apply" />
+			<Item id="ContractExamineApply" text="合同审批申请" iconCls="menu-contractexamine-apply" />
+			<Item id="ContractChangeApply" text="合同变更申请" iconCls="menu-contractchange-apply" />
+			<Item id="ContractArchiveApply" text="合同归档申请" iconCls="menu-contractarchive-apply" />
+			<Item id="PropertyRepairApply" text="物业维修申请" iconCls="menu-propertyrepair-apply" />
+		</Items>
+	</Items>
+
+	<Items id="PersonalAffair" text="个人办公" iconCls="menu-personal-affair">
+		<Item id="MyJobLog" text="我的工作日志" iconCls="menu-my-joblog" />
+		<Item id="MyArchive" text="我的文档" iconCls="menu-my-archive" />
+		<Items id="MyMail" text="我的邮件" iconCls="menu-my-mail">
+			<Item id="MyCreateMail" text="写信" iconCls="menu-my-createmail" />
+			<Item id="MyReceiveMail" text="收信" iconCls="menu-my-receivemail" />
+		</Items>
+		<Items id="MyUndoIssue" text="我的待办事项" iconCls="menu-my-undo">
+			<Item id="UndoOfficalDoc" text="待办公文" iconCls="menu-undo-offdoc" />
+			<Item id="UndoAffair" text="待办业务" iconCls="menu-undo-affair" />
+		</Items>
+		<Item id="MySchedule" text="我的日程" iconCls="menu-my-schedule" />
+		<Item id="MyPlan" text="我的计划" iconCls="menu-my-plan" />
+		<Item id="MyVacation" text="我的请假" iconCls="menu-my-vacation" />
+	</Items>
+	
+	<Items id="ProcessMagmt" text="流程管理" iconCls="menu-process-magmt">
+		<Item id="StartProcess" text="启动流程" iconCls="menu-start-process" />
+		<Item id="UndoProcess" text="待处理流程" iconCls="menu-undo-process" />
+		<Item id="SignedProcess" text="已完成流程" iconCls="menu-signed-process" />
+		<Item id="FinishedProcess" text="已办结流程" iconCls="menu-finished-process" />
+	</Items>
+	
+	<Items id="PartyMagmt" text="党群管理" iconCls="menu-party-magmt">
+		<Items id="PartyAffairMagmt" text="党务管理" iconCls="menu-partyaffair-magmt">
+			<Item id="PartyMemberMagmt" text="党员信息管理" iconCls="menu-partymember-magmt" />
+			<Item id="PartyBulletinMagmt" text="党公告管理" iconCls="menu-partybulletin-magmt" />
+			<Item id="PartyVoteMagmt" text="评议投票管理" iconCls="menu-partyvote-magmt" />
+		</Items>
+		
+		<Items id="SuperviseMagmt" text="纪检管理" iconCls="menu-supervise-magmt">
+			<Item id="SuperviseJobMagmt" text="纪检监察工作信息管理" iconCls="menu-supervisejob-magmt" />
+			<Item id="ComplainMagmt" text="信访投诉管理" iconCls="menu-complain-magmt" />
+			<Item id="SuperviseReport" text="统计报表" iconCls="menu-supervise-report" />
+		</Items>
+		
+		<Items id="YoungPartyMagmt" text="共青团管理" iconCls="menu-youngparty-magmt">
+			<Item id="YoungMemberMagmt" text="团员信息管理" iconCls="menu-youngmember-magmt" />
+			<Item id="YoungVoteMagmt" text="推优投票管理" iconCls="menu-youngvote-magmt" />
+		</Items>
+		
+		<Items id="LaborUnionMagmt" text="工会管理" iconCls="menu-laborunion-magmt">
+			<Item id="LaborUnionBulletin" text="工会公告" iconCls="menu-laborunion-bulletin" />
+		</Items>
+	</Items>
+	
+	<Items id="AdminMagmt" text="行政管理" iconCls="menu-admin-magmt">
+		<Items id="ConferenceMagmt" text="会议管理" iconCls="menu-conference-magmt">
+			<Item id="ConfRoomMagmt" text="会议室管理" iconCls="menu-confroom-magmt" />
+			<Item id="UsageRightAdjust" text="使用权调整" iconCls="menu-usageright-adjust" />
+		</Items>
+		
+		<Items id="CarMagmt" text="机动车管理" iconCls="menu-car-magmt">
+			<Item id="CarInfoMagmt" text="车辆管理" iconCls="menu-carinfo-magmt" />
+			<Item id="DriverMagmt" text="司机管理" iconCls="menu-driver-magmt" />
+			<Item id="PayCardMagmt" text="油卡和粤通卡管理" iconCls="menu-paycard-magmt" />
+			<Item id="CarRepairMagmt" text="车辆维护管理" iconCls="menu-carrepair-magmt" />
+			<Item id="CarReport" text="统计报表" iconCls="menu-car-report" />
+		</Items>
+		
+		<Items id="OfficeSuppliesMagmt" text="办公用品管理" iconCls="menu-offsupplies-magmt">
+			<Item id="SuppliesClassMagmt" text="类别管理" iconCls="menu-suppliesclass-magmt" />
+			<Item id="SuppliesInfoMagmt" text="办公用品维护" iconCls="menu-suppliesinfo-magmt" />
+		</Items>
+		
+		<Items id="JobMonitorMagmt" text="督办管理" iconCls="menu-jobmonitor-magmt">
+			<Item id="JobMonitorConfig" text="督办配置" iconCls="menu-jobmonitor-config" />
+		</Items>
+		
+		<Items id="FileMagmt" text="文档管理" iconCls="menu-file-magmt">
+			<Item id="SharedFileMagmt" text="共享文档管理" iconCls="menu-sharedfile-magmt" />
+			<Item id="ArchiveFileMagmt" text="归档文档管理" iconCls="menu-archivefile-magmt" />
+		</Items>
+		
+		<Items id="MagmtOperationMagmt" text="运营管理" iconCls="menu-magmtoperation-magmt">
+			<Item id="CaseClassMagmt" text="招投标类别管理" iconCls="menu-caseclass-magmt" />
+			<Item id="ContractClassMagmt" text="合同类别管理" iconCls="menu-contractclass-magmt" />
+			<Item id="CaseProxyMagmt" text="招标代理机构管理" iconCls="menu-caseproxy-magmt" />
+			<Item id="CaseSupplierMagmt" text="招投标供应商管理" iconCls="menu-casesupplier-magmt" />
+			<Item id="CaseResultAnalysis" text="招投标结果分析" iconCls="menu-caseresult-analysis" />
+			<Item id="ContractStampMagmt" text="合同用印管理" iconCls="menu-contractstamp-magmt" />
+			<Item id="ContractAcceptPayMagmt" text="合同收付款管理" iconCls="menu-acceptpay-magmt" />
+			<Item id="MultiContractMagmt" text="多线合同管理" iconCls="menu-multicontract-magmt" />
+			<Item id="PropertyInfoMagmt" text="物业信息管理" iconCls="menu-propertyinfo-magmt" />
+			<Item id="DormitoryMagmt" text="宿舍管理" iconCls="menu-dormitory-magmt" />
+		</Items>
+		
+		<Item id="LeaderMail" text="领导信箱" iconCls="menu-leader-mail" />
+	</Items>
+	
+	<Items id="SystemSetting" text="系统设置" iconCls="menu-system" isPublic="false">
+		<Item id="DicManager" iconCls="menu-dictionary" text="数据字典"/>
+		<Item id="GlobalTypeManager" iconCls="" text="系统分类管理"/>
+		<Item id="AppUserView" iconCls="menu-appuser" text="账号管理">
+			<Function id="_AppUserQuery" text="查看账号" iconCls="menu-list">
+				<url>/system/listAppUser.do</url>
+			</Function>
+			<Function id="_AppUserAdd" text="添加账号" iconCls="menu-add">
+				<url>/system/listAppUser.do</url>
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/listDepartment.do</url>
+			</Function>
+			<Function id="_AppUserEdit" text="编辑账号" iconCls="btn-edit">
+				<url>/system/listAppUser.do</url>
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/listDepartment.do</url>
+			</Function>
+			<Function id="_AppUserDel" text="删除账号" iconCls="menu-del">
+				<url>/system/listAppUser.do</url>
+				<url>/system/multiDelAppUser.do</url>
+			</Function>
+			<Function id="_AppUserReset" text="重置密码" iconCls="btn-password">
+				<url>/system/listAppUser.do</url> 
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/createPasswordAppUser.do</url>
+			</Function>
+			<Function id="_AppUserCapacity" text="重置共享空间大小" iconCls="btn-password">
+				<url>/system/listAppUser.do</url>
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/listDepartment.do</url>
+			</Function>
+			
+			<Function id="_AppUserAgent" text="代办账号设置" iconCls="btn-super">
+				<url>/system/saveAgentAppUser.do</url>
+			</Function>
+		</Item>
+		<Item id="DepartmentView" iconCls="menu-department" text="部门管理">
+			<Function id="_DepartmentQuery" text="查看部门" iconCls="menu-list">
+				<url>/system/listDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentAdd" text="新建部门" iconCls="menu-add">
+				<url>/system/listDepartment.do</url>
+				<url>/system/addDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentEdit" text="修改部门" iconCls="btn-edit">
+				<url>/system/listDepartment.do</url>
+				<url>/system/addDepartment.do</url>
+				<url>/system/detailDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentDel" text="删除部门" iconCls="menu-del">
+				<url>/system/listDepartment.do</url>
+				<url>/system/removeDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+		</Item>
+		<Item id="AppRoleView" iconCls="menu-role" text="角色设置">
+			<Function id="_AppRoleList" text="查看角色" iconCls="menu-list">
+				<url>/system/listAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleAdd" text="添加角色" iconCls="menu-add">
+				<url>/system/listAppRole.do</url>
+				<url>/system/saveAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleEdit" text="编辑角色" iconCls="btn-edit">
+				<url>/system/listAppRole.do</url>
+				<url>/system/saveAppRole.do</url>
+				<url>/system/getAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleDel" text="删除角色" iconCls="menu-del">
+				<url>/system/listAppRole.do</url>
+				<url>/system/mulDelAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleGrant" text="授权角色" iconCls="btn-grant">
+				<url>/system/listAppRole.do</url>
+				<url>/system/grantXmlAppRole.do</url>
+				<url>/system/getAppRole.do</url>
+				<url>/system/grantAppRole.do</url>
+			</Function>
+		</Item>
+		<Item id="DepartmentView" iconCls="menu-department" text="科室管理">
+			<Function id="_DepartmentQuery" text="查看科室" iconCls="menu-list">
+				<url>/system/listDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentAdd" text="新建科室" iconCls="menu-add">
+				<url>/system/listDepartment.do</url>
+				<url>/system/addDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentEdit" text="修改科室" iconCls="btn-edit">
+				<url>/system/listDepartment.do</url>
+				<url>/system/addDepartment.do</url>
+				<url>/system/detailDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentDel" text="删除科室" iconCls="menu-del">
+				<url>/system/listDepartment.do</url>
+				<url>/system/removeDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			
+			<Function id="_UserSubAdd" text="添加下属" iconCls="menu-subuser">
+				<url>/system/myUserSub.do</url>
+				<url>/system/addMyUserSub.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+		</Item>
+		<Item id="FileAttachView" iconCls="menu-attachment" text="附件管理">
+			<Function id="_FileAttachQuery" text="查看附件" iconCls="menu-list">
+				<url>/system/listFileAttach.do</url>
+			</Function>
+			<!--
+			<Function id="_FileAttachAdd" text="添加附件" iconCls="menu-add">
+			<url>/system/saveFileAttach.do</url>
+			<url>/system/listFileAttach.do</url> </Function>
+			-->
+			<Function id="_FileAttachEdit" text="编辑附件" iconCls="btn-edit">
+				<url>/system/saveFileAttach.do</url>
+				<url>/system/listFileAttach.do</url>
+				<url>/system/getFileAttach.do</url>
+			</Function>
+			<Function id="_FileAttachDel" text="删除附件" iconCls="menu-del">
+				<url>/system/listFileAttach.do</url>
+				<url>/system/multiDelFileAttach.do</url>
+			</Function>
+		</Item>
+
+		<Item id="FlowManagerView" text="流程管理" iconCls="menu-flowManager">
+			<Function id="_FlowQuery" text="查看流程" iconCls="menu-list">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/processDetail.do</url>
+			</Function>
+			<Function id="_ProTypeManage" text="流程类型" iconCls="menu-manage">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/saveProType.do</url>
+				<url>/flow/removeProType.do</url>
+				<url>/flow/getProType.do</url>
+			</Function>
+			<Function id="_FlowAdd" text="发布流程" iconCls="menu-add">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/saveProDefinition.do</url>
+				<url>/flow/listProType.do</url>
+				<url>/flow/getProDefinition.do</url>
+			</Function>
+			<Function id="_FlowEdit" text="编辑流程" iconCls="btn-edit">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/saveProDefinition.do</url>
+				<url>/flow/listProType.do</url>
+				<url>/flow/getProDefinition.do</url>
+			</Function>
+			<Function id="_FlowDel" text="删除流程" iconCls="menu-del">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/multiDelProDefinition.do</url>
+			</Function>
+			<Function id="_FlowCheck" text="查看" iconCls="menu-list">
+				<url>/flow/processDetail.do</url>
+			</Function>
+			<Function id="_FlowSetting" text="人员设置" iconCls="menu-manage">
+				<url>/flow/saveProUserAssign.do</url>
+				<url>/flow/listProUserAssign.do</url>
+			</Function>
+		</Item>
+		
+		<Items id="PublicDocument" iconCls="menu-folder" text="公共文档">
+			<Item id="NewPublicDocumentForm" iconCls="menu-new-document"
+				text="新建公共文档">
+			</Item>
+			<Item id="DocFolderSharedView" iconCls="menu-public-fol" text="公共文件夹">
+				<Function id="_DocFolderSharedManage" text="公共文件夹管理"
+					iconCls="menu-manage">
+					<url>/document/saveDocFolder.do</url>
+					<url>/document/getDocFolder.do</url>
+					<url>/document/removeDocFolder.do</url>
+				</Function>
+				<Function id="_DocPrivilegeQuery" text="查看权限" iconCls="menu-list">
+					<url>/document/listDocPrivilege.do</url>
+				</Function>
+				<Function id="_DocPrivilegeAdd" text="添加权限" iconCls="menu-add">
+					<url>/document/listDocPrivilege.do</url>
+					<url>/document/addDocPrivilege.do</url>
+				</Function>
+				<Function id="_DocPrivilegeEdit" text="编辑权限" iconCls="btn-edit">
+					<url>/document/listDocPrivilege.do</url>
+					<url>/document/changeDocPrivilege.do</url>
+				</Function>
+				<Function id="_DocPrivilegeDel" text="删除权限" iconCls="menu-del">
+					<url>/document/listDocPrivilege.do</url>
+					<url>/document/multiDelDocPrivilege.do</url>
+				</Function>
+			</Item>
+			
+		</Items>
+		<Items id="Task" text="任务管理" iconCls="menu-task">
+			<Item id="PlanTypeView" text="任务计划类型" iconCls="menu-plantype">
+				<Function id="_PlanTypeQuery" text="查看类型" iconCls="menu-list">
+					<url>/task/listPlanType.do</url>
+				</Function>
+				<Function id="_PlanTypeAdd" text="添加类型" iconCls="menu-add">
+					<url>/task/listPlanType.do</url>
+					<url>/task/savePlanType.do</url>
+				</Function>
+				<Function id="_PlanTypeEdit" text="编辑类型" iconCls="btn-edit">
+					<url>/task/listPlanType.do</url>
+					<url>/task/savePlanType.do</url>
+					<url>/task/getPlanType.do</url>
+				</Function>
+				<Function id="_PlanTypeDel" text="删除类型" iconCls="menu-del">
+					<url>/task/listPlanType.do</url>
+					<url>/task/multiDelPlanType.do</url>
+				</Function>
+			</Item>
+			<Item id="NewWorkPlanForm" text="新建科室任务计划" iconCls="menu-newplan">
+				<Function id="_NewDepPlan" text="新建部门任务计划" iconCls="menu-add">
+				</Function>
+			</Item>
+		</Items>
+		
+		<Items id="OutMailSetView" text="外部邮箱管理" iconCls="menu-mail">
+			<Function id="_OutMailSetAdd" text="添加邮件" iconCls="btn-add">
+				<url>/system/listOutMailSet.do</url>
+				<url>/system/saveOutMailSet.do</url>
+			</Function>
+			
+			<Function id="_OutMailSetEdit" text="编辑邮件" iconCls="btn-mail_edit">
+				<url>/system/listOutMailSet.do</url>
+				<url>/system/saveOutMailSet.do</url>
+				<url>/system/getOutMailSet.do</url>
+			</Function>
+			
+			<Function id="_OutMailSetDelete" text="删除邮件" iconCls="btn-del">
+				<url>/system/listOutMailSet.do</url>
+				<url>/system/multiDelOutMailSet.do</url>
+			</Function>
+		</Items>
+		<Item id="SealView" iconCls="menu-seal" text="印章管理"/>
+		<Item id="PaintTemplateView" iconCls="menu-template" text="套红模板管理"/>
+		<!--
+			<Item id="SystemLogView" text="系统日志"/>
+			-->
+	</Items>
+</Menus>

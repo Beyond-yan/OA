@@ -1,0 +1,199 @@
+﻿GSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'CQHQSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 675,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+				id:'CQHQSentArchiveDepCheck.displayPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=CQHQSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'CQHQSentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'CQHQSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						id : 'CQHQSentArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding-top:5px;padding-bottom:5px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '分发人员:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : 445,
+									allowBlank:false,
+									readOnly : true,
+									id : 'CQHQSentArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'CQHQSentArchiveDepCheck.viceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+//										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?depIds='+curUserInfo.depId;
+										var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds=1247029';
+										DepLeaders.getView(
+											function(userIds, userNames) {
+												Ext.getCmp('CQHQSentArchiveDepCheck.viceLeaderIds').setValue(userIds);
+												Ext.getCmp('CQHQSentArchiveDepCheck.LeaderNames')
+														.setValue(userNames);
+											}, true, null,url).show();
+									}
+								}]
+					}, {
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '备注:',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440,
+									height:40
+								},{
+						id : 'HQSCDZGWSentArchiveDepCheckForm.reFileId',
+						xtype : 'hidden'
+					}
+]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var docParams=Ext.getCmp("HQSCDZGWSentArchiveDepCheckForm.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var depLeaderOption = 'sent';
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					depLeaderOption : depLeaderOption,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					flowAssignId : Ext.getCmp('CQHQSentArchiveDepCheck.viceLeaderIds').getValue(),
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			//alert(Ext.util.JSON.encode(params));
+				formPanel.getForm().submit({
+				url : __ctxPath + '/archive/updateElecArchStatusArchives.do',
+				method:'post',
+				waitMsg : '正在提交数据...',
+				params : {
+						'archivesId' : '${archivesId}'
+				},
+				success : function(response, options) {
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.Ajax.request({
+						url : __ctxPath + "/archive/updateArchDocsArchives.do",
+						params : {
+								  arcRecfileIds : Ext.getCmp('HQSCDZGWSentArchiveDepCheckForm.reFileId').getValue(),
+								  'archives.archivesId':'${archivesId}'
+								  },
+						method : 'POST',
+						success : function(fp, action) {
+								Ext.ux.Toast.msg('操作信息', '生成电子公文成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+                        },
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+
+					
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});}});
+		}
+	}// end of save
+})

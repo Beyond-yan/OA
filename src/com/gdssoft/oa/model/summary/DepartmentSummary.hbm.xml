@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.gdssoft.oa.model.summary">
+  <class name="DepartmentSummary" table="department">
+    <id name="depid" column="depid" type="java.lang.Long"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="depname"  update="false"
+			insert="false"  column="depname" not-null="true" unique="false" />  
+    <property name="depdesc"  update="false"
+			insert="false" column="depdesc" type="java.lang.String" unique="false" />  
+    <property name="deplevel" update="false"
+			insert="false"  column="deplevel" type="java.lang.Long" unique="false" />  
+    <property name="parentid"  update="false"
+			insert="false" column="parentid" type="java.lang.Long" unique="false" />  
+    <property name="path"  update="false"
+			insert="false" column="path" type="java.lang.String" unique="false" />  
+    <property name="phone"  update="false"
+			insert="false" column="phone" type="java.lang.String" unique="false" /> 
+    <property name="fax"  update="false"
+			insert="false" column="fax" type="java.lang.String" unique="false" />     
+		<!-- 一对多条记录 -->
+	 <set name="summaries" table="work_summary" lazy="false" inverse="false"
+		cascade="save-update" sort="unsorted">
+		<key>
+			<column name="deptid" />
+		</key>
+		<one-to-many class="com.gdssoft.oa.model.summary.WorkSummary" />
+	</set> 
+	     
+  </class>
+</hibernate-mapping>

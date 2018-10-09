@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	<bean id="WSS4JInInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+        <constructor-arg>
+            <map>
+                <entry key="action" value="UsernameToken" />
+                <entry key="passwordType" value="PasswordText" />
+                <entry key="passwordCallbackClass" value="com.gdssoft.core.security.CxfServiceInterceptor" />
+            </map>
+        </constructor-arg>
+    </bean>
+
+	<!--
+			#errorManager points to my manager(with the @webservice annotation)
+			defined in my applicationContext.xml
+		-->
+
+	<!--<jaxws:endpoint id="userContactsServicePoint"
+		implementor="#userContactsService" address="/UserContactsService">
+		 <jaxws:inInterceptors> 
+            <bean class="org.apache.cxf.binding.soap.saaj.SAAJInInterceptor" />  
+            <ref bean="WSS4JInInterceptor"/>  
+        </jaxws:inInterceptors>  
+	</jaxws:endpoint>-->
+	<jaxws:endpoint id="userContactsServicePoint"
+		implementor="#userContactsService" address="/UserContactsService"/>
+	<jaxws:endpoint id="archivesContactsServicePoint"
+		implementor="#archivesContactsService" address="/ArchivesContactsService"/>
+	<jaxws:endpoint id="myToDoListService2"
+		implementor="#myToDoListService" address="/MyToDoListService"/>
+	<jaxws:endpoint id="mailAuthService2" 
+		implementor="#mailAuthService" address="/MailAuthService"/>
+	<jaxws:endpoint id="receiveArchivesServicePoint"
+		implementor="#receiveArchivesService" address="/ReceiveArchivesService"/>
+	<jaxws:endpoint id="UserLoginServicePoint"
+		implementor="#UserLoginService" address="/UserLoginService"/>
+	<jaxws:endpoint id="ArchivesMonitorServicePoint"
+		implementor="#ArchivesMonitorService" address="/ArchivesMonitorService"/>
+	<jaxws:endpoint id="ActiviityServicePoint"
+		implementor="#ActiivityService" address="/ActiivityService"/>
+</beans>

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="redHead" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="36"/>
+	<parameter name="params.issueDep" class="java.lang.String"/>
+	<parameter name="params.issuer" class="java.lang.String"/>
+	<parameter name="params.issueDate" class="java.lang.String"/>
+	<parameter name="params.archivesNo" class="java.lang.String"/>
+	<parameter name="params.subject" class="java.lang.String"/>
+	<parameter name="params.privacyLevel" class="java.lang.String"/>
+	<parameter name="params.recDepNames" class="java.lang.String"/>
+	<parameter name="params.SUBREPORT_DIR" class="java.lang.String"/>
+	<parameter name="params.subReportDataList1" class="java.util.List"/>
+	<queryString>
+		<![CDATA[select l.readId as readId
+, l.leaderName as leaderName
+, l.userId as userId
+, l.leaderOpinion as leaderOpinion
+, l.createtime as createtime
+, l.depLevel as depLevel
+, l.depName as depName
+, l.isPass as isPass
+, l.checkName as checkName
+from leader_read l]]>
+	</queryString>
+	<field name="readId" class="java.lang.Long"/>
+	<field name="leaderName" class="java.lang.String"/>
+	<field name="userId" class="java.lang.Long"/>
+	<field name="leaderOpinion" class="java.lang.String"/>
+	<field name="createtime" class="java.sql.Timestamp"/>
+	<field name="depLevel" class="java.lang.Long"/>
+	<field name="depName" class="java.lang.String"/>
+	<field name="isPass" class="java.lang.Integer"/>
+	<field name="checkName" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="77" splitType="Stretch">
+			<staticText>
+				<reportElement x="72" y="25" width="483" height="39"/>
+				<textElement textAlignment="Center">
+					<font size="24" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[深圳地铁三号线运营分公司（稿纸）]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="203" splitType="Stretch">
+			<rectangle>
+				<reportElement x="72" y="93" width="70" height="110"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="369" y="47" width="70" height="46"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="72" y="47" width="70" height="46"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="369" y="1" width="70" height="46"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="72" y="1" width="70" height="46"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="72" y="4" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[拟稿单位]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="24" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[拟  稿  人]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="142" y="1" width="227" height="46"/>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement x="149" y="4" width="127" height="20"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{params.issueDep}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="369" y="4" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[拟  稿]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="369" y="24" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[时  间]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="439" y="1" width="98" height="46"/>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement x="439" y="24" width="98" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{params.issueDate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="72" y="50" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[文  件]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="70" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[编  号]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="142" y="47" width="227" height="46"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="369" y="70" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[等  级]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="369" y="50" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[秘  密]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="439" y="47" width="98" height="46"/>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement x="139" y="60" width="221" height="20"/>
+				<textElement textAlignment="Right">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["[2011]   "+$P{params.archivesNo}+"号"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="446" y="60" width="91" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{params.privacyLevel}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="72" y="166" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[范  围]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="72" y="109" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[发  行]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="142" y="93" width="395" height="110"/>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement x="148" y="98" width="379" height="88"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{params.recDepNames}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="351" y="185" width="176" height="18"/>
+				<textElement textAlignment="Right">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["（印"+"                        "+"份）"]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="24" y="1" width="1" height="35"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="19" y="37" width="14" height="17"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[装]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="19" y="92" width="14" height="18"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[订]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="19" y="147" width="14" height="19"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[线]]></text>
+			</staticText>
+			<line>
+				<reportElement x="24" y="55" width="1" height="35"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="24" y="111" width="1" height="35"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="24" y="166" width="1" height="35"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement x="149" y="27" width="117" height="20"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{params.issuer}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="220" splitType="Stretch">
+			<rectangle>
+				<reportElement x="72" y="0" width="70" height="220"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="72" y="17" width="70" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[核稿意见]]></text>
+			</staticText>
+			<line>
+				<reportElement x="24" y="0" width="1" height="110"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="24" y="105" width="1" height="110"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<rectangle>
+				<reportElement x="142" y="0" width="395" height="220"/>
+			</rectangle>
+			<subreport>
+				<reportElement x="142" y="0" width="395" height="220"/>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{params.SUBREPORT_DIR} + "redHead_subreport1.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="65">
+			<rectangle>
+				<reportElement x="72" y="0" width="465" height="65"/>
+			</rectangle>
+			<textField isBlankWhenNull="true">
+				<reportElement x="76" y="24" width="451" height="20"/>
+				<textElement>
+					<font size="12" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["标题："+$P{params.subject}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="24" y="0" width="1" height="65"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

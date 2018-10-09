@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://www.springframework.org/schema/security" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:b="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">	
+    
+    <http auto-config="true" access-denied-page="/403.jsp" lowercase-comparisons="true" access-decision-manager-ref="accessDecisionManager">
+        <intercept-url pattern="/images/**" filters="none"/>
+        <intercept-url pattern="/css/**" filters="none"/>
+        <intercept-url pattern="/js/**" filters="none"/>
+        <intercept-url pattern="/403*" filters="none"/>
+        <intercept-url pattern="/404*" filters="none"/>
+        <intercept-url pattern="/500*" filters="none"/> 
+        <intercept-url pattern="/ext3/**" filters="none"/>
+        <intercept-url pattern="/fckeditor/**" filters="none"/>  
+        <form-login default-target-url="/index.jsp" login-page="/login.jsp" authentication-failure-url="/login.jsp?error=true" login-processing-url="/j_security_check" />
+        <logout logout-url="/j_logout.do" logout-success-url="/login.jsp"/> 
+   		<remember-me key="RememberAppUser"/>
+    </http>
+	
+	 <b:bean id="accessDecisionManager" class="org.springframework.security.vote.AffirmativeBased">
+	 	<b:property name="allowIfAllAbstainDecisions" value="false"/>
+        <b:property name="decisionVoters">
+            <b:list>
+                <b:bean class="org.springframework.security.vote.RoleVoter">
+                    <b:property name="rolePrefix" value="" />
+                </b:bean>
+                <b:bean class="org.springframework.security.vote.AuthenticatedVoter" />
+            </b:list>
+        </b:property>
+    </b:bean>
+
+	<authentication-manager alias="authenticationManager"/>
+		
+    <authentication-provider user-service-ref="appUserDao">
+    	<password-encoder hash="plaintext" base64="true"/>
+    </authentication-provider>
+
+    <b:bean id="securityInterceptorFilter" class="com.gdssoft.core.web.filter.SecurityInterceptorFilter" >
+		<custom-filter after="FILTER_SECURITY_INTERCEPTOR" />
+		<b:property name="securityDataSource" ref="securityDataSource"/>
+	</b:bean>
+	
+	<b:bean id="securityDataSource" class="com.gdssoft.core.security.SecurityDataSource">
+		<b:property name="appRoleService" ref="appRoleService"/>
+		<b:property name="anonymousUrls">
+			<b:set>
+				<b:value>/login.do</b:value>
+				<b:value>/login.jsp</b:value>
+				<b:value>/check.do</b:value>
+			</b:set>
+		</b:property>
+		<b:property name="publicUrls">
+			<b:set>
+				<b:value>/panelTreeMenu.do</b:value>
+				<b:value>/file-upload</b:value>
+				<b:value>/index.jsp</b:value>
+				<b:value>/autoIndex.jsp</b:value>
+				<b:value>/autoMail.jsp</b:value>
+				<b:value>/autoRun.jsp</b:value>
+			</b:set>
+		</b:property>
+		<b:property name="apiUrls">
+			<b:set>
+				<b:value>/api/</b:value>
+			</b:set>
+		</b:property>
+	</b:bean>
+</b:beans>

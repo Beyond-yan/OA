@@ -1,0 +1,22 @@
+<html>
+	<title></title>
+	<body>
+		<p>尊敬的${appUser.fullname}您好:</p>
+		<tr/>
+		<p>  OA系统于(${curDateStr})给您发送了一条待办事项:<a href="http://10.224.5.177:8080/oa/index.jsp?viewId=MyTaskView" target="_blank">${subject}</a></p>
+		<p>请您尽快处理!</p>
+		<br/>本邮件来自办公自动化系统自动产生，不需回复。
+		<br/>
+		<table align="right">
+		<tr>
+		 <td>如有问题请咨询系统管理员。</td>
+		</tr>
+		<tr>
+		 <td>座机：023-89183042</td>
+		</tr>
+		<tr>
+		 <td>邮箱：admin@cqjt.gov.cn</td>
+		</tr>
+		</table>
+	</body>
+</html>

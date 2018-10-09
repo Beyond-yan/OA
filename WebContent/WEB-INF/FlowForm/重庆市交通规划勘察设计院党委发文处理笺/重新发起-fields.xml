@@ -1,0 +1,5 @@
+<fields>
+	<field name="fileIds" label="附件修改id" type="varchar" length="1000" isShowed="false" />
+	<field name="isReserveNo" type="varchar" length="10" isShowed="false"/>
+    <field name="examine"  type="long" length="0" isShowed="false" />
+</fields>

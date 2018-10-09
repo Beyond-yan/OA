@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="OfficeNext" label="处室核稿后流向" type="varchar" length="100" isShowed="true" />
+	<field name="localNext" label="领导会签后跳转标识" type="varchar" length="100" isShowed="true" />
+	<field name="officeExerId" label="办公室审核执行者id" type="varchar" length="100" isShowed="true" />
+</fields>

@@ -1,0 +1,759 @@
+GHGLJLHSentArchiveStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GHGLJLHSentArchiveStart.superclass.constructor.call(this, {
+					id : 'GHGLJLHSentArchiveStart',
+					title : '港航管理局联合发文处理笺',
+					layout : 'form',
+					modal : true,
+					width : 800,
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [{
+								text : '启动流程',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}]
+				});
+	},
+	save : function() {// alert(Ext.get('GHGLJLH_flowAssignId').dom.value);return;
+		Ext.getCmp('GHGLJLHSentArchiveStart.reviewUserName').setValue(Ext
+				.get('GHGLJLH_flowAssignId').dom.value);
+				//alert(Ext.getCmp('GHGLJLHSentArchiveStart.reviewUserName').getValue());
+				//alert(Ext.getCmp('GHGLJLH_flowAssignId').getValue());//return;
+		var defId = this.defId;// alert(this.defId);return;
+		if (this.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}
+		if (this.formPanel.getForm().isValid()) {
+			var formPanel = this.formPanel;
+
+			var docParams = [];
+			for (var i = 0, cnt = this.store.getCount(); i < cnt; i++) {
+				docParams.push(this.store.getAt(i).data);
+			}
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					docs : Ext.encode(docParams)
+				},
+				success : function(fp, action) {
+					var archivesId = action.result.archivesId;
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					var fileIds = Ext.getCmp('GHGLJLHsentAttachments.fileIds')
+							.getValue();
+					var flowAssignId = Ext.getCmp('GHGLJLH_flowAssignId')
+							.getValue();
+					var  nigaoNextId= Ext.getCmp('GHGLJLH_flowAssignId')
+							.getValue();
+					// 添加传递值--开始
+					var nigaoUnit = Ext.getCmp('GHGLJLHsentDoc.issueDep')
+							.getValue();
+					var nigaourgentLevel = Ext.getCmp('nigaourgentLevel')
+							.getValue();
+					var niprivacyLevel = Ext.getCmp('niprivacyLevel')
+							.getValue();
+					var nisources = Ext.getCmp('nisources').getValue();
+					var niUser = Ext.getCmp('niUser').getValue();
+					var niSentDep = Ext.getCmp('niSentDep').getValue();
+					var niarchivesType = Ext.getCmp('niarchivesType.typeId')
+							.getValue();
+					var GHGLJLrecDepNames = Ext
+							.getCmp('GHGLJLHsentDoc.recDepNames').getValue();
+					var GHGLJLccNames = Ext.getCmp('GHGLJLHsentDoc.ccNames')
+							.getValue();//alert(nigaoNextId);
+					// 添加传递值--结束
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/saveProcessActivity.do',
+						method : 'post',
+						waitMsg : '正在发起流程...',
+						params : {
+							nigaoNextId:nigaoNextId,
+							defId : defId,
+							flowAssignId : flowAssignId,
+							flowCreatorId : curUserInfo.userId,
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo:sendInfo,
+							archivesId : archivesId,
+							fileIds : fileIds ? fileIds : '_',
+							startFlow : true,
+							nigaoUnit : nigaoUnit,
+							nigaourgentLevel : nigaourgentLevel,
+							niprivacyLevel : niprivacyLevel,
+							nisources : nisources,
+							niUser : niUser,
+							niSentDep : niSentDep,
+							niarchivesType : niarchivesType,
+							GHGLJLrecDepNames : GHGLJLrecDepNames,
+							GHGLJLccNames : GHGLJLccNames
+						},
+						success : function(response, options) {
+							Ext.Ajax.request({
+								url : __ctxPath
+										+ '/archive/updateRunIdArchives.do',
+								params : {
+									'archivesId' : archivesId,
+									'runId' : options.result.runId
+								},
+								method : 'post',
+								success : function(response, options) {
+									Ext.ux.Toast.msg('操作信息', '成功保存！');
+									Ext.getCmp('centerTabPanel').remove(Ext
+											.getCmp('ProcessRunStart' + defId));
+									refreshTaskPanelView();
+								}
+							});
+						}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	addArchiveDoc : function() {
+		// 判断是否选择了文档分类
+		var archiveTypeId = Ext.getCmp('archiveTypeId');
+		new ArchTemplateSelector({
+					callback : function(fileId, tempPath) {
+						var store = Ext.getCmp('GHGLJLHSentArchiveGrid')
+								.getStore();
+						var curView = Ext.getCmp('GHGLJLHSentArchiveStart');
+						// 返回文档附加记录
+						var callback = function(archivesDoc) {
+							curView.insertNewDoc(store, archivesDoc);
+						};
+						new ArchivesDocForm({
+									fileId : fileId,
+									docPath : tempPath,
+									callback : callback
+								}).show();
+					}
+				}).show();
+
+	},
+	/**
+	 * 插入附加文件记录
+	 */
+	insertNewDoc : function(store, archivesDoc) {
+		var orec;
+		if (store.recordType) {
+			orec = new store.recordType();
+			orec.data = {};
+			orec.data['docId'] = archivesDoc.docId;
+			orec.data['fileId'] = archivesDoc.fileId;
+			orec.data['docPath'] = archivesDoc.docPath;
+			orec.data['docName'] = archivesDoc.docName;
+			orec.data['curVersion'] = archivesDoc.curVersion
+					? archivesDoc.curVersion
+					: 1;
+			orec.data.newRecord = true;
+			orec.commit();
+			store.add(orec);
+		}
+	},
+
+	/**
+	 * 添加新的公文文档，以一个空白的文档开始
+	 */
+	addNewArchiveDoc : function() {
+		if (navigator.appName == "Microsoft Internet Explorer") {
+		} else {
+			Ext.Msg.alert("提示", "请选择IE浏览器操作此功能！");
+			// return;
+		}
+		var store = this.store;
+		var curView = this;
+		// 返回文档附加记录
+		var callback = function(archivesDoc) {
+			curView.insertNewDoc(store, archivesDoc);
+		};
+		new ArchivesDocForm({
+					callback : callback
+				}).show();
+	},
+
+	/**
+	 * 上传附件
+	 */
+	uploadArchiveDoc : function() {
+		var store = this.store;
+		var curView = this;
+		var callback = function(data) {
+			for (var i = 0; i < data.length; i++) {
+				var archivesDoc = {
+					docId : 0,// 用于标记尚未持久化的记录
+					fileId : data[i].fileId,
+					docPath : data[i].filepath,
+					docName : data[i].filename,
+					curVersion : 1
+				};
+				curView.insertNewDoc(store, archivesDoc);
+			}
+		};
+		var dialog = App.createUploadDialog({
+					file_cat : 'archive',
+					callback : callback
+				});
+		dialog.show();
+	},
+	/**
+	 * 删除公文附件
+	 */
+	deleteArchiveDoc : function() {
+		var grid = Ext.getCmp("GHGLJLHSentArchiveGrid");
+
+		var selectRecords = grid.getSelectionModel().getSelections();
+
+		if (selectRecords.length == 0) {
+			Ext.Msg.alert("信息", "请选择要删除的文档！");
+			return;
+		}
+
+		var record = selectRecords[0];
+		var store = grid.getStore();
+
+		var docId = record.data.docId;
+		if (docId == 0) {
+			Ext.Msg.confirm('信息确认', '您确认要删除所选文档吗？', function(btn) {
+						if (btn == 'yes') {
+							store.remove(record);
+						}
+					});// end of comfirm
+		} else {
+			Ext.Msg.confirm('信息确认', '您确认要删除所选文档吗？', function(btn) {
+						if (btn == 'yes') {
+							Ext.Ajax.request({
+										url : __ctxPath
+												+ '/archive/multiDelArchivesDoc.do',
+										params : {
+											ids : docId
+										},
+										method : 'POST',
+										success : function(response, options) {
+											Ext.ux.Toast.msg('操作信息',
+													'成功删除该文档附件！');
+											store.remove(record);
+										},
+										failure : function(response, options) {
+											Ext.ux.Toast.msg('操作信息',
+													'操作出错，请联系管理员！');
+										}
+									});
+						}
+					});// end of comfirm
+		}
+	},
+	/**
+	 * 查看公文附件
+	 */
+	detailArchivesDoc : function() {
+		var grid = Ext.getCmp("GHGLJLHSentArchiveGrid");
+
+		var selectRecords = grid.getSelectionModel().getSelections();
+
+		if (selectRecords.length == 0) {
+			Ext.Msg.alert("信息", "请选择要查看的文档！");
+			return;
+		}
+		var record = selectRecords[0];
+		var path = record.data.docPath;
+		var docId = record.data.docId;
+		var fileId = null;
+		if (record.data.fileAttach) {
+			fileId = record.data.fileAttach.fileId;
+		} else {
+			fileId = record.data.fileId;
+		}
+		var store = grid.getStore();
+		var curView = Ext.getCmp('GHGLJLHSentArchiveStart');
+		// 返回文档附加记录
+		var callback = function(archivesDoc) {
+			store.remove(record);
+			curView.insertNewDoc(store, archivesDoc);
+		};
+		new ArchivesDocForm({
+					fileId : fileId,
+					docId : docId,
+					docPath : path,
+					callback : callback
+				}).show();
+	},
+	initUIComponents : function() {
+
+		this.store = new Ext.data.JsonStore({
+					url : __ctxPath + '/archive/listArchivesDoc.do?archivesId='
+							+ this.archivesId,
+					root : 'result',
+					totalProperty : 'totalCounts',
+					remoteSort : true,
+					fields : [{
+								name : 'docId',
+								type : 'int'
+							}, 'fileAttach', 'creator', 'creatorId',
+							'menderId', 'mender', 'docName', 'docStatus',
+							'curVersion', 'docPath', 'updatetime', 'createtime']
+				});
+		this.store.setDefaultSort('docId', 'desc');
+		if (this.archivesId) {
+			this.store.load();
+		}
+		this.toolbar = new Ext.Toolbar({
+					height : 30,
+					items : [{
+								text : '按模板在线添加',
+								iconCls : 'menu-archive-template',
+								handler : this.addArchiveDoc,
+								scope : this
+							}, {
+								text : '在线添加',
+								iconCls : 'btn-edit-online',
+								handler : this.addNewArchiveDoc,
+								scope : this
+							}, '-', {
+								text : '上传文档',
+								iconCls : 'btn-upload',
+								handler : this.uploadArchiveDoc,
+								scope : this
+							}, '-', {
+								text : '删除附件文档',
+								iconCls : 'btn-del',
+								scope : this,
+								handler : this.deleteArchiveDoc
+							}, '-', {
+								text : '查看文档',
+								iconCls : 'menu-archive-issue-manage',
+								scope : this,
+								handler : this.detailArchivesDoc
+							}]
+				});
+
+		var sm = new Ext.grid.CheckboxSelectionModel({
+					singleSelect : true
+				});
+		// 初始化附件文档
+		this.docGridPanel = new Ext.grid.EditorGridPanel({
+			title : '公文正文',
+			iconCls : 'menu-attachment',
+			columnWidth : .96,
+			border : true,
+			id : 'GHGLJLHSentArchiveGrid',
+			autoScroll : true,
+			height : 240,
+			store : this.store,
+			tbar : this.toolbar,
+			sm : sm,
+			columns : [new Ext.grid.RowNumberer(), sm, {
+						dataIndex : 'docId',
+						hidden : true
+					}, {
+						dataIndex : 'fileAttach',
+						hidden : true
+					}, {
+						dataIndex : 'docStatus',
+						hidden : true
+					}, {
+						dataIndex : 'menderId',
+						hidden : true
+					}, {
+						dataIndex : 'creatorId',
+						hidden : true
+					}, {
+						dataIndex : 'docName',
+						width : 150,
+						header : '文档名称'
+					}, {
+						dataIndex : 'docPath',
+						header : '文档路径',
+						width : 200
+					}, {
+						dataIndex : 'curVersion',
+						header : '当前版本'
+					}, {
+						header : '管理',
+						width : 100,
+						dataIndex : 'docId',
+						sortable : false,
+						renderer : function(value, metadata, record, rowIndex,
+								colIndex) {
+							var str = '';
+							if (value != null && value != 0) {
+								str += '<button title="历史版本" value=" " class="btn-archive-history" onclick="ArchivesDraftWin.attach('
+										+ value + ')">&nbsp;&nbsp;</button>';
+							}
+							return str;
+						}
+					}]
+		});
+
+		this.formPanel = new Ext.FormPanel({
+			id : 'GHGLJLHSentArchiveForm',
+			url : __ctxPath + '/archive/saveNormalArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 70,
+			width : 800,
+			padding : '5px',
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 150,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+								fieldLabel : "拟稿单位",
+								//name : 'archives.issueDep',
+								id : 'GHGLJLHsentDoc.issueDep',
+								value : curUserInfo.depName,
+								readOnly : true
+							}, {
+								xtype : 'combo',
+								name : 'archives.sources',
+								id : 'nisources',
+								triggerAction : 'all',
+								editable : false,
+								fieldLabel : '行文方向',
+								store : ['上行文', '平行文', '下行文']
+							}, {
+								xtype : 'combo',
+								fieldLabel : '发文单位',
+								name : 'archives.issueDep',
+								id : 'niSentDep',
+								triggerAction : 'all',
+								mode : 'local',
+								listWidth : 240,
+								editable : false,
+								store : ['重庆市交通委员会', '重庆市交通委员会办公室',
+										'中共重庆市交通委员会', '中共重庆市交通委员会机关党委',
+										'中共重庆市交通纪律检查委员会', '共青团重庆市交通委员会',
+										'重庆市交通委员会直属机关工会']
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '缓急',
+								triggerAction : 'all',
+								editable : false,
+								name : 'archives.urgentLevel',
+								id : 'nigaourgentLevel',
+								emptyText : '急缓程度',
+								store : ['特急', '急件', '加急', '平急', '缓急']
+							}, {
+								fieldLabel : '拟稿',
+								name : "archives.issuer",
+								id : 'niUser',
+								readOnly : true,
+								value : curUserInfo.fullname
+							}, {
+								xtype : 'combo',
+								fieldLabel : '文种',
+								hiddenName : "archives.archivesType.typeId",
+								id : 'niarchivesType.typeId',
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/archive/comboArchivesType.do',
+											autoLoad : true,
+											fields : ['typeId', 'typeName']
+										})
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '密级',
+								triggerAction : 'all',
+								id : 'niprivacyLevel',
+								editable : false,
+								name : 'archives.privacyLevel',
+								emptyText : '密级程度',
+								store : ['一般', '秘密', '机密', '绝密', '密级']
+							}, {
+								xtype : "hidden",
+								name : "archives.reviewUserName",
+								id : "GHGLJLHSentArchiveStart.reviewUserName"
+							}, {
+								xtype : "combo",
+								// hiddenName : "archives.reviewUserName",
+								hiddenName : "archives.reviewUser",
+								id : 'GHGLJLH_flowAssignId',
+								fieldLabel : "核稿",
+								valueField : 'flowAssignId',
+								displayField : 'flowAssignName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+									url : __ctxPath
+											+ '/system/arrLeadersAppUser.do?roles=100156',
+									autoLoad : true,
+									fields : ['flowAssignId', 'flowAssignName']
+								})
+							}, {
+								xtype : 'numberfield',
+								name : 'archives.fileCounts',
+								fieldLabel : '份数',
+								value : 1
+							}, {
+								xtype : 'hidden',
+								name : 'archives.archType',
+								value : 0
+							}]
+				}]
+			}, {
+				xtype : 'radiogroup',
+				fieldLabel : '是否规范性',
+				items : [{
+							boxLabel : '规范性文件',
+							name : 'archives.isStandard',
+							inputValue : 1
+						}, {
+							boxLabel : '普通文件',
+							name : 'archives.isStandard',
+							checked : true,
+							inputValue : 0
+						}]
+			}, {
+				xtype : 'radiogroup',
+				fieldLabel : '是否公开',
+				items : [{
+					boxLabel : '公开到外网',
+					name : 'archives.isPublic',
+					inputValue : 1,
+					listeners : {
+						check : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('_GHGLJLH_unPublicReasons').hide();
+								Ext.getCmp('GHGLJLH_unPublicReasons').allowBlank = true;
+							}
+						}
+					}
+				}, {
+					boxLabel : '不公开',
+					name : 'archives.isPublic',
+					checked : true,
+					inputValue : 0,
+					listeners : {
+						check : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('_GHGLJLH_unPublicReasons').show();
+								Ext.getCmp('GHGLJLH_unPublicReasons').allowBlank = false;
+							}
+						}
+					}
+				}]
+			}, {
+				id : '_GHGLJLH_unPublicReasons',
+				border : false,
+				layout : 'form',
+				items : [{
+							xtype : 'textarea',
+							fieldLabel : '不公开理由',
+							hideParent : true,
+							id : 'GHGLJLH_unPublicReasons',
+							name : 'archives.unPublicReasons',
+							allowBlank : false,
+							maxLength : 500,
+							width : 650
+						}]
+			}, {
+				xtype:'hidden',
+				name:'archives.issuerId',
+				value:curUserInfo.userId
+			},{
+				xtype : 'textfield',
+				name : 'archives.subject',
+				allowBlank : false,
+				width : 650,
+				fieldLabel : '标题'
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style : 'padding:0px 0px 0px 0px;',
+							text : '主送:',
+							width : 75
+						}, {
+							xtype : 'textfield',
+							name : 'archives.sendTo',
+							width : '70%',
+							id : 'GHGLJLHsentDoc.recDepNames'
+						}, {
+							style : 'padding-left:20px;',
+							xtype : 'button',
+							iconCls : 'menu-department',
+							text : '选择部门',
+							handler : function() {
+								DepSelector3.getView(
+										function(depIds, depNames) {
+											Ext
+													.getCmp('GHGLJLHsentDoc.recDepNames')
+													.setValue(depNames);
+										}, false).show();
+							}
+						}]
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style : 'padding:0px 0px 0px 0px;',
+							text : '抄送:',
+							width : 75
+						}, {
+							xtype : 'textfield',
+							name : 'archives.ccTo',
+							width : '70%',
+							id : 'GHGLJLHsentDoc.ccNames'
+						}, {
+							xtype : 'button',
+							style : 'padding-left:20px;',
+							iconCls : 'menu-department',
+							text : '选择抄送人',
+							handler : function() {
+								var url = __ctxPath
+										+ '/system/depLeadersTreeDepartment.do?roles=100152,100156&depIds='
+										+ curUserInfo.depId;
+								DepLeaders.getView(
+										function(userIds, userNames) {
+											Ext
+													.getCmp('GHGLJLHsentDoc.ccNames')
+													.setValue(userNames);
+										}, false, null, url).show();
+							}
+						}]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [this.docGridPanel]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [{
+							columnWidth : .8,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id : 'GHGLJLHsentAttachments.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 4px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .2,
+							padding : '0 0 0 20px',
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document',
+										judge_size : 'no',
+										callback : function(data) {
+											var fileIds = Ext
+													.getCmp('GHGLJLHsentAttachments.fileIds');
+											var filePanel = Ext
+													.getCmp('GHGLJLHsentAttachments.personFilePanel');
+
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+
+												Ext.DomHelper
+														.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'GHGLJLHsentAttachments.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext
+											.getCmp('GHGLJLHsentAttachments.fileIds');
+									var filePanel = Ext
+											.getCmp('GHGLJLHsentAttachments.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								id : 'GHGLJLHsentAttachments.fileIds',
+								name : 'fileIds'
+							}]
+						}]
+			}]
+		});
+	}
+})

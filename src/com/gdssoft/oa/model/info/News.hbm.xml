@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.info.News" table="news" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="newsId" column="newsId" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="subjectIcon" type="java.lang.String" update="true" insert="true" access="property" column="subjectIcon" length="128" not-null="false" unique="false"/>  
+    <property name="subject" type="java.lang.String" update="true" insert="true" access="property" column="subject" length="128" not-null="false" unique="false"/>  
+    <property name="author" type="java.lang.String" update="true" insert="true" access="property" column="author" length="32" not-null="false" unique="false"/>  
+    <property name="createtime" type="java.util.Date" update="true" insert="true" access="property" column="createtime" length="19" not-null="true" unique="false"/>  
+    <property name="replyCounts" type="java.lang.Integer" update="true" insert="true" access="property" column="replyCounts" length="10" not-null="false" unique="false"/>  
+    <property name="viewCounts" type="java.lang.Integer" update="true" insert="true" access="property" column="viewCounts" length="10" not-null="false" unique="false"/>  
+    <property name="content" type="java.lang.String" update="true" insert="true" access="property" column="content" length="65535" not-null="false" unique="false"/>  
+    <property name="issuer" type="java.lang.String" update="true" insert="true" access="property" column="issuer" length="32" not-null="true" unique="false"/>  
+    <property name="updateTime" type="java.util.Date" update="true" insert="true" access="property" column="updateTime" length="19" not-null="false" unique="false"/>  
+    <property name="status" type="java.lang.Short" update="true" insert="true" access="property" column="status" length="5" not-null="true" unique="false"/>  
+    <property name="isDeskImage" type="java.lang.Short" update="true" insert="true" access="property" column="isDeskImage" length="5" not-null="false" unique="false"/>  
+    <!-- imported bi-directional many-to-one association to NewsType -->
+    
+    <!-- edit by smart on 20110512 -->
+    <property name="typeId" type="java.lang.Long" update="true" insert="true" access="property" column="typeid" length="5" not-null="false" unique="false"/>
+  <property name="depId" type="java.lang.Long" update="true" insert="true" access="property" column="depId" length="5" not-null="false" unique="false"/>
+ 
+    <property name="auditingStatus" type="java.lang.Integer" update="true" insert="true" access="property" column="auditingStatus" length="5" not-null="false" unique="false"/>
+    <property name="auditingPerson" type="java.lang.String" update="true" insert="true" access="property" column="auditingPerson" length="30" not-null="false" unique="false"/>
+    <property name="auditingCreateDate" type="java.util.Date" update="true" insert="true" access="property" column="auditingCreateDate" length="19" not-null="false" unique="false"/>
+    
+    <property name="ordertop" type="java.lang.Integer" update="true" insert="true" access="property" column="ordertop" length="5" not-null="false" unique="false"/>
+
+    
+   <!-- <many-to-one name="newsType" class="com.gdssoft.oa.model.info.NewsType" not-null="false" fetch="select"> 
+      <column name="typeId"/> 
+    </many-to-one>  -->
+    <!-- exported bi-directional one-to-many association to Contract -->  
+    <set name="newsComments" table="news_comment" lazy="true" inverse="true" cascade="save-update,delete-orphan" sort="unsorted"> 
+      <key> 
+        <column name="newsId"/> 
+      </key>  
+      <one-to-many class="com.gdssoft.oa.model.info.NewsComment"/> 
+    </set> 
+
+		<!-- imported bi-directional many-to-one association to Department -->
+		<!--<many-to-one name="department" class="com.gdssoft.oa.model.system.Department"
+			not-null="false" fetch="select">
+			<column name="depId" />
+		</many-to-one>-->
+  </class> 
+</hibernate-mapping>

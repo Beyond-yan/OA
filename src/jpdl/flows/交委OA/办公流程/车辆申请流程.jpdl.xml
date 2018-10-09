@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="车辆申请流程1.0" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="166,49,47,44" name="开始">
+		<transition g="-41,-17" name="to 登记" to="登记"/>
+	</start>
+	<task g="125,142,129,50" name="登记">
+		<transition g="-41,-17" name="to 车队派车" to="车队派车"/>
+	</task>
+	<task g="106,241,169,46" name="车队派车">
+		<transition g="-40,-17" name="to 结束" to="结束"/>
+	</task>
+	<end g="166,333,53,49" name="结束"/>
+</process>

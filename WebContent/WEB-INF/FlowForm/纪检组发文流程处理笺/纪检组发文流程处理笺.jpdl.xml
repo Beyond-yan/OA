@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="jqzSendNote02" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="337,-1,48,48" name="拟稿">
+		<transition g="-105,-22" name="to 处室初核" to="处室初核"/>
+	</start>
+	<task g="307,121,109,52" name="处室初核">
+		<transition g="-105,-22" name="to 负责人审核结果" to="负责人审核结果"/>
+	</task>
+	<task g="317,314,92,52" name="分管领导批示">
+		<transition g="-45,-22" name="to 编号" to="编号"/>
+	</task>
+	<task g="317,404,92,52" name="编号">
+		<transition g="-93,-22" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="317,510,92,52" name="生成电子公文">
+		<transition g="-45,-22" name="to 分发" to="分发"/>
+	</task>
+	<task g="318,599,92,52" name="分发">
+		<transition g="-45,-22" name="to 办结" to="办结"/>
+	</task>
+	<end g="339,713,48,48" name="办结"/>
+	<decision g="337,217,48,48" name="负责人审核结果">
+		<transition g="-93,-22" name="to 分管领导批示" to="分管领导批示">
+			<condition expr="#{examineSend=='1'}"/>
+		</transition>
+		<transition g="-69,-22" name="to 重新发起" to="重新发起">
+			<condition expr="#{examineSend=='2'}"/>
+		</transition>
+		<transition g="-27,-24" name="to 处室复核" to="处室复核">
+			<condition expr="#{examineSend=='3'}"/>
+		</transition>
+	</decision>
+	<task g="547,213,92,52" name="重新发起">
+      <transition name="to 处室初核" to="处室初核" g="594,145:-116,-25"/>
+	</task>
+   <task g="86,218,126,52" name="处室复核">
+      <transition g="147,338:-50,-39" name="to 分管领导批示" to="分管领导批示"/>
+   </task>
+</process>

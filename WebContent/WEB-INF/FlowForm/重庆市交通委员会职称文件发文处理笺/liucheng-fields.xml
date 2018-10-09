@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="CQSJTWYHZCWJFWCLJD2B" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="265,20,50,50" name="拟稿">
+      <transition g="-24,-16" name="to 拟稿送出" to="拟稿送出"/>
+	</start>
+   	<decision g="265,120,50,50" name="拟稿送出">
+      <transition g="-33,-22" name="to 处室初核" to="处室初核">
+		  <condition expr="#{NGNext=='1'}"/>
+	  </transition>
+      <transition g="642,145;646,446:-32,-17" name="to 处室复核" to="处室复核">
+		  <condition expr="#{NGNext=='2'}"/>
+	  </transition>
+   </decision>
+	<task g="230,220,120,50" name="处室初核">
+		<transition g="-65,-7" name="to 初核送出" to="初核送出"/>
+	</task>
+   <decision g="65,320,50,50" name="会签送出">
+      <transition g="90,245:18,-21" name="to 处室初核" to="处室初核">
+		  <condition expr="#{HQNext=='1'}"/>
+	  </transition>
+      <transition g="-59,-51" name="to 处室复核" to="处室复核">
+		  <condition expr="#{HQNext=='2'}"/>
+	  </transition>
+   </decision>
+	<decision g="265,320,50,50" name="初核送出">
+		<transition g="15,-55" name="to 会签" to="会签">
+			<condition expr="#{depNext=='1'}"/>
+		</transition>
+		<transition g="-32,-16" name="to 处室复核" to="处室复核">
+			<condition expr="#{depNext=='2'}"/>
+		</transition>
+      	<transition g="500,397;500,645:-20,-18" name="to 签发" to="签发">
+			<condition expr="#{depNext=='3'}"/>
+		</transition>
+		<transition g="-32,-20" name="to 重新发起" to="重新发起">
+			<condition expr="#{depNext=='4'}"/>
+		</transition>
+	</decision>
+	<task g="440,320,120,50" name="重新发起">
+		<transition g="499,159:-31,51" name="to 拟稿送出" to="拟稿送出"/>
+	</task>
+	<task g="30,420,120,50" name="会签">
+      <transition g="-32,-6" name="to 会签送出" to="会签送出"/>
+	</task>
+	<task g="230,420,120,50" name="处室复核">
+		<transition g="-32,-15" name="to 处室送出" to="处室送出"/>
+	</task>
+	<decision g="265,520,50,50" name="处室送出">
+		<transition g="90,545:70,-23" name="to 会签" to="会签">
+			<condition expr="#{roomNext=='1'}"/>
+		</transition>
+      <transition g="-20,-15" name="to 签发" to="签发">
+			<condition expr="#{roomNext=='2'}"/>
+		</transition>
+	</decision>
+	<task g="230,620,120,50" name="签发">
+		<transition g="-15,-14" name="to 编号" to="编号"/>
+	</task>
+	<task g="230,720,120,50" name="编号">
+		<transition g="-37,-13" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="230,820,120,50" name="生成电子公文">
+      <transition g="-17,-17" name="to 分发" to="分发"/>
+	</task>
+	<task g="230,920,120,50" name="分发">
+		<transition g="-23,-15" name="to 结束" to="结束"/>
+	</task>
+	<end g="265,1020,50,50" name="结束"/>
+</process>

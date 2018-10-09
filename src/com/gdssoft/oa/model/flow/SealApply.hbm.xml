@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.flow.SealApply"
+        table="SEAL_APPLY"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="19"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="sealName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="SEAL_NAME"
+            length="100"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="oppositeName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="OPPOSITE_NAME"
+            length="100"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="reason"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="REASON"
+            length="300"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="sealedState"
+            type="java.lang.Short"
+            update="true"
+            insert="true"
+            access="property"
+            column="SEALED_STATE"
+            length="5"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="sealedDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="SEALED_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="applyState"
+            type="java.lang.Short"
+            update="true"
+            insert="true"
+            access="property"
+            column="APPLY_STATE"
+            length="5"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="useCount"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="USE_COUNT"
+            length="19"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="createDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createBy"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_BY"
+            length="50"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="updateDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="UPDATE_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="updateBy"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="UPDATE_BY"
+            length="50"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="APPLY_USER_ID" />
+		</many-to-one>
+		<many-to-one
+			name="operatorUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="OPERATOR_ID" />
+		</many-to-one>
+    <!-- imported bi-directional many-to-one association to Department -->
+		<many-to-one
+			name="department"
+			class="com.gdssoft.oa.model.system.Department"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="DEPARTMENT_ID" />
+		</many-to-one>
+		<many-to-one name="processRun" class="com.gdssoft.oa.model.flow.ProcessRun"  not-null="false" fetch="select">	
+		<column name="PROCESS_INS_ID" />
+	</many-to-one> 
+	
+	<set name="sealApplyFiles" table="SEAL_APPLY_ATTACH" cascade="save-update" inverse="false" lazy="true"> 
+      <key column="sealApplyId"/>  
+		<many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="fileId"/> 
+    </set> 
+    
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="defId" label="defId" type="varchar" length="128" isShowed="false" />
+	<field name="confId" label="会议ID" type="varchar" length="19" isShowed="false" />
+    <field name="confTopic" label="会议议题" type="varchar" length="128" isShowed="true" />
+    <field name="typeId" label="会议类型" type="Long" length="19" isShowed="false" />
+    <field name="confProperty" label="会议类型" type="varchar" length="64" isShowed="true" />
+    <field name="isLong" label="是否长期预定" type="Long" length="5" isShowed="true" />
+    <field name="contactUser" label="会议联系人" type="Long" isShowed="false" />
+    <field name="roomName" label="会议室名称" type="varchar" length="64" isShowed="false" />
+    <field name="roomId" label="会议室名称" type="Long" length="19" isShowed="true" />
+    <field name="importLevel" label="会议级别" type="Long" length="5" isShowed="true" />
+    <field name="contactTel" label="联系电话" type="varchar" length="20" isShowed="true" />
+    <field name="sponsorDept" label="主办部门" type="varchar" length="200" isShowed="false" />
+    <field name="compere" label="主持人" type="varchar" length="128" isShowed="false" />
+    <field name="compereName" label="主持人" type="varchar" length="256" isShowed="true" />
+    <field name="compereDept" label="主持单位" type="varchar" length="200" isShowed="false" />
+    <field name="compereDeptName" label="主持单位" type="varchar" length="500" isShowed="true" />
+    <field name="recorder" label="记录人" type="varchar" length="128" isShowed="false" />
+    <field name="recorderName" label="记录人" type="varchar" length="256" isShowed="true" />
+    <field name="attendUsers" label="参加人" type="varchar" length="500" isShowed="false" />
+    <field name="attendUsersName" label="参加人" type="varchar" length="4000" isShowed="true" />
+    <field name="attendDept" label="参会单位" type="varchar" length="200" isShowed="false" />
+    <field name="attendDeptName" label="参会单位" type="varchar" length="500" isShowed="true" />
+    <field name="tempStartDate" label="开始日期" type="varchar" isShowed="true" />
+    <field name="tempStartTime" label="开始时间" type="varchar" isShowed="true" />
+    <field name="tempEndDate" label="结束日期" type="varchar" isShowed="true" />
+    <field name="tempEndTime" label="结束时间" type="varchar" isShowed="true" />
+    <field name="confContent" label="会议要求" type="CLOB" isShowed="true" />
+    <field name="attendConfine" label="参会人员要求" type="varchar" length="500" isShowed="true" />
+</fields>

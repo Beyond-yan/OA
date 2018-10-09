@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fileIds" label="附件id" type="varchar" length="1000" isShowed="false" />
+    <field name="nextUserId" type="varchar" length="1000" isShowed="false" />
+    <field name="nextName" type="varchar" length="1000" isShowed="false" />
+	<field name="meetingRemark" type="varchar" lable="meetingRemark" isShowed="false" />
+	<field name="meetingState" lable="meetingState" type="varchar" isShowed="false" />
+	<field name="userId" lable="流程发起人" type="varchar" isShowed="false" />
+</fields>

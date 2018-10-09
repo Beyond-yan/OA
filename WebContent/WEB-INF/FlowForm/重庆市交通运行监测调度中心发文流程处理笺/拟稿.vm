@@ -1,0 +1,1004 @@
+﻿BHSentArchiveStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		BHSentArchiveStart.superclass.constructor.call(this, {
+					id : 'JTXXZXBHSentArchiveStart',
+					title : '重庆交通监测调度中心发文处理笺',
+					layout : 'form',
+					modal : true,
+					width : 800,
+					iconCls : 'menu-archive-draft',
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [{
+								text : '启动流程',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}, {
+								text : '保存草稿',
+								iconCls : 'btn-beready-save',
+								scope : this,
+								handler : this.savedraft
+							}]
+				});
+		var jsArr = [__ctxPath + '/js/archive/ArchivesDocForm.js',
+		__ctxPath + '/js/archive/ArchivesDocForm.js',
+		__ctxPath + '/js/archive/ArchivesDocHistoryWin.js',
+		__ctxPath + '/js/archive/ArchiveTypeTempView.js',
+		__ctxPath + '/js/archive/ArchTemplateView.js',
+		__ctxPath + '/js/archive/ArchTemplateForm.js',
+		__ctxPath + '/js/archive/OfficeTemplateView.js',
+		__ctxPath + '/js/archive/ArchTemplateSelector.js'];
+		$ImportSimpleJs(jsArr, null);
+	},
+	save : function() {
+		/*文种*/Ext.getCmp('JTXXZXBHSentArchiveStart.archivesType').allowBlank = false;
+		/*标题*/Ext.getCmp('JTXXZXBHSentArchiveStart.subject').allowBlank = false;
+		/*发文单位*/Ext.getCmp('JTXXZXBHSentArchiveStart.issueDep').allowBlank = false;
+		/*行文方向*/Ext.getCmp('JTXXZXBHSentArchiveStart.sources').allowBlank = false;
+		/*常用主送单位*/Ext.getCmp('JTXXZXLawsOpinSentArchiveForm.sendTo').allowBlank = false;
+		/*是否规范性文件*/Ext.getCmp('JTXXZXBHSentArchiveStart.isStandard').allowBlank = false;
+		/*是否公开到外网*/Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').allowBlank = false;
+		/*选择人员*/Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderNames').allowBlank = false;
+		var defId = this.defId;
+		if (this.formPanel.getForm().isValid()) {
+			var formPanel = this.formPanel;
+			var docParams = [];
+			for (var i = 0, cnt = this.store.getCount(); i < cnt; i++) {
+				docParams.push(this.store.getAt(i).data);
+			}
+            var url1 = __ctxPath + '/archive/saveNormalArchives.do';
+			var url2 = __ctxPath + '/archive/saveArchives.do';
+			formPanel.getForm().submit({
+				url : archivesId ? url2 : url1,
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					'archives.isdraft' : 0,
+					docs : Ext.encode(docParams)
+				},
+				success : function(fp, action) {
+					var archivesId = action.result.archivesId;
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var fileIds = Ext.getCmp('JTXXZXLawsOpinSentAttachments.fileIds').getValue();
+					var LeaderName = Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderNames').getValue();
+					var LeaderId = Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderIds').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();	
+					var option = formPanel.getCmpByName('depOption').getGroupValue();
+					var isReserveNo=formPanel.getCmpByName('archives.isReserveNo').getGroupValue();
+						
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/saveProcessActivity.do',
+						method : 'post',
+							waitMsg : '正在发起流程...',
+							timeout:'300',
+						params : {
+							flowStartUserId:curUserInfo.userId,
+							isReserveNo:isReserveNo,
+							LeaderName : LeaderName,
+							LeaderId : LeaderId,
+							defId : defId,
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo:sendInfo,
+							archivesId : archivesId,
+							fileIds : fileIds?fileIds:'_',
+							depNext:option,
+							creatorDepid:curUserInfo.depId,
+							sendUserId : curUserInfo.userId,
+							comments: Ext.getCmp('JTXXZXBHSentArchiveStart.leaderOpinion').getValue(),
+							flowAssignId : Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderIds').getValue(),
+							startFlow : true
+						},
+						success : function(response,options) {
+							var processInsId = options.result.runId;
+							Ext.Ajax.request({
+									url : __ctxPath + '/archive/updateRunIdArchives.do',
+									params : {
+										'archivesId' : archivesId,
+										'runId' : processInsId
+									},
+									method:'post',
+									success : function(response, options) {
+										Ext.ux.Toast.msg('操作信息', '拟稿成功！');
+										Ext.getCmp('centerTabPanel').remove(Ext
+												.getCmp('ProcessRunStart' + defId));
+										refreshTaskPanelView();
+										var ArchivesGrid = Ext.getCmp('ArchivesGrid');
+									if (ArchivesGrid != null) {
+										ArchivesGrid.getStore().reload();
+									}
+									}
+							});
+						}
+					});
+				}, 
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	/* 保存草稿 */
+	savedraft : function() {
+		/*预约编号*/  Ext.getCmp('JTXXZ_FLYJ_isReserveNoStart_').allowBlank = true;
+		/*文种*/Ext.getCmp('JTXXZXBHSentArchiveStart.archivesType').allowBlank = true;
+		/*标题*/Ext.getCmp('JTXXZXBHSentArchiveStart.subject').allowBlank = true;
+		/*发文单位*/Ext.getCmp('JTXXZXBHSentArchiveStart.issueDep').allowBlank = true;
+		/*行文方向*/Ext.getCmp('JTXXZXBHSentArchiveStart.sources').allowBlank = true;
+		/*常用主送单位*/Ext.getCmp('JTXXZXLawsOpinSentArchiveForm.sendTo').allowBlank = true;
+		/*是否规范性文件*/Ext.getCmp('JTXXZXBHSentArchiveStart.isStandard').allowBlank = true;
+		/*是否公开到外网*/Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').allowBlank = true;
+		/*选择人员*/Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderNames').allowBlank = true;
+		var defId = this.defId;
+		/*
+		 * if (this.store.getCount() == 0) { Ext.ux.Toast.msg('操作信息',
+		 * '请添加公文正文!'); return false; }
+		 */
+		if (this.formPanel.getForm().isValid()) {
+			var formPanel = this.formPanel;
+			/*
+			 * alert(formPanel.getCmpByName('archives.reviewUser').getValue());
+			 * return false;
+			 */
+			var docParams = [];
+			for (var i = 0, cnt = this.store.getCount(); i < cnt; i++) {
+				docParams.push(this.store.getAt(i).data);
+			}
+			var url1 = __ctxPath + '/archive/saveNormalArchives.do';
+			var url2 = __ctxPath + '/archive/saveArchives.do';
+			formPanel.getForm().submit({
+				url : archivesId ? url2 : url1,
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					'archives.isdraft' : 1,
+					docs : Ext.encode(docParams)
+				},
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '成功保存！');
+					var ArchivesGrid = Ext.getCmp('ArchivesGrid');
+									if (ArchivesGrid != null) {
+										ArchivesGrid.getStore().reload();
+									}
+					Ext.getCmp('centerTabPanel').remove(Ext
+							.getCmp('ProcessRunStart' + defId));
+					refreshTaskPanelView();
+},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	initUIComponents : function() {
+			this.defId=defId;
+				Ext.Ajax.request({
+					url : __ctxPath + '/archive/getdefnameArchives.do',
+					params : {
+						'defId' : defId
+					},
+					method : 'post',
+					success : function(response, options) {
+						var data = Ext.util.JSON.decode(response.responseText);
+						Ext.getCmp('JTXXZXBHSentArchiveStart.recDepNames')
+								.setValue(data.name);
+					}
+				});
+		this.archivesId = archivesId;
+	this.docGridPanel = new ArchivesUtil({
+			panelId :'JTXXZXBHSentArchiveStart',
+			isStart : true,
+			archType: 0,
+			archivesId : this.archivesId
+		}).getGridPanelWithFullTools();
+		this.store = new Ext.data.JsonStore({
+					url : __ctxPath + '/archive/listArchivesDoc.do?archivesId='
+							+ this.archivesId,
+					root : 'result',
+					totalProperty : 'totalCounts',
+					remoteSort : true,
+					fields : [{
+								name : 'docId',
+								type : 'int'
+							}, 'fileAttach', 'creator', 'creatorId',
+							'menderId', 'mender', 'docName', 'docStatus',
+							'curVersion', 'docPath', 'updatetime', 'createtime']
+				});
+		this.store.setDefaultSort('docId', 'desc');
+		if (this.archivesId) {
+			this.store.load();
+		}
+
+		var formPanel = this.formPanel = new Ext.FormPanel({
+			id : 'JTXXZXLawsOpinSentArchiveForm',
+			url : __ctxPath + '/archive/saveNormalArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 80,
+			width : 800,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+					}, [{
+								name : 'archives.archivesId',
+								mapping : 'archivesId'
+							}, {
+								name : 'archives.issueDep',
+								mapping : 'issueDep'
+							}, {
+								name : 'archives.subject',
+								mapping : 'subject'
+							}, {
+								name : 'archives.isReserveNo',
+								mapping : 'isReserveNo'
+							}, {
+								name : 'archives.fileCounts',
+								mapping : 'fileCounts'
+							}, {
+								name : 'archives.privacyLevel',
+								mapping : 'privacyLevel'
+							}, {
+								name : 'archives.urgentLevel',
+								mapping : 'urgentLevel'
+							}, {
+								name : 'archives.issuer',
+								mapping : 'issuer'
+							}, {
+								name : 'archives.sources',
+								mapping : 'sources'
+							}, {
+								name : 'archives.isPublic',
+								mapping : 'isPublic'
+							}, {
+								name : 'archives.reviewUser',
+								mapping : 'reviewUser'
+							}, {
+								name : 'archives.reviewUserName',
+								mapping : 'reviewUserName'
+							}, {
+								name : 'archives.sendTo',
+								mapping : 'sendTo'
+							}, {
+								name : 'archives.ccTo',
+								mapping : 'ccTo'
+							}, {
+								name : 'archives.isStandard',
+								mapping : 'isStandard'
+							}, {
+								name : 'archives.unPublicReasons',
+								mapping : 'unPublicReasons'
+							},{
+								name:'archives.handlerUnames',
+								mapping:'handlerUnames'
+							}]),
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 150,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+							name : 'archives.archivesId',
+							xtype : 'hidden'
+						}, {
+							xtype : "hidden",
+							name : "archives.recDepIds",
+							value : defId,
+							id : "JTXXZXBHSentArchiveStart.recDepIds"
+						}, {
+							xtype : "hidden",
+							name : "archives.recDepNames",
+							id : "JTXXZXBHSentArchiveStart.recDepNames"
+						},{
+								fieldLabel : "拟稿单位",
+								value : curUserInfo.depName,
+								readOnly : true
+							}, {
+								xtype : 'combo',
+								name : 'archives.sources',
+								id:'JTXXZXBHSentArchiveStart.sources',
+								triggerAction : 'all',
+								editable : false,
+								fieldLabel : '行文方向',
+								store : ['上行文', '平行文', '下行文']
+							}, {
+								xtype : 'combo',
+								fieldLabel : "发文单位",
+								name : 'archives.issueDep',
+								id:'JTXXZXBHSentArchiveStart.issueDep',
+								triggerAction : 'all',
+								lazyRender : true,
+								listWidth: 180,
+								editable : false,
+								fieldLabel : '发文单位',
+								store : ['交通调度中心办公室',
+										'交通宣传中心办公室']
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '缓急',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank:true,
+								name : 'archives.urgentLevel',
+								emptyText : '急缓程度',
+								store : ['特急', '急件', '加急', '平急']
+							}, {
+								fieldLabel : '拟稿',
+								name : "archives.issuer",
+								readOnly : true,
+								value : curUserInfo.fullname
+							},{
+								xtype : 'combo',
+								fieldLabel : '文种',
+								hiddenName : "archives.archivesType.typeId",
+								id:'JTXXZXBHSentArchiveStart.archivesType',
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/archive/comboArchivesType.do',
+											autoLoad : true,
+											fields : ['typeId', 'typeName']
+										})
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '密级',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank:true,
+								name : 'archives.privacyLevel',
+								emptyText : '密级程度',
+								store : ['一般', '秘密', '机密', '绝密'],
+								listeners: {
+									'select':function(combo){
+										if(combo.getValue()!='一般'){
+											Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').disable();
+											Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').allowBlank=true;		
+											Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').disable();
+											Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank=true;
+											Ext.getCmp('JTXXZXhiddenIsPublic').setValue(0);
+			                                Ext.getCmp('JTXXZXhiddenUnPublicReasons').setValue(null);
+			                                Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').setValue(null);
+			                               // Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank = true;
+			                                Ext.getCmp('JTXXZXhiddenIsPublic').setDisabled(false);
+		                                    Ext.getCmp('JTXXZXhiddenUnPublicReasons').setDisabled(false);
+		                                    
+		                                   // Ext.getCmp('JTXXZXBHSentCounts').show();
+											//Ext.getCmp('JTXXZXBHSentCounts').el.parent().parent().show();
+											//Ext.getCmp('JTXXZXBHSentCounts').allowBlank = false;
+										}else{
+											Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').reset();
+											Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').setDisabled(false);
+											Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').allowBlank=false;
+											Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').setDisabled(false);
+											Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank=false;
+											Ext.getCmp('JTXXZXhiddenIsPublic').disable();
+		                                    Ext.getCmp('JTXXZXhiddenUnPublicReasons').disable();
+		                                    
+//		                                    Ext.getCmp('JTXXZXBHSentCounts').setValue(null);
+		                                  //  Ext.getCmp('JTXXZXBHSentCounts').hide();
+											//Ext.getCmp('JTXXZXBHSentCounts').el.parent().parent().hide();
+											//Ext.getCmp('JTXXZXBHSentCounts').allowBlank = true;
+										}
+									}
+								}
+							}, {
+								xtype : 'numberfield',
+								name : 'archives.fileCounts',
+								id : 'JTXXZXBHSentCounts',
+								fieldLabel : '份数',
+								value : 1
+							}]
+				}]
+			},{
+				xtype : 'textfield',
+				name : 'archives.subject',
+				id:'JTXXZXBHSentArchiveStart.subject',
+				allowBlank : false,
+				width : '94%',
+				fieldLabel : '标题',
+				listeners: {
+							'change' : function(t){
+						       if(t.getValue()!=""){
+						       		Ext.getCmp('SearchSubject').setValue(t.getValue());
+						       		Ext.getCmp('ProcessStartOASearchGrid').getStore().baseParams = {
+										'subject' : Ext.getCmp('SearchSubject').getValue(),
+										'archType': "0",
+										'docName' : Ext.getCmp('SearchDocNames').getValue(),
+										'fileName': Ext.getCmp('SearchFileNames').getValue()
+									}
+							        Ext.Ajax.request({
+										url : __ctxPath + '/archive/oaSearchListArchives.do',
+										params : {
+											'subject' : t.getValue(),
+											'archType': "0",
+											'docName' : Ext.getCmp('SearchDocNames').getValue(),
+											'fileName': Ext.getCmp('SearchFileNames').getValue()
+										},
+										method:'post',
+										success : function(response, options) {
+											var data=Ext.util.JSON.decode(response.responseText)
+											Ext.getCmp('ProcessStartOASearchGrid').getStore().loadData(data);
+										}
+									});
+						       }
+						     }
+						}
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 5px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '主送:',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.sendTo',
+							id : 'JTXXZXLawsOpinSentArchiveForm.sendTo',
+							width : '72%'
+						}, {
+							style : 'padding-left:5px;',
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '常用主送单位',
+							handler : function() {
+										UnitsSelector.getView(
+											function(ids, names) {
+												Ext.getCmp('JTXXZXLawsOpinSentArchiveForm.sendTo')
+													.setValue(names);
+												}, false,1).show();
+										}
+						}]
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '抄送:',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.ccTo',
+							id : 'JTXXZXLawsOpinSentArchiveForm.ccTo',
+							width : '72%'
+						}, {
+							xtype : 'button',
+							style : 'padding-left:5px;',
+							iconCls : 'menu-department',
+							text : '常用抄送单位',
+							handler : function() {
+										UnitsSelector.getView(
+											function(ids, names) {
+												Ext.getCmp('JTXXZXLawsOpinSentArchiveForm.ccTo')
+													.setValue(names);
+												}, false,2).show();
+										}
+						}]
+			},{
+				xtype : 'radiogroup',
+				allowBlank : false,
+				style : 'padding-top:4px;',
+				defaults:{	//{}对象A中的defaults属性值也是一个对象，该对象的属性会被A的所有子元素继承，并可以被重写。
+					listeners : {//为radiogroup中items的所有组件添加该listeners
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderIds').setValue('');
+								Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderNames').setValue('');
+							}
+						}
+					}
+				},
+				items : [{
+					boxLabel : '部门负责人核稿',
+					width :160,
+					name : 'depOption',
+					inputValue : 1,
+					checked : true
+				}, {
+					width :160,
+					boxLabel : '综合办公室审核',
+					name : 'depOption',
+					inputValue : 2
+				}, {
+					width :160,
+					boxLabel : '签发',
+					name : 'depOption',
+					inputValue : 3
+				}],
+				fieldLabel : '签核步骤'
+			},/*{
+				xtype : "hidden",
+				name : "archives.reviewUserName",
+				id : "StartJTXXZXSentArchiveReStart.reviewUserName"
+			}, {
+                xtype : "hidden",
+				name : "archives.reviewUser",
+				id : 'StartJTXXZX_flowAssignIdRe'
+
+			},*/{
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 0px 0px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style : 'padding-top:4px;',
+							text : '选择人员:',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							width : '75%',
+							allowBlank:false,
+							readOnly : true,
+							id : 'JTXXZXBHSentArchiveStart.LeaderNames'
+						}, {
+							xtype : 'hidden',
+							id : 'JTXXZXBHSentArchiveStart.LeaderIds'
+						}, {
+							xtype : 'button',
+							iconCls : 'menu-department',
+							style : 'padding-left:5px;',
+							text : '选择人员',
+							handler : function() {
+//								var url = __ctxPath +"/system/depLeadersTreeDepartment.do"+'?roles='+roleMap.get('officeDeputyDirectorRoleID')+','+roleMap.get('officeDirectorRoleID');
+//								var formPanel=Ext.getCmp('JTXXZXLawsOpinSentArchiveForm');
+//								var option = formPanel.getCmpByName('depOption').getGroupValue();
+								var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds=1247031';
+								DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderIds').setValue(userIds);
+											Ext.getCmp('JTXXZXBHSentArchiveStart.LeaderNames')
+													.setValue(fullnames);
+											/*Ext.getCmp('StartJTXXZX_flowAssignIdRe').setValue(userIds);
+											Ext.getCmp('StartJTXXZXSentArchiveReStart.reviewUserName').setValue(fullnames);*/
+										}, true, null,url).show();
+							}
+						}]
+			}, {
+				xtype : 'fieldset',
+				padding : '5px',
+				border : false,
+				defaults : {
+					anchor : '97.5%,97.5%'
+				},
+				items : [this.docGridPanel]
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:2px;',
+				defaults : {
+					allowBlank : true,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '附件：',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.enclosure',
+							width : '85%',
+							id : 'JTXXZXLawsOpinSentAttachments.enclosure'
+						}]
+			},{
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					//padding : '5px',
+					border : false
+				},
+				items : [{
+							columnWidth : .85,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id :'JTXXZXLawsOpinSentAttachments.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 0px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .15,
+							padding : '3px 0 0 8px',
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document',
+										judge_size : 'no',
+										upload_autostart : true,
+										callback : function(data) {
+											var fileIds = Ext.getCmp('JTXXZXLawsOpinSentAttachments.fileIds');
+											var filePanel = Ext.getCmp('JTXXZXLawsOpinSentAttachments.personFilePanel');
+											var fileNames="";
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+												if(i>0){
+													fileNames+=" ";
+												}
+												fileNames+=data[i].filename;
+												Ext.DomHelper.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'JTXXZXLawsOpinSentAttachments.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+											Ext.getCmp('SearchFileNames').setValue(fileNames);
+											Ext.getCmp('ProcessStartOASearchGrid').getStore().baseParams = {
+												'subject' : Ext.getCmp('SearchSubject').getValue(),
+												'archType': "0",
+												'docName' : Ext.getCmp('SearchDocNames').getValue(),
+												'fileName': Ext.getCmp('SearchFileNames').getValue()
+											}
+											Ext.Ajax.request({
+													url : __ctxPath + '/archive/oaSearchListArchives.do',
+													params : {
+														'subject' : Ext.getCmp('SearchSubject').getValue(),
+														'archType': "0",
+														'docName' : Ext.getCmp('SearchDocNames').getValue(),
+														'fileName': fileNames
+													},
+													method:'post',
+													success : function(response, options) {
+														var data=Ext.util.JSON.decode(response.responseText)
+														Ext.getCmp('ProcessStartOASearchGrid').getStore().loadData(data);
+													}
+											});
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext.getCmp('JTXXZXLawsOpinSentAttachments.fileIds');
+									var filePanel = Ext.getCmp('JTXXZXLawsOpinSentAttachments.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								name : 'fileIds',
+								id : 'JTXXZXLawsOpinSentAttachments.fileIds'
+							}]
+						}]
+			}, {
+				id : 'JTXXZ_FLYJ_isReserveNoStart_',
+				border : false,
+				labelWidth:95,
+				layout : 'form',
+				items : {
+					xtype : 'radiogroup',
+					fieldLabel : '是否预约编号',
+					allowBlank : false,
+					hideParent:true,
+					items : [{
+								boxLabel : '是',
+								name : 'archives.isReserveNo',
+								inputValue : 1
+							}, {
+								boxLabel : '否',
+								name : 'archives.isReserveNo',
+								inputValue : 0
+							}]
+				}
+			},{
+			border:false,
+			labelWidth:95,
+			layout:'form',
+			items:{
+				xtype : 'radiogroup',
+				allowBlank : false,
+				fieldLabel : '是否规范性文件',
+				id : 'JTXXZXBHSentArchiveStart.isStandard',
+				items : [{
+							boxLabel : '是',
+							name : 'archives.isStandard',
+							id : 'JTXXZXBHSentArchiveStart.unStandard',
+							inputValue : 1
+						}, {
+							boxLabel : '否',
+							name : 'archives.isStandard',
+							id : 'JTXXZXBHSentArchiveStart.standard',
+							inputValue : 0
+						}]
+			}},{
+			border:false,
+			labelWidth:95,
+			layout:'form',
+			items:{
+				xtype : 'radiogroup',
+				allowBlank:false,
+				id:'JTXXZXBHSentArchiveStart.isPublic',
+				fieldLabel : '是否公开到外网',
+				items : [{
+					boxLabel : '是',
+					name : 'archives.isPublic',
+					inputValue : 1,
+					listeners : {
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank = true;
+								Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').hide();
+								Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').el
+										.parent().parent().hide();
+							}
+						}
+					}
+				},{
+					boxLabel : '否',
+					name : 'archives.isPublic',
+					inputValue : 0,
+					listeners : {
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank = false;
+								Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').show();
+								Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').el
+										.parent().parent().show();
+							}
+						}
+					}
+				}]
+			}},{
+				xtype:'hidden',
+				disabled:true,
+				name:'archives.isPublic',
+				id:'JTXXZXhiddenIsPublic'
+			},{
+				xtype:'hidden',
+				disabled:true,
+				//name:'archives.unPublicReasons',
+				id:'JTXXZXhiddenUnPublicReasons'
+			},{
+				id:'JTXXZXBHSentArchiveReasons',
+				border:false,
+				layout:'form',
+				items:[{
+					xtype : 'textarea', 
+					fieldLabel : '不公开原因',
+					hideParent :true,
+					id:'JTXXZXBHSentArchiveStart.unPublicReasons',
+					name : 'archives.unPublicReasons',
+					maxLength :500,
+					width : '93.5%'
+				}]
+			},{
+			   layout:'column',
+			   style:'padding:6px 0px 0px 0px',
+			   border:false,
+			   items:[{
+			   		layout:'form',
+			   		border:false,
+			   		items:[{	
+		   					fieldLabel : '备注',
+		   					id:'JTXXZXBHSentArchiveStart.leaderOpinion',
+							//name : 'leaderOpinion',
+							name : 'archives.handlerUnames',
+							autoScroll:true,
+							maxLength:500,
+							height:40,
+							xtype:'textarea',
+							width:595
+							}]
+			     	 }]
+			},{
+				xtype:'hidden',
+				name:'archives.issuerId',
+				value:curUserInfo.userId
+			},{
+				xtype:'hidden',
+				name:'archives.archType',
+				id : 'archivesArchType',
+				value:0
+			}]
+		});
+		Ext.getCmp('ProcessStartOASearchGrid').getStore().baseParams = {
+			'subject' : Ext.getCmp('SearchSubject').getValue(),
+			'archType': "0",
+			'docName' : Ext.getCmp('SearchDocNames').getValue(),
+			'fileName': Ext.getCmp('SearchFileNames').getValue()
+		}
+			// load date
+		if (this.archivesId) {
+			this.formPanel.getForm().load({
+				url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='
+						+ this.archivesId,
+				waitMsg : '正在载入数据...',
+				success : function(form, action) {
+					var isStandard = action.result.data['archives.isStandard'];
+					var isPublic = action.result.data['archives.isPublic'];
+					var isReserveNo = action.result.data['archives.isReserveNo'];
+					var privacyLevel = action.result.data['archives.privacyLevel'];
+					Ext.getCmp('JTXXZXBHSentArchiveStart.archivesType')
+							.getStore().load({
+								callback : function() {
+									// 等待数据加载完成才进行赋值，不然由于异步会出现先赋值后加载完成。
+									Ext
+											.getCmp('JTXXZXBHSentArchiveStart.archivesType')
+											.setValue(Ext
+													.decode(action.response.responseText).data[0].parentArchId);
+								},
+								scope : Ext
+										.getCmp('JTXXZXBHSentArchiveStart.archivesType')
+										.getStore(),// 表示作用范围
+								add : false
+									// 为false表示数据不累加
+							});
+					Ext.getCmp('JTXXZXLawsOpinSentAttachments.enclosure').setValue(Ext.decode(action.response.responseText).data[0].enclosure);
+					if (privacyLevel != '一般' && privacyLevel != '密级程度') {
+						Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').disable();
+						Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').allowBlank = true;
+						Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank = true;
+						Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').disable();
+						// Ext.getCmp('ZSGHSentArchiveReCounts').show();
+						// Ext.getCmp('ZSGHSentArchiveReCounts').el.parent().parent().show();
+						// Ext.getCmp('ZSGHSentArchiveReCounts').allowBlank =
+						// false;
+					}
+					if (privacyLevel == '一般' || privacyLevel == '密级程度') {
+						// Ext.getCmp('ZSGHSentArchiveReCounts').hide();
+						// Ext.getCmp('ZSGHSentArchiveReCounts').el.parent().parent().hide();
+						// Ext.getCmp('ZSGHSentArchiveReCounts').allowBlank =
+						// true;
+						if(isPublic==-1){
+						Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic')
+								.setValue(null);
+					    }else
+						if (isPublic == 0) {
+							// Ext.get("ZSGHSentArchiveRestart.unPublic").dom.checked=true;
+							Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').setValue(0);
+						} else {
+							// Ext.get("ZSGHSentArchiveRestart.public").dom.checked=true;
+							Ext.getCmp('JTXXZXBHSentArchiveStart.unPublicReasons').allowBlank = true;
+							Ext.getCmp('JTXXZXBHSentArchiveStart.isPublic').setValue(1);
+							Ext.getCmp('JTXXZXBHSentArchiveReasons').hide();
+							// Ext.getCmp('ZSJG_unPublicReasons').hide();
+							// Ext.getCmp('ZSJG_unPublicReasons').el.parent().parent().hide();
+						}
+					}
+						if(isStandard==-1){
+						Ext.getCmp('JTXXZXBHSentArchiveStart.standard')
+								.setValue(null);
+					}else
+					if (isStandard == 0) {
+						Ext.getCmp('JTXXZXBHSentArchiveStart.standard')
+								.setValue(0);
+					} else {
+						Ext.getCmp('JTXXZXBHSentArchiveStart.standard')
+								.setValue(1);
+					}
+					var data = Ext.decode(action.response.responseText).data[0];
+					// Ext.getCmp('ZSGHSentArchiveRestart.archivesType').setValue(data.parentArchId);
+					// Ext.getCmp('ZSGHSentArchiveRestart.flowAssignId').setValue(data.reviewUser);
+					var filePanel = Ext.getCmp('JTXXZXLawsOpinSentAttachments.personFilePanel');
+					var fileIds = Ext.getCmp("JTXXZXLawsOpinSentAttachments.fileIds");
+					// Ext.Ajax.request({
+					// url : __ctxPath + '/archive/getAttachFilesArchives.do',
+					// params : {
+					// 'fileIds' : '${fileIds}'
+					// },
+					// method:'post',
+					// success : function(response, options) {
+					var af = Ext.decode(action.response.responseText).data[0].archivesFiles;
+					if (af != null) {
+						for (var i = 0; i < af.length; i++) {
+							if (fileIds.getValue() != '') {
+								fileIds.setValue(fileIds.getValue() + ',');
+							}
+							fileIds.setValue(fileIds.getValue() + af[i].fileId);
+							Ext.DomHelper
+									.append(
+											filePanel.body,
+											'<span><a href="#" onclick="FileAttachDetail.show('
+													+ af[i].fileId
+													+ ')">'
+													+ af[i].fileName
+													+ '</a><img class="img-delete" src="'
+													+ __ctxPath
+													+ '/images/system/delete.gif" onclick="removeFile(this,\'ZSGHSentArchiveRestart.fileIds\','
+													+ af[i].fileId
+													+ ')"/>&nbsp;|&nbsp;</span>');
+						}
+					}
+					// }
+					// });
+				},
+				failure : function(form, action) {
+					Ext.ux.Toast.msg('编辑', '载入失败');
+				}
+			});
+		}
+		var did=defId;
+		Ext.Ajax.request({
+						url : __ctxPath + '/snconfig/listByPageFileSnConfigOrder.do',
+						params : {
+							'flowId' : did,
+							'userId':curUserInfo.userId,
+							'isUsed':0
+						},
+						method:'post',
+						success : function(response, options) {
+							var af=Ext.util.JSON.decode(response.responseText).result;
+							if(af==""){
+							  Ext.getCmp('JTXXZ_FLYJ_isReserveNoStart_').hide();
+							  formPanel.getCmpByName('archives.isReserveNo').setValue(0);
+							  Ext.getCmp('JTXXZ_FLYJ_isReserveNoStart_').allowBlank=true;
+							}else{
+							Ext.getCmp('JTXXZ_FLYJ_isReserveNoStart_').show();
+							Ext.getCmp('JTXXZ_FLYJ_isReserveNoStart_').allowBlank=false;
+							}
+						}
+			});
+			
+	}
+})

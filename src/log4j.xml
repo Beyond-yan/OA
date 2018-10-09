@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >
+
+
+    <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}:%L[%X{gid}]-/%msg%n%n"/>
+        </layout>
+        <!--过滤器设置输出的级别 -->
+        <filter class="com.gdssoft.core.log.CustomerLogFilter">
+            <param name="levelMin" value="Customer" />
+            <param name="levelMax" value="Customer" />
+            <param name="AcceptOnMatch" value="true" />
+        </filter>
+    </appender>
+
+    <appender name="dailyAppender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="File" value="c:/dev/logs/oa-customer.log" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}:%L[%X{gid}]-/%msg%n%n" />
+        </layout>
+        <!--过滤器设置输出的级别 -->
+        <filter class="com.gdssoft.core.log.CustomerLogFilter">
+            <param name="levelMin" value="Customer" />
+            <param name="levelMax" value="Customer" />
+            <param name="AcceptOnMatch" value="true" />
+        </filter>
+    </appender>
+
+    <!-- 根logger的设置-->
+    <root>
+        <priority value ="INFO"/>
+        <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="dailyAppender"/>
+    </root>
+</log4j:configuration>

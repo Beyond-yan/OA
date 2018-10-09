@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="CQJTDBSWCLJFiles02" xmlns="http://jbpm.org/4.4/jpdl">
+	<start g="400,20,50,50" name="收文登记">
+		<transition g="-36,-16" name="to 登记结果" to="登记结果"/>
+	</start>
+	<decision g="400,120,50,50" name="登记结果">
+		<transition g="215,145;215,310;380,310:-36,-95" name="to 督办安排" to="督办安排">
+			<condition expr="#{dengjiOption=='1'}"/>
+		</transition>
+      	<transition g="-52,-13" name="to 办公室主任拟办" to="办公室主任拟办">
+      	    <condition expr="#{dengjiOption=='2'}"/>
+      	</transition>
+      	<transition g="88,126;99,1325:-17,1" name="to 结束" to="结束">
+      	    <condition expr="#{dengjiOption=='3'}"/>
+      	</transition>
+	</decision>
+	<task g="365,220,120,50" name="办公室主任拟办">
+		<transition g="-32,-16" name="to 督办安排" to="督办安排"/>
+	</task>
+	<task g="365,320,120,50" name="督办安排">
+		<transition g="-65,-17" name="to 拟办结果" to="拟办结果"/>
+	</task>
+	<decision g="400,420,50,50" name="拟办结果">
+		<transition g="-40,-13" name="to 拟办分发并发" to="拟办分发并发">
+			<condition expr="#{nibanOption=='1'}"/>
+		</transition>
+		<transition g="660,445:-30,-100" name="to 重新登记" to="重新登记">
+			<condition expr="#{nibanOption=='3'}"/>
+		</transition>
+	</decision>
+	<fork g="400,520,50,50" name="拟办分发并发">
+       <transition g="-56,-22" name="to 领导批示1分支" to="领导批示1分支"/>
+       <transition g="-39,-11" name="to 处室拟办分支" to="处室拟办分支"/>
+    </fork>
+    <foreach g="190,520,50,50" in="#{leaderUserIds}" name="领导批示1分支" var="leaderUserId">
+        <transition g="-31,-5" name="to 领导批示1" to="领导批示1"/>
+    </foreach>
+	<task assignee="#{leaderUserId}" g="155,420,120,50" name="领导批示1">
+		<transition g="215,348:-34,21" name="to 督办安排" to="督办安排"/>
+	</task>
+    <foreach g="400,620,50,50" in="#{nibanUserIds}" name="处室拟办分支" var="nibanUserId">
+        <transition g="-32,-15" name="to 内勤分发" to="内勤分发"/>
+    </foreach>
+	<task assignee="#{nibanUserId}" g="365,720,120,50" name="内勤分发">
+		<transition g="-30,-14" name="to 分发结果" to="分发结果"/>
+	</task>
+	<decision g="400,820,50,50" name="分发结果">
+		<transition g="-33,-23" name="to 领导批示2分支" to="领导批示2分支">
+			<condition expr="#{fenfaOption=='1'}"/>
+		</transition>
+      <transition g="-37,-17" name="to 处内拟办" to="处内拟办">
+			<condition expr="#{fenfaOption=='2'}"/>
+      </transition>
+	</decision>
+    <foreach g="190,820,50,50" in="#{leader2UserIds}" name="领导批示2分支" var="leader2UserId">
+        <transition g="-31,-5" name="to 领导批示2" to="领导批示2"/>
+    </foreach>
+	<task g="365,920,120,50" name="处内拟办">
+      <transition g="-48,-7" name="to 处内拟办并发" to="处内拟办并发"/>
+	</task>
+	<fork g="400,1020,50,50" name="处内拟办并发">
+       <transition g="-56,-22" name="to 领导批示3分支" to="领导批示3分支"/>
+       <transition g="-39,-11" name="to 处内办理分支" to="处内办理分支"/>
+       <transition g="711,1044;710,644:-47,-9" name="to 处室拟办分支" to="处室拟办分支"/>
+    </fork>
+    <foreach g="190,1020,50,50" in="#{leader3UserIds}" name="领导批示3分支" var="leader3UserId">
+        <transition g="-31,-5" name="to 领导批示3" to="领导批示3"/>
+    </foreach>
+	<task assignee="#{foreachUserId}" g="365,1220,120,50" name="处内办理">
+      <transition g="-33,-12" name="to 办理结果" to="办理结果"/>
+	</task>
+	<task g="600,220,120,50" name="重新登记">
+		<transition g="660,145:-68,-21" name="to 登记结果" to="登记结果"/>
+	</task>
+	<task assignee="#{leader2UserId}" g="155,720,120,50" name="领导批示2">
+		<transition g="-34,22" name="to 内勤分发" to="内勤分发"/>
+	</task>
+	<task assignee="#{leader3UserId}" g="155,920,120,50" name="领导批示3">
+		<transition g="-36,-26" name="to 处室拟办" to="处内拟办"/>
+	</task>
+   <decision g="400,1320,50,50" name="办理结果">
+      	<transition g="660,1345;660,945:-29,-21" name="to 处内拟办" to="处内拟办">
+			<condition expr="#{banniOption=='1'}"/>
+      	</transition>
+      	<transition g="215,1345;215,1145:-93,-22" name="to 处内办理分支" to="处内办理分支">
+			<condition expr="#{banniOption=='2'}"/>
+      	</transition>
+      	<transition g="-43,-9" name="to 处内办理合并" to="处内办理合并">
+			<condition expr="#{banniOption=='3'}"/>
+      	</transition>
+   </decision>
+   <foreach g="400,1120,50,50" in="#{foreachUserIds}" name="处内办理分支" var="foreachUserId">
+      <transition g="-34,-13" name="to 处内办理" to="处内办理"/>
+   </foreach>
+   <join g="400,1420,50,50" multiplicity="200" name="处内办理合并">
+      <transition g="-44,-13" name="to 结束" to="结束"/>
+   </join>
+	<end g="400,1620,50,50" name="结束"/>
+</process>

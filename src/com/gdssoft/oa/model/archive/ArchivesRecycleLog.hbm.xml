@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 请假管理 -->
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.archive.ArchivesRecycleLog" table="ARCHIVES_RECYCLE_LOG" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="id" column="ID" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="logType" type="java.lang.Integer" update="true" insert="true" access="property" column="type" length="3" not-null="false" unique="false"/>  
+    <property name="updateDate" type="java.util.Date" update="true" insert="true" access="property" column="update_date" length="19" not-null="false" unique="false"/>  
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="create_date" length="19" not-null="false" unique="false"/>  
+    <property name="piid" type="java.lang.String" update="true" insert="true" access="property" column="PIID" length="32" not-null="false" unique="false"/>
+    <property name="updateName" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_NAME" length="100" not-null="false" unique="false"/>
+   <many-to-one name="processRun" class="com.gdssoft.oa.model.flow.ProcessRun" fetch="select" not-null="true"> 
+      <column name="process_id"/> 
+    </many-to-one> 
+   <many-to-one name="user" class="com.gdssoft.oa.model.system.AppUser" fetch="select" not-null="true"> 
+      <column name="user_id"/> 
+    </many-to-one> 
+    <many-to-one name="updateUser" class="com.gdssoft.oa.model.system.AppUser" fetch="select" not-null="true"> 
+      <column name="UPDATE_USER"/> 
+    </many-to-one>
+    <many-to-one name="archives" class="com.gdssoft.oa.model.archive.Archives" fetch="select" not-null="true"> 
+      <column name="archives_id"/> 
+    </many-to-one> 
+  </class> 	
+</hibernate-mapping>

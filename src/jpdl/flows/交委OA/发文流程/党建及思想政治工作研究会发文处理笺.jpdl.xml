@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="DJJSXZZ" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="242,12,48,48" name="拟稿">
+      <transition name="to 处室审核" to="处室审核" g="-27,-25"/>
+	</start>
+	<task g="199,114,138,52" name="处室审核">
+      <transition name="to 处室送出" to="处室送出" g="-26,-18"/>
+	</task>
+	<decision g="245,248,48,48" name="处室送出">
+		<transition g="432,267:-31,3" name="to 处室会签" to="处室会签">
+			<condition expr="#{depNext=='1'}"/>
+		</transition>
+		<transition g="-44,-15" name="to 办公室审核" to="办公室审核">
+			<condition expr="#{depNext=='2'}"/>
+		</transition>
+		<transition g="128,272:-27,8" name="to 重新发起" to="重新发起">
+			<condition expr="#{depNext=='3'}"/>
+		</transition>
+	</decision>
+	<task g="419,113,94,52" name="处室会签">
+      <transition name="to 处室审核" to="处室审核" g="-29,-23"/>
+	</task>
+	<task g="410,365,92,52" name="办公室审核">
+		<transition g="-31,-11" name="to 签发" to="签发"/>
+	</task>
+	<task g="55,371,92,52" name="编号">
+		<transition g="-28,-1" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="54,502,92,52" name="生成电子公文">
+		<transition g="-38,-12" name="to 分发" to="分发"/>
+	</task>
+	<task g="238,500,92,52" name="分发">
+		<transition g="-14,-14" name="to 结束" to="结束"/>
+	</task>
+	<end g="446,499,48,48" name="结束"/>
+	<task g="228,369,92,52" name="签发">
+		<transition g="-41,-17" name="to 编号" to="编号"/>
+	</task>
+	<task g="39,116,92,52" name="重新发起">
+      <transition name="to 处室审核" to="处室审核" g="-28,-20"/>
+	</task>
+</process>

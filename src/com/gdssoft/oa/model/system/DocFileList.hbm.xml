@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.system.DocFileList" table="CQ_DOC_FILE_LIST" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version">
+	<id name="id" column="ID" type="java.lang.Long" > 
+      <generator class="native"/> 
+    </id>      
+    <property name="downloads" type="java.lang.Integer" update="true" insert="true" access="property" column="DOWNLOADS" length="19" not-null="false" unique="false"/>  
+    <property name="fileSummary" type="java.lang.String" update="true" insert="true" access="property" column="FILE_SUMMARY" length="32" not-null="false" unique="false"/>  
+    <property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER" length="32" not-null="false" unique="false"/>  
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_DATE" length="1024" not-null="false" unique="false"/>  
+    <many-to-one name="docFiles" class="com.gdssoft.oa.model.system.DocFiles" not-null="false" fetch="select"> 
+      <column name="file_Id"/> 
+    </many-to-one>  
+    <many-to-one name="fileAttach" class="com.gdssoft.oa.model.system.FileAttach" not-null="false" fetch="select" unique="true"> 
+      <column name="attach_Id"/> 
+    </many-to-one> 
+  </class> 
+</hibernate-mapping>

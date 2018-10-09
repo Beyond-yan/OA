@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.hrm.UserContract" table="user_contract" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="contractId" column="contractId" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="contractNo" type="java.lang.String" update="true" insert="true" access="property" column="contractNo" length="64" not-null="true" unique="false"/>  
+    <property name="fullname" type="java.lang.String" update="true" insert="true" access="property" column="fullname" length="64" not-null="false" unique="false"/>  
+    <property name="userId" type="java.lang.Long" update="true" insert="true" access="property" column="userId" length="18" not-null="false" unique="false"/>  
+    <property name="status" type="java.lang.Integer" update="true" insert="true" access="property" column="status" length="10" not-null="false" unique="false"/>  
+    <property name="timeLimit" type="java.lang.String" update="true" insert="true" access="property" column="timeLimit" length="64" not-null="false" unique="false"/>  
+    <property name="isCompeted" type="java.lang.Integer" update="true" insert="true" access="property" column="isCompeted" length="10" not-null="false" unique="false"/>  
+    <property name="isSecret" type="java.lang.Integer" update="true" insert="true" access="property" column="isSecret" length="10" not-null="false" unique="false"/>  
+    <property name="breakBurden" type="java.lang.String" update="true" insert="true" access="property" column="breakBurden" length="4000" not-null="false" unique="false"/>  
+    <property name="otherItems" type="java.lang.String" update="true" insert="true" access="property" column="otherItems" length="4000" not-null="false" unique="false"/>  
+    <property name="contractType" type="java.lang.String" update="true" insert="true" access="property" column="contractType" length="64" not-null="false" unique="false"/>  
+    <property name="signDate" type="java.util.Date" update="true" insert="true" access="property" column="signDate" length="10" not-null="false" unique="false"/>  
+    <property name="startDate" type="java.util.Date" update="true" insert="true" access="property" column="startDate" length="10" not-null="false" unique="false"/>  
+    <property name="expireDate" type="java.util.Date" update="true" insert="true" access="property" column="expireDate" length="10" not-null="false" unique="false"/>  
+    <!-- exported bi-directional one-to-many association to ContractAttach -->  
+    <set name="contractAttachs" table="contract_attach" lazy="true" inverse="false" cascade="all" sort="unsorted"> 
+      <key> 
+        <column name="contractId"/> 
+      </key>  
+      <many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="fileId"/> 
+    </set>  
+    <!-- exported bi-directional one-to-many association to ContractEvent -->  
+    <set name="contractEvents" table="contract_event" lazy="true" inverse="false" cascade="all" sort="unsorted"> 
+      <key> 
+        <column name="contractId"/> 
+      </key>  
+      <one-to-many class="com.gdssoft.oa.model.hrm.ContractEvent"/> 
+    </set> 
+  </class> 
+</hibernate-mapping>

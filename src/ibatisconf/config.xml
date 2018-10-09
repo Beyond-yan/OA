@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMapConfig
+	PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+		"http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<settings statementCachingEnabled="true" cacheModelsEnabled="false"
+		useStatementNamespaces="true" classInfoCacheEnabled="true" />
+		
+	<!-- 通过typeAlias使得我们在下面使用实体类的时候不需要写包名 -->	
+	<typeAlias alias="userPowerModel" type="com.gdssoft.oa.model.integration.UserPowerModel" />
+	<typeAlias alias="flowAuditLogModel" type="com.gdssoft.oa.model.integration.FlowAuditLogModel" />
+
+	<sqlMap resource="ibatisconf/sys_integration_user_power_sql.xml" />
+	
+	
+</sqlMapConfig>
+	

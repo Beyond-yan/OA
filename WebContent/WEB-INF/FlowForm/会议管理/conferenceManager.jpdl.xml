@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="conferenceManager" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="232,120,61,50" name="开始">
+      <transition g="-43,-9" name="to审批" to="审批"/>
+   </start>
+   <task g="190,235,132,51" name="审批">
+      <transition g="-43,-6" name="to结束" to="结束"/>
+   </task>
+   <end g="234,363,63,51" name="结束"/>
+</process>

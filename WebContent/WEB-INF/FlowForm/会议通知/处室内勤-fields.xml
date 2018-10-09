@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="chishiResult" label="chishiResult" type="varchar" length="1000" isShowed="false" />
+</fields>

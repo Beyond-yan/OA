@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.hrm.ContractEvent" table="contract_event" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="eventId" column="eventId" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="eventName" type="java.lang.String" update="true" insert="true" access="property" column="eventName" length="64" not-null="true" unique="false"/>  
+    <property name="eventDescp" type="java.lang.String" update="true" insert="true" access="property" column="eventDescp" length="65535" not-null="true" unique="false"/>  
+    <property name="createTime" type="java.util.Date" update="true" insert="true" access="property" column="createTime" length="10" not-null="true" unique="false"/>  
+    <property name="creator" type="java.lang.String" update="true" insert="true" access="property" column="creator" length="64" not-null="true" unique="false"/>  
+    <!-- imported bi-directional many-to-one association to UserContract -->  
+    <many-to-one name="userContract" class="com.gdssoft.oa.model.hrm.UserContract" not-null="false" fetch="select"> 
+      <column name="contractId"/> 
+    </many-to-one> 
+  </class> 
+</hibernate-mapping>

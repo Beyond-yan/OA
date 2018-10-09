@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="superviseAffair" language="groovy" pageWidth="770" pageHeight="600" orientation="Landscape" columnWidth="760" leftMargin="10" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<parameter name="params.defineTime" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="params.imgUrl" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select
+ superviseCount,  b.depid,b.depname , a.configname as superviseAffair,a.datavalue  from (
+  select * from dbo.sys_config config where  config.typekey='monitorTypeConfig'
+) a
+left join
+(
+select count(id) as superviseCount,  dep.depid,dep.depname, config.configname,config.datavalue  FROM
+dbo.MONITOR_PARTICIPANT mp left join
+dbo.sys_config config
+on mp.[TYPE] = config.datavalue and config.typekey='monitorTypeConfig'
+join dbo.app_user au ON mp.[USER_ID] = au.userid
+left join dbo.department dep on au.depid = dep.depid
+and mp.[ROLE]=1
+group by dep.depid,dep.depname ,config.configname,config.datavalue
+
+) b
+on b.datavalue=a.datavalue where depid is not null]]>
+	</queryString>
+	<field name="superviseCount" class="java.lang.Integer"/>
+	<field name="depid" class="java.lang.Long"/>
+	<field name="depname" class="java.lang.String"/>
+	<field name="superviseAffair" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="28" splitType="Stretch">
+			<staticText>
+				<reportElement x="376" y="0" width="155" height="28"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="15" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<text><![CDATA[督办事项统计图表]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="263" y="0" width="113" height="28"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="15" isBold="true" pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{params.defineTime}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="538" splitType="Stretch">
+			<crosstab>
+				<reportElement x="0" y="0" width="750" height="195"/>
+				<crosstabHeaderCell>
+					<cellContents>
+						<staticText>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="87" height="41"/>
+							<box>
+								<pen lineWidth="0.75"/>
+								<topPen lineWidth="0.75" lineStyle="Solid"/>
+								<leftPen lineWidth="0.75"/>
+								<bottomPen lineWidth="0.75"/>
+								<rightPen lineWidth="0.75" lineStyle="Solid"/>
+							</box>
+							<textElement verticalAlignment="Middle">
+								<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+							</textElement>
+							<text><![CDATA[事项来源类型]]></text>
+						</staticText>
+					</cellContents>
+				</crosstabHeaderCell>
+				<rowGroup name="superviseAffair" width="87" totalPosition="End">
+					<bucket>
+						<bucketExpression class="java.lang.String"><![CDATA[$F{superviseAffair}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents backcolor="#FFFFFF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="87" height="25"/>
+								<textElement verticalAlignment="Middle">
+									<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{superviseAffair}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents backcolor="#FFFFFF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="2" y="0" width="85" height="25"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+								</textElement>
+								<text><![CDATA[小计]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="depname" height="41" totalPosition="End">
+					<bucket>
+						<bucketExpression class="java.lang.String"><![CDATA[$F{depname}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents backcolor="#FFFFFF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField>
+								<reportElement style="Crosstab Data Text" x="0" y="0" width="40" height="41"/>
+								<textElement verticalAlignment="Middle">
+									<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{depname}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents backcolor="#FFFFFF" mode="Opaque">
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<staticText>
+								<reportElement x="0" y="0" width="43" height="41"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+								</textElement>
+								<text><![CDATA[合计]]></text>
+							</staticText>
+						</cellContents>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="superviseCountMeasure" class="java.lang.Integer" calculation="Sum">
+					<measureExpression><![CDATA[$F{superviseCount}]]></measureExpression>
+				</measure>
+				<crosstabCell width="40" height="25">
+					<cellContents>
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="40" height="25"/>
+							<textElement verticalAlignment="Middle">
+								<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+							</textElement>
+							<textFieldExpression class="java.lang.String"><![CDATA[$V{superviseCountMeasure}.intValue()==0?" ":$V{superviseCountMeasure}.toString()]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="40" height="25" rowTotalGroup="superviseAffair">
+					<cellContents backcolor="#FFFFFF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="40" height="25"/>
+							<textElement verticalAlignment="Middle">
+								<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+							</textElement>
+							<textFieldExpression class="java.lang.Integer"><![CDATA[$V{superviseCountMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="43" height="25" columnTotalGroup="depname">
+					<cellContents backcolor="#FFFFFF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="43" height="25"/>
+							<textElement verticalAlignment="Middle">
+								<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+							</textElement>
+							<textFieldExpression class="java.lang.Integer"><![CDATA[$V{superviseCountMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+				<crosstabCell width="43" rowTotalGroup="superviseAffair" columnTotalGroup="depname">
+					<cellContents backcolor="#FFFFFF" mode="Opaque">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement style="Crosstab Data Text" x="0" y="0" width="43" height="25"/>
+							<textElement verticalAlignment="Middle">
+								<font pdfFontName="STSong-Light" pdfEncoding="UniGB-UCS2-H"/>
+							</textElement>
+							<textFieldExpression class="java.lang.Integer"><![CDATA[$V{superviseCountMeasure}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+			<image>
+				<reportElement x="0" y="214" width="750" height="273"/>
+				<imageExpression class="java.lang.String"><![CDATA[$P{params.imgUrl}]]></imageExpression>
+			</image>
+		</band>
+	</summary>
+</jasperReport>

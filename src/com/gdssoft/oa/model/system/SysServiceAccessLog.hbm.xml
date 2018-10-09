@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.system.SysServiceAccessLog"
+        table="SYS_SERVICE_ACCESS_LOG"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+        schema="OA_COMMON">
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="22"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="serviceAccount"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="SERVICE_ACCOUNT"
+            length="22"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="accessDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="ACCESS_DATE"
+            length="7"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="status"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="STATUS"
+            length="22"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="errorMessage"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="ERROR_MESSAGE"
+            length="4000"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="ipAddress"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="IP_ADDRESS"
+            length="200"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to SysServiceInterface -->
+		<many-to-one
+			name="sysServiceInterface"
+			class="com.gdssoft.oa.model.system.SysServiceInterface"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="SERVICE_ID" />
+		</many-to-one>
+    </class>
+</hibernate-mapping>

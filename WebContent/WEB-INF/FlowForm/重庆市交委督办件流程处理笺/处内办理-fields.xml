@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="banniOption" label="处室结果流转标识" type="varchar" length="100" isShowed="true" />
+	<field name="foreachUserIds" label="foreachUserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="isForkFlow" label="isForkFlow" type="varchar" length="100" isShowed="false" />
+	<field name="joinName" label="joinName" type="varchar" length="100" isShowed="true" />
+	<field name="joinedName" label="joinedName" type="varchar" length="100" isShowed="true" />
+</fields>

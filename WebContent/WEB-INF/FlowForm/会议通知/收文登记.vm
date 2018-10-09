@@ -1,0 +1,278 @@
+meetingNoticePanel = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		// 必须先初始化组件  
+		this.docGridPanel = new MeetingNoticeUtil({
+			panelId : 'meetingNoticePanel',
+			isStart : true
+			}).getGridPanelWithFullTools();
+		msgPanel.hide();
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id : 'meetingNoticeForm',
+			url : __ctxPath + '/meetingNotice/saveMeetingNotice.do',
+			frame : false,
+			border : false,
+			labelWidth:70,
+			width : 800,
+			padding : '5px',
+				reader : new Ext.data.JsonReader({
+						root : 'data'
+			}, [ {
+					name : 'meetingNotice.noticeId',
+					mapping : 'noticeId'
+				}, {
+					name : 'meetingNotice.subject',
+					mapping : 'subject'
+				}, {
+					name : 'meetingNotice.host',
+					mapping : 'host'
+				}, {
+					name : 'meetingNotice.holdDep',
+					mapping : 'holdDep'
+				}, {
+					name : 'meetingNotice.meetingDate',
+					mapping : 'meetingDate'
+				}, {
+				    name:'meetingNotice.meetingPlace',
+				    mapping:'meetingPlace'
+				}, {
+					name : 'meetingNotice.meetingState',
+					mapping : 'meetingState'
+				}, {
+					name : 'meetingNotice.reviewUser',
+					mapping : 'reviewUser'
+				}, {
+					name : 'meetingNotice.departureTime',
+					mapping : 'departureTime'
+				}, {
+					name : 'meetingNotice.departurePlace',
+					mapping : 'departurePlace'
+				},{
+					name : 'meetingNotice.vehicleInfo',
+					mapping : 'vehicleInfo'
+				}, {
+					name : 'meetingNotice.driverInfo',
+					mapping : 'driverInfo'
+				}, {
+					name:'meetingNotice.mainDep',
+					mapping:'mainDep'
+				}, {
+					name:'meetingNotice.mainDepId',
+					mapping:'mainDepId'
+				}, {
+					name:'meetingNotice.status',
+					mapping:'status'
+				}, {
+					name:'meetingNotice.createTime',
+					mapping:'createTime'
+				}, {
+					name:'meetingNotice.creator',
+					mapping:'creator'
+				}, {
+					name : 'meetingNotice.creatorId',
+					mapping : 'creatorId'
+				}, {
+					name : 'meetingNotice.createDep',
+					mapping : 'createDep'
+				}, {
+					name : 'meetingNotice.createDepId',
+					mapping : 'createDepId'
+				}]),
+			items : [{
+						xtype : 'textfield',
+						fieldLabel : '会议名称',
+						name : 'meetingNotice.subject',
+						id:'meetingNoticeForm.subject',
+						width:670,
+						allowBlank : false
+					}, {
+						border : false,
+						layout : 'column',
+						defaults : {
+							border : false,
+							columnWidth : .48,
+							layout : 'form',
+							defaults : {
+								width : 120,
+								xtype : 'textfield',
+								allowBlank : false
+							}
+						},
+						items:[{
+							columnWidth:.47,
+							items:[{
+									xtype : 'textfield',
+									fieldLabel : '召集单位',
+									name : 'meetingNotice.holdDep',
+									id:'meetingNoticeForm.holdDep',
+									width:290,
+									allowBlank : false
+							},{
+								fieldLabel : '会议时间',
+							    name : 'meetingNotice.meetingDate',
+								xtype : 'datetimefield',
+								format : 'Y-m-d H:i:s',
+								editable : false,
+								allowBlank : false,
+								width:290
+							},{
+								xtype : 'combo',
+								fieldLabel : '会议状态',
+								name : 'meetingNotice.meetingState',
+								id : 'meetingNoticeForm.meetingState',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank : false,
+								value : '会议创建',
+								store : ['会议创建', '会议变更', '会议取消'],
+								width:290
+							}]
+						},{
+							items:[{
+								xtype : 'textfield',
+								fieldLabel : '主持人',
+								name : 'meetingNotice.host',
+								width:290,
+								allowBlank : true,
+							},{
+								xtype : 'textfield',
+								fieldLabel : '会议地点',
+								name : 'meetingNotice.meetingPlace',
+								id : 'meetingNoticeForm.meetingPlace',
+								width : 290,
+								allowBlank : true
+							},{
+								xtype : "combo",
+								fieldLabel : "负责人",
+								id : "meetingNoticeForm.leaderName",
+								hiddenName : 'meetingNotice.reviewUser',
+								valueField : 'userId',
+								displayField : 'fullname',
+								editable : false,
+								allowBlank : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								width : 290,
+								store : new Ext.data.SimpleStore({
+								//	url : __ctxPath + '/system/getAllByDepIdAppUser.do?depId=0',
+										url : __ctxPath
+												+ '/system/searchByTwoRoleIdAppUser.do?role1Id='+roleMap.get('officeDeputyDirectorRoleID')+'&role2Id='+roleMap.get('officeDirectorRoleID'),
+										autoLoad : true,
+										fields : ['userId', 'fullname']
+									}),
+								listeners : {
+									select : function(cbo, record, index) {
+										Ext.getCmp('meetingNoticeForm.leaderName')
+														.setValue(cbo.getValue());
+											}
+										}
+									}]
+							
+						}]
+					},{
+						name : 'meetingNotice.status',
+						xtype : 'hidden',
+						value :  1
+					}, {
+						name : 'meetingNotice.noticeId',
+						xtype : 'hidden'
+					},{
+						xtype : 'fieldset',
+						border : false,
+						defaults : {
+							anchor : '96.3%,96%'
+						},
+						items : [this.docGridPanel]
+					}]
+			
+		});
+		
+	meetingNoticePanel.superclass.constructor.call(this, {
+			id : 'meetingNoticePanel',
+			layout : 'form',
+			items : [this.formPanel],
+			modal : true,
+			maximizable : true,
+			autoHeight : true,
+			width : 800,
+			bodyStyle : "center",
+			iconCls : 'menu-archive-draft',
+			title : '会议通知 ',
+			buttonAlign : 'center',
+			buttons : [{
+				text : '启动流程',
+				id : 'meetingNoticeReceiveButtonSave',
+				iconCls : 'btn-save',
+				scope : this,
+				handler : this.save
+			}]
+		});
+	},
+	save : function() {
+		singleClick('meetingNoticeReceiveButtonSave');
+		var defId = this.defId;
+		// 获取要提交的表单
+		var docIds = '';
+		Ext.getCmp('meetingNoticePanel.docGridPanel').getStore().each(function(rec){
+			docIds += rec.data.fileId+',';
+		},this);
+		var formPanel = Ext.getCmp('meetingNoticeForm');
+		if (formPanel.getForm().isValid()) {				
+			var userId = Ext.getCmp('meetingNoticeForm.leaderName').getValue();
+			var meetingState = Ext.getCmp('meetingNoticeForm.meetingState').getValue();
+            formPanel.getForm().submit({
+                method: 'POST',
+                waitMsg: '正在提交表单数据...',
+                params: {
+                	docIds: docIds
+                },
+                success: function (fp, action) {
+                    var noticeId = action.result.noticeId;
+                    //启动流程
+                    formPanel.getForm().submit({
+                        url: __ctxPath + '/flow/saveProcessActivity.do',
+                        waitMsg: '正在发起流程...',
+                        timeout: '300',
+                        method: 'post',
+                        params: {
+                        	defId : defId,
+            				startFlow : true,
+            				noticeId: noticeId,
+            				flowAssignId : userId,
+            				meetingState : meetingState,
+            				userId : curUserInfo.userId,
+                    		archivesSubject : Ext.getCmp('meetingNoticeForm.subject').getValue()
+                        },
+                        success: function (response, options) {
+                            var processInsId = options.result.runId;
+                            Ext.Ajax.request({
+                                url: __ctxPath + '/meetingNotice/updateRunIdMeetingNotice.do',
+                                params: {
+                                    'meetingNotice.noticeId': noticeId,
+                                    'meetingNotice.runId': processInsId
+                                },
+                                method: 'post',
+                                success: function (response, options) {
+                                    Ext.ux.Toast.msg('操作信息', '登记成功！');
+									Ext.getCmp('centerTabPanel').remove(Ext
+											.getCmp('ProcessRunStart'
+													+ defId));
+									refreshTaskPanelView();
+                                }
+                            });
+                        }
+                    });
+                },
+                failure: function (fp, action) {
+                    Ext.MessageBox.show({
+                        title: '操作信息',
+                        msg: '提交表单出错，请联系管理员！',
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.ERROR
+                    });
+                }
+            });
+		}
+	}
+})

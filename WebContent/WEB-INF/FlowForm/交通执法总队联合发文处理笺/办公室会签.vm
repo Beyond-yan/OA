@@ -1,0 +1,270 @@
+TrafficEnforceTeamSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		TrafficEnforceTeamSentArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			id : 'TrafficEnforceTeamSentArchiveDepCheckPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/chongqingSentArchives/TrafficEnforceTeamSentFiles.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'TrafficEnforceTeamSentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						width : 100,
+						items : [{
+							boxLabel : '交委处室会签',
+							name : 'depOption',
+							inputValue : 1,
+							checked : true,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.Leaders').hide();
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.LeaderNames').allowBlank=true;
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signDep').show();
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signerNames').allowBlank = false;
+									}
+								}
+							}
+						}, {
+							boxLabel : '办公室审核',
+							name : 'depOption',
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signDep').hide();
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signerNames').allowBlank = true;
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.Leaders').hide();
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.LeaderNames').allowBlank=true;
+									}
+								}
+							}
+						},{
+							boxLabel : '签发',
+							name : 'depOption',
+							inputValue : 3,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.Leaders').show();
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.LeaderNames').allowBlank=false;
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signDep').hide();
+										Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signerNames').allowBlank = true;
+									}
+								}
+							}
+						}],
+						fieldLabel : '审批步骤'
+					}, {
+						xtype : 'container',
+						id : 'TrafficEnforceTeamSentArchiveDepCheck.signDep',
+						layout : 'column',
+						style : 'padding-left:0px;margin-left:0px;',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '会签人员:',
+									style : 'padding:0px 0px 0px 0px;',
+									width : 104
+								}, {
+									id : 'TrafficEnforceTeamSentArchiveDepCheck.signerNames',
+									xtype : 'textfield',
+									width : '67.5%',
+									allowBlank : false,
+									readOnly : true
+								}, {
+									id : 'TrafficEnforceTeamSentArchiveDepCheck.signdepIds',
+									xtype : 'hidden'
+								}, {
+									xtype : 'button',
+									style:'padding-left:5px;',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles=100152,100156';
+										DepLeaders.getView(
+												function(userIds, userNames) {
+													Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signdepIds').setValue(userIds);
+													Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signerNames')
+															.setValue(userNames);
+												}, false, null,url).show();
+									}
+								}]
+					},{
+						id : 'TrafficEnforceTeamSentArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						hidden:true,
+						style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									style : 'padding:0px 0px 0px 0px;',
+									text : '选择领导:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '67%',
+									allowBlank:true,
+									readOnly : true,
+									id : 'TrafficEnforceTeamSentArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'viceLeaderIds'
+								}, {
+									xtype : 'button',
+									style:'padding-left:5px;',
+									iconCls : 'menu-department',
+									text : '选择领导',
+									handler : function() {
+										url  =  __ctxPath + '/system/depLeadersTreeDepartment.do?roles=100175';
+										DepLeaders.getView(
+												function(userIds, fullnames) {
+													Ext.getCmp('viceLeaderIds').setValue(userIds);
+													Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.LeaderNames')
+															.setValue(fullnames);
+												}, true, null,url).show();
+									}
+								}]
+					}, {
+					   layout:'column',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审核意见',
+									name : 'leaderRead.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+												var fm = Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheckForm');
+													fm.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			
+			var params = {
+					signNext:option,//部门下一步审核人
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			if (1 == option ) {	//会签
+				result='呈交委处室会签';
+				var signUserIds = Ext.getCmp('TrafficEnforceTeamSentArchiveDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+//					status:result,
+					signUserIds : signUserIds,
+					destName : '交委处室会签'
+				});
+			} else if(2==option){	//办公室
+				result='呈办公室审核';
+				Ext.apply(params,{
+//					status:result
+				});
+			} else{
+				result='呈签发';
+				Ext.apply(params,{
+					status:result,
+					flowAssignId:Ext.getCmp('viceLeaderIds').getValue()
+				})
+			}
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '核稿成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

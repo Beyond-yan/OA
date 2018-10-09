@@ -1,0 +1,131 @@
+ZFXXPartyReceiveArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		ZFXXPartyReceiveArchiveDepCheck.superclass.constructor.call(this, {
+					id:'ZFXXPartyReceiveArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 620,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'ZFXXPartyReceiveArchiveDepCheckDetailPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						 +'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=ZFXXPartyReceiveArchiveDepCheckDetailPanel',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'ZFXXPartyReceiveArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'ZFXXPartyReceiveArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						layout:'column',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		style:'padding-top:10px;',
+					   		items:[ {fieldLabel : '审批意见',
+										name : 'leaderRead.leaderOpinion',
+										autoScroll:true,
+										maxLength:500,
+										allowBlank:true,
+										xtype:'textarea',
+										width:466,
+										height:40
+									}]
+					      },{
+					   		layout:'form',
+					   		style:'padding-top:20px;padding-left:5px;',
+					   		border:false,
+					   		items:[{
+									xtype : 'button',
+									text : '常用批示语',
+									iconCls : 'menu-new-document',//'menu-information',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+											var fm = Ext
+												.getCmp('ZFXXPartyReceiveArchiveDepCheckForm');
+												fm
+												.getCmpByName('leaderRead.leaderOpinion')
+												.setValue(name);
+												}, true).show();
+										}
+									}]
+					   }]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					flowAssignId: '${proposeId}',
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+				
+			//alert(Ext.util.JSON.encode(params));
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '协办成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

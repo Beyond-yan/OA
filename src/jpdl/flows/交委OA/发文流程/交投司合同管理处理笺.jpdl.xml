@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="中共重庆市交通委员会发文处理笺" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="469,31,92,52" name="合同经办部门拟稿">
+      <transition name="to 合同经办部门论证意见" to="合同经办部门论证意见" g="-140,-21"/>
+   </start>
+   <task g="424,130,139,52" name="合同经办部门论证意见">
+      <transition name="to 相关部门会签意见" to="相关部门会签意见" g="-116,-21">
+      	<condition expr="#{next=='1'}"/>
+      </transition>
+      <transition name="to 办理结束：内勤分发" to="办理结束：内勤分发" g="337,153;327,855:-128,-21">
+      	<condition expr="#{next=='2'}"/>
+      </transition>
+   </task>
+   <task g="422,212,147,52" name="相关部门会签意见">
+      <transition name="to 财务部门审查意见" to="财务部门审查意见" g="-116,-21"/>
+   </task>
+   <task g="419,291,149,52" name="财务部门审查意见">
+      <transition name="to 法律顾问审查意见" to="法律顾问审查意见" g="-116,-21"/>
+   </task>
+   <task g="420,368,147,52" name="法律顾问审查意见">
+      <transition name="to 分管领导审查意见" to="分管领导审查意见" g="-116,-21"/>
+   </task>
+   <task g="424,442,138,52" name="分管领导审查意见">
+      <transition name="to 总经理审查意见" to="总经理审查意见" g="-104,-21"/>
+   </task>
+   <task g="425,518,136,52" name="总经理审查意见">
+      <transition name="to 总经理意见结果" to="总经理意见" g="-44,-4"/>
+   </task>
+   <task g="425,829,142,52" name="办理结束：内勤分发">
+      <transition name="to 编号" to="编号" g="-17,-10"/>
+   </task>
+   <task name="编号" g="452,907,92,52">
+      <transition name="to 归档" to="归档" g="-44,-21"/>
+   </task>
+   <task name="归档" g="451,981,92,52">
+      <transition name="to 结束" to="结束" g="-44,-21"/>
+   </task>
+   <end name="结束" g="474,1057,48,48"/>
+   <task name="董事长审查意见" g="428,674,134,52">
+      <transition name="to 董事长意见结果" to="董事长意见" g="-68,-13"/>
+   </task>
+   <decision name="总经理意见" g="469,602,48,48">
+      <transition name="to 董事长审查意见" to="董事长审查意见" g="-24,-13">
+      <condition expr="#{leadernext=='1'}"/>
+      </transition>
+      <transition name="to 合同经办部门论证意见" to="合同经办部门论证意见" g="647,625;676,169:-106,-25">
+     <condition expr="#{leadernext=='2'}"/>
+      </transition>
+      <transition name="to 办理结束：内勤分发" to="办理结束：内勤分发" g="393,630;386,837:-128,-21">
+      <condition expr="#{leadernext=='3'}"/>
+      </transition>
+   </decision>
+   <decision name="董事长意见" g="472,753,48,48">
+      <transition name="to 办理结束：内勤分发" to="办理结束：内勤分发" g="-128,-21">
+      <condition expr="#{dongnext=='1'}"/>
+      </transition>
+      <transition name="to 合同经办部门论证意见" to="合同经办部门论证意见" g="686,778;688,152:-29,21">
+      <condition expr="#{dongnext=='2'}"/>
+      </transition>
+   </decision>
+</process>

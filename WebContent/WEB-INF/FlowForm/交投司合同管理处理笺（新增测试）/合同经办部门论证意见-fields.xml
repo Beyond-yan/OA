@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="demNext" label="合同经办部门论证意见下步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="demExerId" label="合同经办部门论证意见执行者id" type="varchar" length="100" isShowed="true" />
+</fields>

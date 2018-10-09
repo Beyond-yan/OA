@@ -1,0 +1,251 @@
+ZGPublicOfficeSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,  
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		ZGPublicOfficeSentArchiveDepCheck.superclass.constructor.call(this, {
+			        id:'CCZGPublicOfficeSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel,this.formPanel],
+					modal : true,
+					height : 720,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'CCZGPublicOfficeSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=CCZGPublicOfficeSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'CCZGPublicOfficeSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						id : 'ZGPublicOfficeSentArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '签发领导：',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '67%',
+									readOnly : true,
+									id : 'ZGPublicOfficeSentArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'ZGPublicOfficeSentArchiveDepCheck.viceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style:'padding-left:5px;',
+									text : '选择领导',
+									handler : function() {
+										var url= __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('leaderRoleId');
+										DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('ZGPublicOfficeSentArchiveDepCheck.viceLeaderIds').setValue(userIds);
+											Ext.getCmp('ZGPublicOfficeSentArchiveDepCheck.LeaderNames')
+													.setValue(fullnames);
+										},true, null,url).show();
+									}
+								}]
+					},{
+					   layout:'column',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+				   					id:'ZGPublicOfficeSentArchiveDepCheck.leaderOpinion',
+									name : 'leaderRead.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('ZGPublicOfficeSentArchiveDepCheck.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					}]
+		});
+				if(taskId){
+			Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				if(prevDestName.toString().indexOf("会签")!=-1){
+					Ext.getCmp('ZGBGSDisciplineCheckSentArchiveDepCheck.return').hide();
+				}
+			},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+		}
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								}),
+								new Ext.Button({
+								   iconCls:'btn-changeTask',//
+								   text:'退回',
+								   id:'ZGBGSDisciplineCheckSentArchiveDepCheck.return',
+								   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	backsetp:function(formPanel,panel,activityName){
+//		if (panel.store.getCount() == 0) {
+//			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+//			return false;
+//		}
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId; 
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : '退回',
+								destName : prevDestName,
+								sendMail : sendMail,
+								sendMsg : sendMsg,
+								sendInfo:sendInfo,
+								status : '已办理',
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+//		if (panel.store.getCount() == 0) {
+//			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+//			return false;
+//		}
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			result='呈签发';
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					status: result,
+					flowAssignId : Ext.getCmp('ZGPublicOfficeSentArchiveDepCheck.viceLeaderIds').getValue(),
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				},
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '审核成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	
+		
+	}// end of save
+})

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="leaderUserIdsLengths" label="leaderUserIdsLengths" type="varchar" length="100" isShowed="true" />
+</fields>

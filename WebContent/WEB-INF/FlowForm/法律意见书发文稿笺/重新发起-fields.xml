@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fileIds" label="附件id" type="varchar" length="1000" isShowed="false" />
+    <field name="isReserveNo" type="varchar" length="10" isShowed="true"/>
+    <field name="startNext"  type="long" length="0" isShowed="false" />
+    <field name="LeaderName" type="varchar" length="10" isShowed="false"/>
+    <field name="LeaderId"  type="long" length="0" isShowed="false" />
+</fields>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="isOfficeLeader" label="拟办流转结果" type="varchar" isShowed="false"/>
+	<field name="departmentId" label="主办部门ID" type="varchar" isShowed="false"/>
+	<field name="depExerId" label="拟办分发负责人" type="varchar" isShowed="false"/>
+</fields>

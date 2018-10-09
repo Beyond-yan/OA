@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.duty.DutyStaff"
+        table="CQ_DUTY_STAFF"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="22"
+        >
+              <generator class="native"/>
+        </id>
+         <many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		 >	
+			<column name="DUTY_ID" />
+		</many-to-one>
+        <property
+            name="dutyDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="DUTY_DATE"
+            length="7"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="sectionId"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="SECTION_ID"
+            length="22"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to CqDutyPlan -->
+		<many-to-one
+			name="DutyPlan"
+			class="com.gdssoft.oa.model.duty.DutyPlan"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="PLAN_ID" />
+		</many-to-one>
+    </class>
+</hibernate-mapping>

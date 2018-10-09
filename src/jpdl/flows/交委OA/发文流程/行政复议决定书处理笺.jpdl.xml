@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="XinZhengFuYiJueDing" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="245,21,48,48" name="发文拟稿">
+      <transition g="-65,-4" name="to 处室核稿" to="处室核稿"/>
+   </start>
+   <task g="205,111,126,52" name="处室核稿">
+      <transition g="-63,-4" name="to 核稿结果" to="核稿结果"/>
+   </task>
+   <decision g="243,197,48,48" name="核稿结果">
+      <transition g="-78,-15" name="to 处室会签(部门发起)" to="处室会签(部门发起)">
+      	  <condition expr="#{depLeaderOption=='sign'}"/>
+      </transition>
+      <transition g="-77,-17" name="to 办公室审核" to="办公室审核">
+          <condition expr="#{depLeaderOption=='office'}"/>
+      </transition>
+      <transition name="to 重新发起" to="重新发起" g="463,218:-113,-14">
+      	<condition expr="#{depLeaderOption=='return'}"/>
+      </transition>
+   </decision>
+   <task g="51,196,143,52" name="处室会签(部门发起)">
+      <transition g="124,135:-1,-15" name="to 处室核稿" to="处室核稿"/>
+   </task>
+   <task g="222,283,92,52" name="办公室审核">
+      <transition g="-65,-6" name="to 审核结果" to="审核结果"/>
+   </task>
+   <task g="38,281,143,52" name="处室会签(办公室发起)">
+      <transition g="-44,-16" name="to 办公室审核2" to="办公室审核"/>
+   </task>
+   <task g="395,282,92,52" name="领导会签">
+      <transition g="-38,-15" name="to 办公室审核3" to="办公室审核"/>
+   </task>
+   <decision g="244,369,48,48" name="审核结果">
+      <transition g="108,393:3,-16" name="to 处室会签(办公室发起)" to="处室会签(办公室发起)">
+       		<condition expr="#{officeLeaderOption=='offcieSignOffice'}"/>
+      </transition>
+      <transition g="302,354;441,354:-45,-14" name="to 领导会签" to="领导会签">
+             <condition expr="#{officeLeaderOption=='leaderSign'}"/>
+      </transition>
+      <transition g="10,-12" name="to 签发" to="签发">
+              <condition expr="#{officeLeaderOption=='distribute'}"/>
+      </transition>
+   </decision>
+   <task g="223,454,92,52" name="签发">
+      <transition g="6,-11" name="to 编号" to="编号"/>
+   </task>
+   <task g="223,543,92,52" name="编号">
+      <transition g="-41,-1" name="to 结束" to="结束"/>
+   </task>
+   <end g="246,642,48,48" name="结束"/>
+   <task name="重新发起" g="419,111,92,52">
+      <transition name="to 处室核稿" to="处室核稿" g="-24,-20"/>
+   </task>
+</process>

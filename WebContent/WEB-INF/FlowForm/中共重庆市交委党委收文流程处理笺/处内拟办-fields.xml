@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="forkNextUserId" label="会签下一步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="foreachUserIds" label="foreachUserIds" type="varchar" length="1000" isShowed="false" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="false" />
+	<field name="leader3UserIds" label="leader3UserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="leader3UserIdsLengths" label="leader3UserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="nibanUserIds" label="nibanUserIds" type="varchar" length="1000" isShowed="true" />
+</fields>

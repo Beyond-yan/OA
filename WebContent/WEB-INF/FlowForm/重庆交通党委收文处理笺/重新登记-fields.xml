@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fileIds" label="附件id" type="varchar" length="1000" isShowed="false" />
+    <field name="dengjiOption"  type="long" length="0" isShowed="false" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="1000" isShowed="false" />
+</fields>

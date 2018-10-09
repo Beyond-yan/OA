@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+    <field name="fgcNext" label="下一步骤" type="varchar" length="100" isShowed="true" />
+	<field name="flowAssignId"  type="varchar" length="0" isShowed="false" />
+</fields>

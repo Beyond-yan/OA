@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="signUserIds" label="处理人员" type="varchar" length="320" isShowed="false"/>
+	<field name="flowAssignId" label="收文审核人" type="varchar" isShowed="false"/>
+	<field name="interOpinion" label="请示意见" type="varchar" isShowed="true"/>
+	<field name="depId" label="部门ID" type="varchar" isShowed="false"/>
+	<field name="departmentId" label="主办部门ID" type="varchar" isShowed="false"/>
+	<field name="flowNext" label="流程下一步执行" type="varchar" isShowed="false"/>
+</fields>

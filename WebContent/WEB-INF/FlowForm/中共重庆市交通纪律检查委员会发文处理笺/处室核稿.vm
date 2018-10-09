@@ -1,0 +1,304 @@
+ZGDisciplineCheckSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		ZGDisciplineCheckSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'JLJCCSHGZGDisciplineCheckSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			id : 'ZGDisciplineCheckSentArchiveDepCheckPanel',
+			autoScroll : true,
+			autoHeight : true,
+			id :'JLJCFFZGDSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=JLJCFFZGDSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'ZGDisciplineCheckSentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'JLJCCSHGZGDisciplineCheckSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						width : 100,
+						items : [{
+							boxLabel : '办公室审核',
+							name : 'depOption',
+							checked : true,
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signDep').hide();
+										Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signerNames').allowBlank = true;
+									}
+								}
+							}
+						},{
+							boxLabel : '处室会签(部门发起)',
+							name : 'depOption',
+							inputValue : 1,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signDep').show();
+										Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signerNames').allowBlank = false;
+									}
+								}
+							}
+						}],
+						fieldLabel : '审批步骤'
+					}, 
+						{
+						xtype : 'container',
+						id : 'ZGDisciplineCheckSentArchiveDepCheck.signDep',
+						layout : 'column',
+						hidden:true,
+						style : 'padding-left:0px;margin-left:0px;',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '会签人员:',
+									style : 'padding:0px 0px 0px 0px;',
+									width : 104
+								}, {
+									id : 'ZGDisciplineCheckSentArchiveDepCheck.signerNames',
+									xtype : 'textfield',
+									width : '70%',
+									allowBlank : true,
+									readOnly : true
+								}, {
+									id : 'ZGDisciplineCheckSentArchiveDepCheck.signdepIds',
+									xtype : 'hidden'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style : 'padding-left:5px',
+									text : '选择人员',
+									handler : function() {
+										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID');
+										DepLeaders.getView(
+												function(userIds, userNames) {
+													Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signdepIds').setValue(userIds);
+													Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signerNames')
+															.setValue(userNames);
+												}, false, null,url).show();
+									}
+								}]
+					}, {
+						 layout:'column',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[ {fieldLabel : '审批意见',
+										name : 'leaderRead.leaderOpinion',
+										id:'ZGDisciplineCheckSentArchiveDepCheckForm.leaderOpinion',
+										autoScroll:true,
+										maxLength:500,
+										allowBlank:true,
+										xtype:'textarea',
+										width:466,
+										height:40
+									}]
+					      },{
+					   		layout:'form',
+					   		border:false,
+					   		style:'padding-top:10px;padding-left:5px',
+					   		items:[{
+									xtype : 'button',
+									text : '常用批示语',
+									iconCls : 'menu-new-document',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+											var fm = Ext
+												.getCmp('ZGDisciplineCheckSentArchiveDepCheckForm');
+												fm
+												.getCmpByName('leaderRead.leaderOpinion')
+												.setValue(name);
+												}, true).show();
+										}
+									}]
+					   }]
+					}]
+		});
+		if(taskId){
+			Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				if(prevDestName.toString().indexOf("会签")!=-1){
+					Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.return').hide();
+				}
+			},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+		}
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								}),
+								new Ext.Button({
+								   iconCls:'btn-changeTask',
+								   id:'ZGDisciplineCheckSentArchiveDepCheck.return',
+								   text:'退回',
+								   handler:this.backsetp.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	backsetp:function(formPanel, panel, signalName, activityName, destination) {
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signerNames').allowBlank=true;
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var option =3;
+			result='呈重新发起';
+			var params = {
+					inspectResult: option,//部门下一步审核人
+					depExerId:curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					status: '已处理',
+					flowAssignId:'${sendUserId}',
+					comments : '退回'
+			};
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '退回上一步成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					inspectResult: option,
+					depExerId: curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+			};
+			if (1 == option ) {	// 会签
+				result = '处室会签(部门发起)';
+				var signUserIds = Ext.getCmp('ZGDisciplineCheckSentArchiveDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+					signUserIds : signUserIds,
+//					status:result,
+					destName : '处室会签(部门发起)'
+				});
+			} 
+			else if(2 == option){ // 处室
+				result = '呈办公室审核';
+				Ext.apply(params,{
+//					status : result
+				});
+			}else {
+				result='呈重新发起';
+				Ext.apply(params,{
+//					status:result,
+					flowAssignId:'${sendUserId}'
+				});
+			}
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '核稿成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

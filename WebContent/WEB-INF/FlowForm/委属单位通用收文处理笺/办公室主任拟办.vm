@@ -1,0 +1,301 @@
+WSDWOfficeDirectorProposeView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		WSDWOfficeDirectorProposeView.superclass.constructor.call(this, {
+					id : 'WSDWOfficeDirectorProposeView',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 530,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									}),
+									new Ext.Button({
+									   iconCls:'btn-changeTask',
+									   text:'退回',
+									   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	backsetp:function(formPanel,panel,activityName){
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		Ext.getCmp('WSDWBGSNBPartyReceiveArchivesForm.leaderName').allowBlank=true;
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId; 
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				var docParams=Ext.getCmp("WSDWOfficeDirectorProposeFormView.reFileId");
+				/*for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+					if(panel.store.getAt(i).data.fileId!=''){
+						if(docParams.getValue()!=""){
+							docParams.setValue(docParams.getValue()+',');
+						} 
+					} 
+					docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+				}*/
+				if("收文登记" == prevDestName){
+					prevSignalName = 'to重新登记';
+					prevFlowAssignId ='${userId}';
+					prevDestName = '重新登记';
+					result='呈重新登记';
+				}
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : formPanel.getCmpByName('leaderOpinion').getValue(),
+								destName : prevDestName,
+								status : '退回',
+								sendMail : sendMail,
+								sendMsg : sendMsg,
+								sendInfo:sendInfo,
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+//							Ext.Ajax.request({
+//								url : __ctxPath + "/archive/updateArchDocsArchives.do",
+//								params : {
+//										  arcRecfileIds : Ext.getCmp('WSDWOfficeDirectorProposeFormView.reFileId').getValue(),
+//										  'archives.archivesId':'${archivesId}'
+//										  },
+//								method : 'POST',
+//								success : function(fp, action) {
+										 Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+										 AppUtil.removeTab('ProcessForm' + panel.taskId);
+										 refreshTaskPanelView();
+//		                        },
+//								failure : function(fp, action) {
+//									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+//								}
+//							});
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+			},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	//保存方法
+	onSave : function(formPanel, panel, signalName, activityName) {
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		var result='呈拟办分发';
+		var comments=formPanel.getCmpByName('leaderOpinion').getValue();
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var docParams=Ext.getCmp("WSDWOfficeDirectorProposeFormView.reFileId");
+			/*for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}*/
+			formPanel.getForm().submit({
+						method : 'POST',
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						params : {
+							taskId : taskId,
+							signalName : signalName,
+							activityName : activityName,
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo:sendInfo,
+//							status: result,
+						    flowAssignId: Ext.getCmp('WSDWBGSNBPartyReceiveArchivesForm.userId').getValue(),
+							comments: comments
+						},
+						waitMsg : '正在提交数据...',
+						success : function(fp, action) {
+//							Ext.Ajax.request({
+//								url : __ctxPath + "/archive/updateArchDocsArchives.do",
+//								params : {
+//										  arcRecfileIds : Ext.getCmp('WSDWOfficeDirectorProposeFormView.reFileId').getValue(),
+//										  'archives.archivesId':'${archivesId}'
+//										  },
+//								method : 'POST',
+//								success : function(fp, action) {
+										 Ext.ux.Toast.msg("操作信息", "拟办成功！");
+										 AppUtil.removeTab('ProcessForm' + taskId);
+										 refreshTaskPanelView();
+//		                        },
+//								failure : function(fp, action) {
+//									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+//								}
+//							});
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}
+	},
+
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					// title:'流程审批信息',
+					autoHeight : true,
+					columnWidth : 1,
+					id:'WSDWJWDWBGSNBReceiveArchiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=WSDWJWDWBGSNBReceiveArchiveDetailPanel',
+						nocache : true
+					}
+				});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : 'WSDWOfficeDirectorProposeFormView',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			items : [/*new ArchivesUtil({
+						panelId : 'WSDWOfficeDirectorProposeView',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),*/{
+				name : 'userId',
+				id : 'WSDWBGSNBPartyReceiveArchivesForm.userId',
+				xtype : 'hidden'
+			},
+					{
+				//id : 'WSDWPartyReceiveArchivesForm.viceLeaders',
+				// hidden:true,
+				hideMode : 'offsets',
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:5px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style : 'padding-top:4px;',
+							text : '负责人:',
+							width : 105
+						}, {
+							xtype : "combo",
+							id : "WSDWBGSNBPartyReceiveArchivesForm.leaderName",
+							valueField : 'userId',
+							displayField : 'fullname',
+							editable : false,
+							allowBlank : false,
+							triggerAction : 'all',
+							forceSelection : true,
+							width :450,
+							store : new Ext.data.SimpleStore({
+								//url : __ctxPath+ '/system/searchByTwoRoleIdAppUser.do?role1Id='+roleMap.get('officeDeputyDirectorRoleID')+'&role2Id='+roleMap.get('officeDirectorRoleID'),
+								url : __ctxPath + '/system/getAllByDepIdAppUser.do?depId=0',
+								autoLoad : true,
+								fields : ['userId', 'fullname']
+							}),
+							listeners : {
+								select : function(cbo, record, index) {
+									Ext
+											.getCmp('WSDWBGSNBPartyReceiveArchivesForm.userId')
+											.setValue(cbo.getValue());
+								}
+							}
+						}]
+			},
+							{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+				   					id:'WSDWOfficeDirectorProposeFormView.leaderOpinion',
+									name : 'leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('WSDWOfficeDirectorProposeFormView.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					},{
+						id : 'WSDWOfficeDirectorProposeFormView.reFileId',
+						xtype : 'hidden'
+					}]
+		});
+	}// end of init
+})

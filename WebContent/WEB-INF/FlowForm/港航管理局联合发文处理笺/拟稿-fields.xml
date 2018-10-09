@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	
+	<field name="nigaoNextId"  label="拟稿后下一步人id" type="varchar" length="0" isShowed="false" />
+	<field name="fileIds" label="附件id" type="varchar" length="1000" isShowed="false" />
+    <field name="flowAssignId"  type="varchar" length="0" isShowed="false" />
+    <field name="flowCreatorId" label="拟稿人id" type="varchar" length="100" isShowed="false" />
+    <field name="archivesId"  type="varchar" length="100" isShowed="false" />
+    <field name="defId" type="varchar" isShowed="false"/>
+    <field name="nigaoUnit" type="varchar" isShowed="true"/>
+    <field name="nigaourgentLevel" type="varchar" isShowed="true"/>
+    <field name="niprivacyLevel" type="varchar" isShowed="true"/>
+    <field name="nisources" type="varchar" isShowed="true"/>
+    <field name="niUser" type="varchar" isShowed="true"/>
+    <field name="niSentDep" type="varchar" isShowed="true"/>
+    <field name="niarchivesType" type="varchar" isShowed="true"/>
+    <field name="GHGLJLrecDepNames" type="varchar" isShowed="true"/>
+    <field name="GHGLJLccNames" type="varchar" isShowed="true"/>
+</fields>

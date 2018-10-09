@@ -1,0 +1,397 @@
+LawsOpinSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		LawsOpinSentArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id : 'LawsOpinSentArchiveDepCheckWin',
+					modal : true,
+					height : 640,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'LawsOpinSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=LawsOpinSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/updateFileSharedArchives.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'LawsOpinSentArchiveDepCheckWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{	
+						xtype:'hidden',
+						name:'archives.archivesId',
+						value:'${archivesId}'
+					 },{
+##					xtype : 'radiogroup', //需要的时候设置成这个
+	                xtype : 'hidden', //先干掉
+					allowBlank : false,
+					width : 450,
+					items : [{
+						boxLabel : '外网公开',
+						name : 'oneOption',
+						id:'three',
+						inputValue : 3,
+						listeners : {
+								'check' : function(checkbox, checked){
+  								if(checked){// 只有在点击时触发
+  									Ext.getCmp("ArchivesShareForm.publicRange").setValue("外网、委系统、委内公开");
+  								}
+							}
+						}
+					},{
+						boxLabel : '委系统公开',
+						name : 'oneOption',
+						id:'two',
+						inputValue : 2,
+						listeners : {
+							'check' : function(checkbox, checked){
+								if(checked){// 只有在点击时触发
+									Ext.getCmp("ArchivesShareForm.publicRange").setValue("委系统、委内公开");
+								}
+						}
+					}
+					},{
+						boxLabel : '委内公开',
+						name : 'oneOption',
+						id:'one',
+						inputValue : 1,
+						listeners : {
+							'check' : function(checkbox, checked){
+								if(checked){// 只有在点击时触发
+									Ext.getCmp("ArchivesShareForm.publicRange").setValue("委内公开");
+								}
+						}
+					}
+					},{
+						boxLabel : '都不公开',
+						name : 'oneOption',
+						id:'zreo',
+						inputValue : 0,
+						checked : true,
+						listeners : {
+							'check' : function(checkbox, checked){
+								if(checked){// 只有在点击时触发
+									Ext.getCmp("ArchivesShareForm.publicRange").setValue("都不公开");
+								}
+						}
+					}
+					}],
+						fieldLabel : '是否公开'
+				},{
+##					xtype : 'container', //需要的时候设置成这个
+                    xtype : 'hidden', //先干掉
+					layout : 'column',
+					style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+					defaults : {
+						allowBlank : false,
+						border : false
+					},
+					items : [{
+						xtype : 'label',
+						text : '公开范围:',
+						width : 120
+					}, {
+						xtype : 'textfield',
+						width : '67%',
+						allowBlank : true,
+						readOnly : true,
+						value:'外网、委系统、委内公开',
+						id : 'ArchivesShareForm.publicRange'
+					}]
+				},{
+						xtype : 'container',
+						layout : 'column',
+						id : 'LawsOpinSentArchiveDepCheck.sentGroup',
+						style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'hidden',
+									width : '60%',
+									id : 'LawsOpinSentArchiveDepCheck.checkIds'
+								},{
+									xtype : 'label',
+									style : 'padding-top:4px;',
+									hideParent :true,
+									text : '分发群组:',
+									width : 120
+								}, {
+									xtype : 'textarea',
+									width : '60%',
+									hideParent :true,
+									allowBlank : true,
+									id : 'LawsOpinSentArchiveDepCheck.checkNames'
+								}, {
+									style : 'padding-left:5px;',
+									xtype : 'button',
+									iconCls : 'menu-department',
+									hideParent :true,
+									text : '选择群组',
+									handler : function() {
+										var url1=__ctxPath + '/system/sentListDepartment.do?innerLimitLevel=3';
+										var url2=__ctxPath + '/system/selectLE3Department.do';
+										var depIdsTemp = Ext.getCmp('LawsOpinSentArchiveDepCheck.checkIds').getValue();
+										var depNamesTemp = Ext.getCmp('LawsOpinSentArchiveDepCheck.checkNames').getValue();
+										var array1 = [];
+										var array2 = [];
+										var map= new Map();
+										if (depIdsTemp != null&& depIdsTemp != '') {
+											array1 = depIdsTemp.split(',');
+											array2 = depNamesTemp.split(',');
+											for (var i = 0; i < array1.length; i++) {
+												map.put(array1[i],array2[i]);
+											}
+										}
+										DepSelector.getView(function(formPanel,id, name) {
+											Ext.getCmp('LawsOpinSentArchiveDepCheck.checkNames').setValue(name);
+											Ext.getCmp('LawsOpinSentArchiveDepCheck.checkIds').setValue(id);
+										},false,map,url1,url2).show();
+									}
+								}]
+			},{
+					xtype : 'container',
+					layout : 'column',
+					style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+					defaults : {
+						allowBlank : false,
+						border : false
+					},
+					items : [{
+								xtype : 'hidden',
+								id : 'LawsOpinSentArchiveDepCheck.sentUserIds',
+								name:'sentUserIds'
+							},{
+								xtype : 'label',
+								text : '分发个人(机关内部):',
+								width : 120
+							}, {
+								xtype : 'textarea',
+								width : '60%',
+								allowBlank : true,
+								id : 'LawsOpinSentArchiveDepCheck.sentUserNames'
+							}, {
+								style : 'padding-left:5px;',
+								xtype : 'button',
+								iconCls : 'menu-department',
+								text : '选择人员',
+								scope:this,
+								handler : function() {
+								    var url1=__ctxPath + '/system/sentListDepartment.do?externalLimitLevel=1&innerLimitLevel=90';
+									var url2=__ctxPath + '/system/selectAppUser.do';
+									var depIdsTemp = Ext.getCmp('LawsOpinSentArchiveDepCheck.sentUserIds').getValue();
+									var depNamesTemp = Ext.getCmp('LawsOpinSentArchiveDepCheck.sentUserNames').getValue();
+									var array1 = [];
+									var array2 = [];
+									var map= new Map();
+									if (depIdsTemp != null&& depIdsTemp != '') {
+										array1 = depIdsTemp.split(',');
+										array2 = depNamesTemp.split(',');
+										for (var i = 0; i < array1.length; i++) {
+											map.put(array1[i],array2[i]);
+										}
+									}
+									SentUserSelector.getView(function(userId, fullName, depName) {
+										Ext.getCmp('LawsOpinSentArchiveDepCheck.sentUserNames').setValue(fullName);
+										Ext.getCmp('LawsOpinSentArchiveDepCheck.sentUserIds').setValue(userId);
+									},false,map,url1,url2).show();
+								}
+							}]
+			}, {
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding:0px 0px 5px 0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审批意见:',
+									style : 'padding-top:4px;',
+									width : 84
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									id:'leaderRead_leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : '73%',
+									height:40
+								},{
+									xtype : 'button',
+									text : '常用批示语',
+									style:'padding-top:10px;',
+									iconCls : 'menu-new-document',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('leaderRead_leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+##								}),
+##								new Ext.Button({
+##								   iconCls:'btn-changeTask',
+##								   text:'退回',
+##								   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	backsetp:function(formPanel,panel,activityName){
+		Ext.getCmp('LawsOpinSentArchiveDepCheck.radiogroup').allowBlank=true;
+		if (!formPanel.getForm().isValid()){return false;}
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId;
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : '退回',
+								destName : prevDestName,
+								status : '已办理',
+								sendMail : sendMail,
+								sendMsg : sendMsg,
+								sendInfo : sendInfo,
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) { 
+						 	Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+						 	AppUtil.removeTab('ProcessForm' + panel.taskId);
+						 	refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var comments = Ext.getCmp('leaderRead_leaderOpinion').getValue();
+			result='完成';		
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendInfo : sendInfo,
+					sendMsg : sendMsg,
+					status:result,
+					comments:comments
+				};
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				success:function(fp, action){
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {
+##						 	Ext.Ajax.request({
+##								url : __ctxPath + '/leave/updatePublicLeaveArchives.do',
+##								params : {
+##								    'archivesId':'${archivesId}',
+##								    'isPublic' : formPanel.getCmpByName('oneOption').getGroupValue()
+##								},
+##								method:'post',
+##								success : function(response, options) {
+##								}
+##							});
+							var checkIds=Ext.getCmp('LawsOpinSentArchiveDepCheck.checkIds').getValue();
+							var sentUserIds=Ext.getCmp('LawsOpinSentArchiveDepCheck.sentUserIds').getValue();
+							if((checkIds!=null&&checkIds!="")||(sentUserIds!=null&&sentUserIds!="")){
+								Ext.Ajax.request({
+										url : __ctxPath + "/archive/saveArchivesDep.do",
+										waitMsg : '正在分发文件...',
+										params : {
+												  depIds : Ext.getCmp('LawsOpinSentArchiveDepCheck.checkIds').getValue(),
+												  archivesId:'$!{archivesId}',
+												  sentUserIds: Ext.getCmp('LawsOpinSentArchiveDepCheck.sentUserIds').getValue()
+												 },
+										method : 'POST',
+										success : function(fp, action) {
+												 Ext.ux.Toast.msg('操作信息', '分发成功！');
+												 AppUtil.removeTab('ProcessForm' + panel.taskId);
+												 refreshTaskPanelView();
+										},
+										failure : function(fp, action) {
+									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+								}});
+							}else{
+								Ext.ux.Toast.msg('操作信息', '分发成功！');
+								AppUtil.removeTab('ProcessForm' + panel.taskId);
+								refreshTaskPanelView();
+							}
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				 }
+			});
+		}
+	}// end of save
+})

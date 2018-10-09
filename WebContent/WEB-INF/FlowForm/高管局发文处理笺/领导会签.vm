@@ -1,0 +1,160 @@
+GSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'GGJLDHQGSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 620,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'GGJDZGWGSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=GGJDZGWGSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id:'GSentArchiveDepCheckForm',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'GGJLDHQGSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						xtype : 'container',
+						layout : 'column',
+						style:'padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审批意见：',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									width : 440,
+									height:40
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '常用批示语',
+									style:'margin-top:10px;margin-left:5px;',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('GSentArchiveDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}/*,{
+			   id : 'GGJDZGWSentArchiveDepCheckForm.reFileId',
+			   xtype : 'hidden'
+					}*/]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if(panel.store.getCount() == 0){
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}
+		if (formPanel.getForm().isValid()) {
+			/*var docParams=Ext.getCmp("GGJDZGWSentArchiveDepCheckForm.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) 
+              {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}*/
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					depLeaderOption : '同意',
+					flowAssignId : '${officeExerId}',
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+				
+			//alert(Ext.util.JSON.encode(params));
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {/*
+						Ext.Ajax.request({
+						url : __ctxPath + "/archive/updateArchDocsArchives.do",
+						params : {
+								  arcRecfileIds : Ext.getCmp('GGJDZGWSentArchiveDepCheckForm.reFileId').getValue(),
+								  'archives.archivesId':'${archivesId}'
+								  },
+						method : 'POST',
+						success : function(fp, action) {
+								Ext.ux.Toast.msg('操作信息', '领导会签成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+                        },
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+					
+				*/Ext.ux.Toast.msg('操作信息', '领导会签成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

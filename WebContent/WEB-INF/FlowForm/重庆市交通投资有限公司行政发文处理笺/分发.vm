@@ -1,0 +1,333 @@
+XZSentArchiveDisp = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		XZSentArchiveDisp.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id : 'XZSentArchiveDispWin',
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								}),
+								new Ext.Button({
+								   iconCls:'btn-changeTask',
+								   text:'退回',
+								   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+								})
+								#set ($count=$count+1)
+						#end]
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'XZSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=XZSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/updateFileSharedArchives.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'XZSentArchiveDispWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{	
+						xtype:'hidden',
+						name:'archives.archivesId',
+						value:'${archivesId}'
+					},{
+						xtype : 'radiogroup',
+						id : 'XZFWResearchSentArchiveDisp.isShared',
+						allowBlank : false,
+						fieldLabel : '是否委内公开',
+						items : [{
+									boxLabel : '是',
+									name : 'archives.isShared',
+									inputValue : 1/*,
+									listeners:{
+										check : function(checkbox, checked) {
+											if (checked) {
+												Ext.getCmp('XZSentArchiveDisp.sentGroup').show();
+												Ext.getCmp('XZSentArchiveDisp.checkNames').allowBlank = false;
+											}
+										}
+									}*/
+								}, {
+									boxLabel : '否',
+									name : 'archives.isShared',
+									inputValue : 0/*,
+									listeners:{
+										check : function(checkbox, checked) {
+											if (checked) {
+												Ext.getCmp('XZSentArchiveDisp.sentGroup').hide();
+												Ext.getCmp('XZSentArchiveDisp.checkNames').allowBlank = true;
+											}
+										}
+									}*/
+						}]
+					},{
+					xtype : 'container',
+					layout : 'column',
+					id : 'XZSentArchiveDisp.sentGroup',
+					style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+					defaults : {
+						border : false
+					},
+					items : [{
+								xtype : 'hidden',
+								width : '60%',
+								id : 'XZSentArchiveDisp.checkIds'
+							},{
+								xtype : 'label',
+								style : 'padding-top:4px;',
+								hideParent :true,
+								text : '分发群组：',
+								width : 120
+							}, {
+								xtype : 'textarea',
+								width : '60%',
+								hideParent :true,
+								allowBlank: true,
+								id : 'XZSentArchiveDisp.checkNames'
+							}, {
+								style : 'padding-left:5px;',
+								xtype : 'button',
+								iconCls : 'menu-department',
+								hideParent :true,
+								text : '选择群组',
+								handler : function() {
+									var url1=__ctxPath + '/system/sentListDepartment.do?innerLimitLevel=3';
+									var url2=__ctxPath + '/system/selectLE3Department.do';
+									var depIdsTemp = Ext.getCmp('XZSentArchiveDisp.checkIds').getValue();
+									var depNamesTemp = Ext.getCmp('XZSentArchiveDisp.checkNames').getValue();
+									var array1 = [];
+									var array2 = [];
+									var map= new Map();
+									if (depIdsTemp != null&& depIdsTemp != '') {
+										array1 = depIdsTemp.split(',');
+										array2 = depNamesTemp.split(',');
+										for (var i = 0; i < array1.length; i++) {
+											map.put(array1[i],array2[i]);
+										}
+									}
+									DepSelector.getView(function(formPanel,id, name) {
+										Ext.getCmp('XZSentArchiveDisp.checkNames').setValue(name);
+										Ext.getCmp('XZSentArchiveDisp.checkIds').setValue(id);
+									},false,map,url1,url2).show();
+								}
+							}]
+			},{
+					xtype : 'container',
+					layout : 'column',
+					style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+					defaults : {
+						allowBlank : false,
+						border : false
+					},
+					items : [{
+								xtype : 'hidden',
+								id : 'XZSentArchiveDisp.sentUserIds',
+								name:'sentUserIds'
+							},{
+								xtype : 'label',
+								text : '分发个人(机关内部):',
+								width : 120
+							}, {
+								xtype : 'textarea',
+								width : '60%',
+								allowBlank : true,
+								id : 'XZSentArchiveDisp.sentUserNames'
+							}, {
+								style : 'padding-left:5px;',
+								xtype : 'button',
+								iconCls : 'menu-department',
+								text : '选择人员',
+								scope:this,
+								handler : function() {
+								    var url1=__ctxPath + '/system/sentListDepartment.do?externalLimitLevel=1&innerLimitLevel=90';
+									var url2=__ctxPath + '/system/selectAppUser.do';
+									var depIdsTemp = Ext.getCmp('XZSentArchiveDisp.sentUserIds').getValue();
+									var depNamesTemp = Ext.getCmp('XZSentArchiveDisp.sentUserNames').getValue();
+									var array1 = [];
+									var array2 = [];
+									var map= new Map();
+									if (depIdsTemp != null&& depIdsTemp != '') {
+										array1 = depIdsTemp.split(',');
+										array2 = depNamesTemp.split(',');
+										for (var i = 0; i < array1.length; i++) {
+											map.put(array1[i],array2[i]);
+										}
+									}
+									SentUserSelector.getView(function(userId, fullName, depName) {
+										Ext.getCmp('XZSentArchiveDisp.sentUserNames').setValue(fullName);
+										Ext.getCmp('XZSentArchiveDisp.sentUserIds').setValue(userId);
+									},false,map,url1,url2).show();
+								}
+							}]}]
+		});
+	},
+	backsetp:function(formPanel,panel,activityName){
+		Ext.getCmp('XZFWResearchSentArchiveDisp.isShared').allowBlank = true;
+		Ext.getCmp('XZSentArchiveDisp.checkNames').allowBlank = true;
+		/*if(panel.store.getCount() == 0){
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (!formPanel.getForm().isValid()){return false;}
+		/*var docParams=Ext.getCmp("DJCSSHSentArchiveDepCheckForm.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) 
+              {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}*/
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId;
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				//alert(processForm[0].activityName + " " + processForm[0].creatorId  +" " + activityName + " " + "to"+processForm[0].activityName); 
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : '退回',
+								destName : prevDestName,
+								status : '已办理',
+								sendMail : sendMail,
+								sendMsg : sendMsg,
+								sendInfo : sendInfo,
+								//看是否指定了执行人员
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {/*
+							Ext.Ajax.request({
+						url : __ctxPath + "/archive/updateArchDocsArchives.do",
+						params : {
+								  arcRecfileIds : Ext.getCmp('DJCSSHSentArchiveDepCheckForm.reFileId').getValue(),
+								  'archives.archivesId':'${archivesId}'
+								  },
+						method : 'POST',
+						success : function(fp, action) {
+						Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+							
+						*/	Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+/*		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (formPanel.getForm().isValid()) {
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				success:function(fp, action){
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params :  {
+							taskId : panel.taskId,
+							//comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue(),
+							sendMail : msgPanel.getCmpByName('sendMail').getValue(),
+							sendMsg : msgPanel.getCmpByName('sendMsg').getValue(),
+							sendInfo : msgPanel.getCmpByName('sendInfo').getValue(),
+							signalName : signalName,
+							activityName : activityName
+						},
+						success : function(fp, action) {
+							var checkIds=Ext.getCmp('XZSentArchiveDisp.checkIds').getValue();
+							var sentUserIds=Ext.getCmp('XZSentArchiveDisp.sentUserIds').getValue();
+							if((checkIds!=null&&checkIds!="")||(sentUserIds!=null&&sentUserIds!="")){
+								Ext.Ajax.request({
+										url : __ctxPath + "/archive/saveArchivesDep.do",
+										params : {
+												  depIds : Ext.getCmp('XZSentArchiveDisp.checkIds').getValue(),
+												  archivesId:'${archivesId}',
+												  sentUserIds: Ext.getCmp('XZSentArchiveDisp.sentUserIds').getValue()
+												 },
+										method : 'POST',
+										success : function(fp, action) {
+												 Ext.ux.Toast.msg('操作信息', '分发成功！');
+												 AppUtil.removeTab('ProcessForm' + panel.taskId);
+												 refreshTaskPanelView();
+										},
+										failure : function(fp, action) {
+									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+								}});
+						  }else{
+						  		Ext.ux.Toast.msg('操作信息', '分发成功！');
+							    AppUtil.removeTab('ProcessForm' + panel.taskId);
+							    refreshTaskPanelView();
+						  }
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				 }
+			});
+		}
+	}// end of save
+})

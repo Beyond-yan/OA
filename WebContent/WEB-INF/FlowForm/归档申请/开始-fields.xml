@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="rollFileId" label="文件ID" type="long" isShowed="false" />
+	<field name="defId" label="defId" type="long" isShowed="false" />
+	<field name="rollFile.fileName" label="文件名" type="varchar" isShowed="true" />
+	<field name="rollFile.applicantId" label="申请人ID" type="varchar" length="128" isShowed="false"/>
+</fields>

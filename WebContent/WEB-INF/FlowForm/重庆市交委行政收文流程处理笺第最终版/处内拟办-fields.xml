@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="chuneiOption" label="处室结果流转标识" type="varchar" length="100" isShowed="false" />
+	<field name="officeInnerNiBan" label="处内拟办人员" type="long" length="100" isShowed="false" />
+	<field name="foreachUserIds" label="foreachUserIds" type="varchar" length="1000" isShowed="false" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="false" />
+	<field name="leader3UserIds" label="leader3UserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="leader3UserIdsLengths" label="leader3UserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="nibanUserIds" label="nibanUserIds" type="varchar" length="1000" isShowed="true" />
+</fields>

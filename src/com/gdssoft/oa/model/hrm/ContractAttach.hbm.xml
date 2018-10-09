@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.hrm.ContractAttach" table="contract_attach" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="fileId" column="fileId" type="java.lang.Long" length="19"> 
+      <generator class="native"/> 
+    </id>  
+    <!-- imported bi-directional many-to-one association to FileAttach -->  
+    <many-to-one name="fileAttach" class="com.gdssoft.oa.model.system.FileAttach" not-null="false" update="false" insert="false"> 
+      <column name="fileId"/> 
+    </many-to-one>  
+    <!-- imported bi-directional many-to-one association to UserContract -->  
+    <many-to-one name="userContract" class="com.gdssoft.oa.model.hrm.UserContract" not-null="false" fetch="select"> 
+      <column name="contractId"/> 
+    </many-to-one> 
+  </class> 
+</hibernate-mapping>

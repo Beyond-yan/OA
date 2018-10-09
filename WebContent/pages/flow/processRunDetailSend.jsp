@@ -1,0 +1,40 @@
+<%@page import="java.util.List"%>
+<%@page import="com.gdssoft.oa.service.flow.ProcessFormService"%>
+<%@page import="com.gdssoft.oa.model.flow.ProcessRun"%>
+<%@page import="com.gdssoft.core.util.AppUtil"%>
+<%@page import="com.gdssoft.oa.service.flow.ProcessRunService"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+	//显示流程的明细，（为流程的标题及内容）
+	//传入piId,即流程实例ID
+	
+%>
+
+
+	
+	<table class="table-info" cellpadding="0" cellspacing="1" width="96%">
+		<tr>
+			<th colspan="8"><h2>流程审批信息</h2></th>
+		</tr>
+		<tr>
+			<th width="30">序号</th>
+			<th>任务名1</th>
+			<th>执行人</th>
+			<th>开始于</th>
+			<th>处理结果</th>
+			<th>意见</th>
+		</tr>
+		<c:forEach items="${pfList}" var="processForm" varStatus="i">
+		<tr>
+			<td align="center">${i.count}</td>
+			<td>${processForm.activityName}</td>
+			<td>${processForm.creatorName}</td>
+			<td><fmt:formatDate value="${processForm.createtime}" pattern="yyyy-MM-dd HH:mm"/></td>
+			<td>${processForm.status}</td>
+			<td>${processForm.comments}</td>
+		</tr>
+		</c:forEach>
+	</table>

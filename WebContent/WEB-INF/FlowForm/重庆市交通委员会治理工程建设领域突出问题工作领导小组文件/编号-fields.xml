@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="archivesNo" label="流程编号" type="varchar" length="100" isShowed="false" />
+	<field name="fileSnConfig" label="编号方法" type="varchar" length="100" isShowed="false" />
+	<field name="depOption" label="编号方式" type="varchar" length="100" isShowed="false" />
+</fields>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="ZXJTWYHXZFWCLJD1B" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="260,20,50,50" name="拟稿">
+		<transition g="-130,-25" name="to 科室负责人核稿" to="科室负责人核稿"/>
+	</start>
+	<task g="225,120,120,50" name="科室负责人核稿">
+		<transition g="-31,-13" name="to 核稿结果" to="核稿结果"/>
+	</task>
+	<task g="40,220,120,50" name="处室会签">
+		<transition g="100,145:11,-20" name="to 科室负责人核稿" to="科室负责人核稿"/>
+	</task>
+	<decision g="260,220,50,50" name="核稿结果">
+		<transition g="-39,-20" name="to 处室会签" to="处室会签">
+			<condition expr="#{depLeaderOption=='sign'}"/>
+		</transition>
+		<transition g="-32,-20" name="to 重新发起" to="重新发起">
+			<condition expr="#{depLeaderOption=='restart'}"/>
+		</transition>
+        <transition name="to 签发" to="签发" g="-45,-22">
+			<condition expr="#{depLeaderOption=='issue'}"/>
+		</transition>
+	</decision>
+	<task g="400,220,120,50" name="重新发起">
+		<transition g="460,145:-103,-19" name="to 科室负责人核稿" to="科室负责人核稿"/>
+	</task>
+	<task g="225,320,120,50" name="签发">
+		<transition g="-39,-12" name="to 审核结果" to="审核结果"/>
+	</task>
+	<task g="400,420,120,50" name="领导会签">
+		<transition g="460,345:-86,-21" name="to 签发" to="签发"/>
+	</task>
+	<decision g="260,420,50,50" name="审核结果">
+		<transition g="-35,-22" name="to 领导会签" to="领导会签">
+			<condition expr="#{officeLeaderOption=='leaderSign'}"/>
+		</transition>
+      <transition name="to 办公室审核" to="办公室审核" g="-37,-19">
+			<condition expr="#{officeLeaderOption=='distribute'}"/>
+		</transition>
+	</decision>
+	<task g="225,520,120,50" name="办公室审核">
+      <transition name="to 编号" to="编号" g="-19,-12"/>
+	</task>
+	<task g="225,620,120,50" name="编号">
+      <transition name="to 用印校对" to="用印校对" g="-36,-17"/>
+	</task>
+	<task g="225,720,120,50" name="用印校对">
+      <transition name="to 分发" to="分发" g="-22,-16"/>
+	</task>
+	<task g="225,820,120,50" name="分发">
+		<transition g="-18,-17" name="to 结束" to="结束"/>
+	</task>
+	<end g="260,920,50,50" name="结束"/>
+</process>

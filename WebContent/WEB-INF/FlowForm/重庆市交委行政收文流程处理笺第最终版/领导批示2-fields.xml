@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="nibanUserId" label="nibanUserIds" type="varchar" length="100" isShowed="false" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="false" />
+	<field name="leader2UserIdsLengths" label="leader2UserIdsLengths" type="varchar" length="100" isShowed="true" />
+</fields>

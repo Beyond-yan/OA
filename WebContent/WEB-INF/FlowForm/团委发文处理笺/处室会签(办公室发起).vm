@@ -1,0 +1,172 @@
+TWSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		TWSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'TWCSHQBGSTWSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 625,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'TWFFTWSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&sentPanelId=TWFFTWSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'TWSentArchiveDepCheckForm',
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'TWCSHQBGSTWSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						layout:'column',
+					   border:false,
+					   style:'padding-top:10px;',
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[ {fieldLabel : '审批意见',
+										name : 'leaderRead.leaderOpinion',
+										id:'TWSentArchiveDepCheckForm.leaderOpinion',
+										autoScroll:true,
+										maxLength:500,
+										allowBlank:true,
+										xtype:'textarea',
+										width:466,
+										height:40
+									}]
+					      },{
+					   		layout:'form',
+					   		style:'padding-top:10px;padding-left:5px;',
+					   		border:false,
+					   		items:[{
+									xtype : 'button',
+									text : '常用批示语',
+									iconCls : 'menu-new-document',//'menu-information',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+											var fm = Ext
+												.getCmp('TWSentArchiveDepCheckForm');
+												fm
+												.getCmpByName('leaderRead.leaderOpinion')
+												.setValue(name);
+												}, true).show();
+										}
+									}]
+					   }]
+					},{
+						id : 'TWSentArchiveDepCheck.reFileId',
+						xtype : 'hidden'
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+//		if (panel.store.getCount() == 0) {
+//			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+//			return false;
+//		}
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var docParams=Ext.getCmp("TWSentArchiveDepCheck.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					depLeaderOption : '同意',
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			//alert(Ext.util.JSON.encode(params));
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextForSyncProcessActivity.do",
+				method : 'post',
+				timeout:120000,
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					// --无后续的错误友好提示开始
+					var jsonResult = action.result;
+					if (jsonResult) {
+						if (jsonResult && jsonResult.success == "true") {
+							Ext.ux.Toast.msg("操作信息", "操作成功！");
+						} else {
+							var resultMsg = "信息保存出错，请联系管理员！";
+							var resuIcon = Ext.MessageBox.ERROR;
+							if (jsonResult.message && jsonResult.message != null) {
+								resultMsg = jsonResult.message;
+								if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+									resuIcon= Ext.MessageBox.WARNING;
+								}
+							}
+							Ext.MessageBox.show({
+								title : '操作信息',
+								msg : resultMsg,
+								buttons : Ext.MessageBox.OK,
+								icon : resuIcon
+							});
+						}
+					}
+					// --无后续的错误友好提示结束
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+						title : '操作信息',
+						msg : '当前系统繁忙，请稍后再处理！',
+						buttons : Ext.MessageBox.OK,
+						icon : Ext.MessageBox.WARNING
+					});
+				}
+			});
+		}
+	}// end of save
+})

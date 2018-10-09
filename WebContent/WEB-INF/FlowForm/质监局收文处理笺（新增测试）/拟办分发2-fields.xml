@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="sentNext" label="流转结果" type="varchar" isShowed="false" />
+	<field name="depId" label="部门ID" type="varchar" isShowed="false" />
+	<field name="departmentId" label="主办部门ID" type="varchar"
+		isShowed="false" />
+	<field name="sentNextUid" label="niBanUid" type="varchar"
+		isShowed="false" />
+</fields>

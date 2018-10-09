@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="ZhiShuJiGuanGongHuiFaWen" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="270,6,48,48" name="拟稿">
+		<transition g="-36,-9" name="to 处室核稿" to="处室核稿"/>
+	</start>
+	<task g="224,115,138,52" name="处室核稿">
+		<transition g="-32,-17" name="to 处室送出" to="处室送出"/>
+	</task>
+	<decision g="271,217,48,48" name="处室送出">
+		<transition g="503,240:-125,-18" name="to 处室会签(部门发起)" to="处室会签(部门发起)">
+			<condition expr="#{roomNext=='1'}"/>
+		</transition>
+		<transition g="86,242:16,-20" name="to 重新发起" to="重新发起">
+			<condition expr="#{roomNext=='2'}"/>
+		</transition>
+		<transition g="-30,-17" name="to 办公室审核" to="办公室审核">
+			<condition expr="#{roomNext=='3'}"/>
+		</transition>
+	</decision>
+	<task g="440,121,126,52" name="处室会签(部门发起)">
+		<transition g="436,139:-67,-16" name="to 处室核稿" to="处室核稿"/>
+	</task>
+	<task g="251,323,92,52" name="办公室审核">
+		<transition g="-32,3" name="to 办公室送出" to="办公室送出"/>
+	</task>
+	<task g="48,623,92,52" name="编号">
+		<transition g="-28,-1" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="49,731,92,52" name="生成电子公文">
+		<transition g="-38,-12" name="to 分发" to="分发"/>
+	</task>
+	<task g="265,732,92,52" name="分发">
+		<transition g="-14,-14" name="to 结束" to="结束"/>
+	</task>
+	<end g="484,733,48,48" name="结束"/>
+	<task g="254,621,92,52" name="签发">
+		<transition g="-18,-16" name="to 编号" to="编号"/>
+	</task>
+	<task g="39,116,92,52" name="重新发起">
+		<transition g="-45,-23" name="to 处室核稿" to="处室核稿"/>
+	</task>
+	<decision g="274,489,48,48" name="办公室送出">
+		<transition g="503,512:-134,-13" name="to 处室会签(办公室发起)" to="处室会签(办公室发起)">
+			<condition expr="#{officeNext=='1'}"/>
+		</transition>
+		<transition g="85,515:51,-16" name="to 领导会签" to="领导会签">
+			<condition expr="#{officeNext=='2'}"/>
+		</transition>
+		<transition g="-41,-17" name="to 签发" to="签发">
+			<condition expr="#{officeNext=='4'}"/>
+		</transition>
+	</decision>
+	<task g="433,322,141,52" name="处室会签(办公室发起)">
+      <transition name="to 办公室审核" to="办公室审核" g="-30,-14"/>
+	</task>
+	<task g="39,329,92,52" name="领导会签">
+      <transition name="to 办公室审核" to="办公室审核" g="-40,-17"/>
+	</task>
+</process>

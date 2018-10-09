@@ -1,0 +1,553 @@
+infoCenterArchivesReStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		infoCenterArchivesReStart.superclass.constructor.call(this, {
+					id : 'DBReceiveArchivesReStart',
+					title : '重庆市交通委员会督办件收文处理笺 -重新登记',
+					layout : 'form',
+					modal : true,
+					width : 800,
+					iconCls : 'menu-archive-draft',
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end]
+				});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		var fileIds = Ext.getCmp('DBinfoCenterDbArchivesReFiles.fileIds').getValue();
+		if (formPanel.getForm().isValid()) {
+			var docParams=Ext.getCmp("DBinfoCenterDBArchivesReStart.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					archivesRecfileIds : Ext.getCmp("DBinfoCenterDBArchivesReStart.reFileId").getValue()
+				},
+				success : function(fp, action) {
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					//var flowAssignId = Ext.getCmp("DBinfoCenterArchivesReceiveForm.userId").getValue();
+					//var option = formPanel.getCmpByName('directionOption').getGroupValue();
+					var params={
+						taskId : panel.taskId,
+						signalName : signalName,
+						activityName : activityName,
+						sendMail : sendMail,
+						sendMsg : sendMsg,
+						sendInfo : sendInfo,
+						fileIds : fileIds?fileIds:'_'
+					};
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/nextProcessActivity.do',
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(response, options) {
+							Ext.ux.Toast.msg('操作信息', '成功保存！');
+							Ext.getCmp('centerTabPanel').remove(Ext.getCmp('ProcessForm' + panel.taskId));
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+						}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	initUIComponents : function() {
+		this.archivesId='${archivesId}'; 
+		// 初始化附件文档
+	    this.docGridPanel = new ArchivesUtil({
+			panelId : 'DBReceiveArchivesReStart',
+			archivesId : this.archivesId
+		}).getGridPanelWithFullTools();
+		this.formPanel = new Ext.FormPanel({
+			url : __ctxPath + '/archive/saveArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 80,
+			width : 800,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+					}, [{
+							name : 'archives.archivesId',
+							mapping : 'archivesId'
+						}, {
+							name : 'archives.issueDate',
+							mapping : 'issueDate'
+						}, {
+							name : 'archives.depSignNo',
+							mapping : 'depSignNo'
+						}, {
+							name : 'archives.writtenDate',
+							mapping : 'writtenDate'
+						}, {
+							name : 'archives.issueDep',
+							mapping : 'issueDep'
+						}, {
+						    name:'archives.status',
+						    mapping:'status'
+						}, {
+							name : 'archives.subject',
+							mapping : 'subject'
+						}, {
+							name : 'archives.fileCounts',
+							mapping : 'fileCounts'
+						}, {
+							name : 'archives.privacyLevel',
+							mapping : 'privacyLevel'
+						}, {
+							name : 'archives.urgentLevel',
+							mapping : 'urgentLevel'
+						}, {
+							name : 'archives.issuer',
+							mapping : 'issuer'
+						}, {
+							name : 'archives.issuerId',
+							mapping : 'issuerId'
+						}, {
+							name:'archives.orgDepName',
+							mapping:'orgDepName'
+						}, {
+							name:'archives.archType',
+							mapping:'archType'
+						}, {
+							name:'archives.orgDepId',
+							mapping:'orgDepId'
+						}, {
+							name:'archives.archivesFiles',
+							mapping:'archivesFiles'
+						}, {
+							name:'archives.limitedDate',
+							mapping:'limitedDate'
+						}]),
+			items : [{
+						border : false,
+						layout : 'column',
+						defaults : {
+							border : false,
+							columnWidth : .33,
+							layout : 'form',
+							defaults : {
+								width : 150,
+								xtype : 'textfield',
+								allowBlank : false
+							}
+						},
+						items:[{
+								items:[
+							/* {
+								fieldLabel : '编号名称',
+								xtype : "combo",
+								id : "infoCenterArchivesReceiveForm.snName",
+								valueField : 'snId',
+								displayField : 'snName',
+								editable : false,
+								allowBlank : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								width : 150,
+								store : new Ext.data.SimpleStore({
+									url :__ctxPath + '/snconfig/getReceiveSignsFlowSnConfig.do?archType=1',
+									autoLoad : true,
+									fields : ['snId', 'snName']
+								}),
+								listeners : {
+									'select' : function(cbo, record, index) {
+										Ext.getCmp('infoCenterArchivesReceiveForm.snId').setValue(cbo.getValue());
+//										if (Ext.get('infoCenterArchivesReceiveForm.snName').dom.value != '督办件') {
+//											Ext.getCmp('archivesArchType').setValue('1');
+//											Ext.getCmp('infoCenterArchivesReceiveForm.limitedDate').hide();
+//											Ext.getCmp('archives.limitedDate').allowBlank = true;
+//										} else {
+//											Ext.getCmp('archivesArchType').setValue('2');
+//											Ext.getCmp('infoCenterArchivesReceiveForm.limitedDate').show();
+//											Ext.getCmp('archives.limitedDate').allowBlank = false;
+//										}
+									}
+								}
+							},*/ {
+								xtype:'hidden',
+								id:'DBreceiveArchivesReceiveForm.snId'
+							},{ 
+							    fieldLabel : '成文日期',
+							    name : 'archives.writtenDate',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								editable : false,
+								allowBlank : true	
+								},{
+								xtype : 'combo',
+								width : 150,
+								fieldLabel : '文种分类',
+								id: 'DBreceiveArchivesReceiveForm.archivesType',
+								hiddenName : "archives.archivesType.typeId",
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/archive/comboArchivesType.do',
+											autoLoad : true,
+											fields : ['typeId', 'typeName']
+										})
+							}, {
+								xtype : 'hidden',
+								name : 'flowAssignId',
+								id : 'REDubanReceiveRecordFormView.userId'
+							}, {
+						xtype : "combo",
+						fieldLabel : '拟办负责人',
+						id : "ReDubanReceiveRecordFormView.leaderName",
+						style : 'padding-left:4px;',
+						valueField : 'userId',
+						displayField : 'fullname',
+						editable : false,
+						allowBlank : false,
+						triggerAction : 'all',
+						forceSelection : true,
+						width : 150,
+						store : new Ext.data.SimpleStore({
+							url : __ctxPath
+									+ '/system/searchByTwoRoleIdAppUser.do?role1Id='+roleMap.get('officeDeputyDirectorRoleID')+'&role2Id='+roleMap.get('officeDirectorRoleID'),
+							autoLoad : true,
+							fields : ['userId', 'fullname']
+						}),
+						listeners : {
+							select : function(cbo, record, index) {
+								Ext
+										.getCmp('REDubanReceiveRecordFormView.userId')
+										.setValue(cbo.getValue());
+							}
+						}
+					}]
+						},{
+							items:[{
+								fieldLabel : '收文日期',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								editable : false,
+								allowBlank : true,
+								name : 'archives.issueDate',
+								value:new Date()
+							},{
+								xtype : 'combo',
+								fieldLabel : '缓急',
+								name : 'archives.urgentLevel',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank : true,
+								store : ['特急', '急件', '加急','平急']
+							},{
+								
+									fieldLabel : '限办日期',
+									name : 'archives.limitedDate',
+									xtype : 'datefield',
+									format : 'Y-m-d',
+									mode : 'local',
+									id : 'archives.limitedDate',
+									editable : false,
+									allowBlank : true,
+									value: new Date().add(Date.MONTH,1),
+									width : 150
+								}]
+										
+						},{
+							items:[{
+								xtype : 'textfield',
+								fieldLabel : '来文号',
+								name : 'archives.depSignNo',
+								allowBlank : true
+							},{
+								xtype : 'combo',
+								fieldLabel : '密級',
+								name : 'archives.privacyLevel',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank : true,
+								store : ['一般', '秘密', '机密','绝密'],
+								listeners: {
+									'select':function(combo){
+										if(combo.getValue()!='一般'){
+											Ext.getCmp('DBinfoCenterArchivesReceivePanelCounts').show();
+											Ext.getCmp('DBinfoCenterArchivesReceiveForm.fileCounts').allowBlank = true;
+										}else{
+											Ext.getCmp('DBinfoCenterArchivesReceivePanelCounts').hide();
+											Ext.getCmp('DBinfoCenterArchivesReceiveForm.fileCounts').allowBlank = true;
+										}
+									}
+								}
+							
+						}]
+					}, {
+								xtype : 'container',
+								style : 'padding:0px 0px 5px 0px;',
+								id : 'DBinfoCenterArchivesReceivePanelCounts',
+								layout : 'column',
+								width : 260,
+								hidden : true,
+								items : [
+									{
+										xtype : 'label',
+										style:"padding-top:4px;",
+										text : '份号:',
+										width : 84
+									},{
+										xtype : 'numberfield',
+										editable : false,
+										id : 'DBinfoCenterArchivesReceiveForm.fileCounts',
+										mode : 'local',
+										name : 'archives.fileCounts',
+										width : 155
+								}]
+							}]
+					}, {
+						xtype : 'textfield',
+						fieldLabel : '来文单位',
+						name : 'archives.issueDep',
+						width:670,
+						allowBlank : false
+					},{
+						xtype : 'textfield',
+						fieldLabel : '标   题',
+						name : 'archives.subject',
+						width:670,
+						allowBlank : false
+					} ,{
+						name : 'archives.status',
+						xtype : 'hidden',
+						value :  1
+					},{
+					    name : "archives.issuer",
+						value : curUserInfo.fullname,
+						xtype : 'hidden'
+					}, {
+						name : 'archives.snConfigId',
+						id : 'DBReceiveArchivesReceiveForm.snConfigId',
+						xtype : 'hidden'
+					}, {
+						name : 'archives.issuerId',
+						value : curUserInfo.userId,
+						xtype : 'hidden'
+					},{
+						name : 'archives.archType',
+						id : 'DBarchivesArchType',
+						value : 1,
+						xtype : 'hidden'
+					}, {
+				xtype : 'fieldset',
+				style:'padding-top:6px',
+				border : false,
+				defaults : {
+					anchor : '96%,90%'
+				},
+				items : [this.docGridPanel]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [{
+							columnWidth : .85,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id : 'DBinfoCenterDArchivesReFiles.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 4px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .12,
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document/' + curUserInfo.ownerSchema,
+										judge_size : 'no',
+										upload_autostart : true,
+										callback : function(data) {
+											var fileIds = Ext.getCmp('DBinfoCenterDbArchivesReFiles.fileIds');
+											var filePanel = Ext.getCmp('DBinfoCenterDArchivesReFiles.personFilePanel');
+
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+
+												Ext.DomHelper
+														.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'DBinfoCenterDbArchivesReFiles.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext.getCmp('DBinfoCenterDbArchivesReFiles.fileIds');
+									var filePanel = Ext.getCmp('DBinfoCenterDArchivesReFiles.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								id : 'DBinfoCenterDbArchivesReFiles.fileIds',
+								name : 'fileIds'
+							},{
+								xtype:'hidden',
+								id:'DBinfoCenterDBArchivesReStart.reFileId'
+							},{
+								xtype:'hidden',
+								name:'archives.archivesId'
+							}]
+						}]
+			}]
+		});
+		if (this.archivesId) {
+			this.formPanel.getForm().load({
+				deferredRender : false,
+				url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='
+						+ this.archivesId,
+				waitMsg : '正在载入数据...',
+				method:'post',
+				success : function(form, action) {
+					var privacyLevel=action.result.data['archives.privacyLevel'];
+					var privacyLevel=action.result.data['archives.privacyLevel'];
+					var privacyLevel=action.result.data['archives.privacyLevel'];
+					Ext.getCmp('DBreceiveArchivesReceiveForm.archivesType').getStore().load({ 
+					callback: function () { 
+						Ext.getCmp('DBreceiveArchivesReceiveForm.archivesType').setValue(Ext.decode(action.response.responseText).data[0].parentArchId);
+					}, 
+					scope: Ext.getCmp('DBreceiveArchivesReceiveForm.archivesType').getStore(),//表示作用范围 
+					add: false //为false表示数据不累加 
+					}); 
+					
+						
+						Ext.getCmp('ReDubanReceiveRecordFormView.leaderName').getStore().load({ 
+						callback: function () { 
+						var nextUserId='${nextuserId}';
+						//等待数据加载完成才进行赋值，不然由于异步会出现先赋值后加载完成。 
+						Ext.getCmp('ReDubanReceiveRecordFormView.leaderName').setValue(nextUserId);
+						Ext.getCmp('REDubanReceiveRecordFormView.userId').setValue(nextUserId);
+						}, 
+						scope: Ext.getCmp('ReDubanReceiveRecordFormView.leaderName').getStore(),//表示作用范围 
+						add: false //为false表示数据不累加 
+						});
+					
+					//Ext.getCmp('infoCenterArchivesReStart.flowAssignId').setValue(action.result.data['archives.reviewUser']);
+					if(privacyLevel!='一般'){
+						 Ext.getCmp('DBinfoCenterArchivesReceivePanelCounts').show();
+						 Ext.getCmp('DBinfoCenterArchivesReceiveForm.fileCounts').allowBlank = true;
+					}
+					if(privacyLevel=='一般'){
+						Ext.getCmp('DBinfoCenterArchivesReceivePanelCounts').hide();
+						Ext.getCmp('DBinfoCenterArchivesReceiveForm.fileCounts').allowBlank = true;
+					}
+					var filePanel = Ext.getCmp('DBinfoCenterDArchivesReFiles.personFilePanel');
+					var fileIds = Ext.getCmp("DBinfoCenterDbArchivesReFiles.fileIds");
+				/*	Ext.Ajax.request({
+									url : __ctxPath + '/archive/getAttachFilesArchives.do',
+									params : {
+										'fileIds' : '${fileIds}'
+									},
+									method:'post',
+									success : function(response, options) {*/
+										var af=Ext.decode(action.response.responseText).data[0].archivesFiles;
+										if(af!=null){
+										for (var i = 0; i < af.length; i++) {
+											if (fileIds.getValue() != '') {
+												fileIds.setValue(fileIds.getValue() + ',');
+											}
+											fileIds.setValue(fileIds.getValue() + af[i].fileId);
+											Ext.DomHelper
+													.append(
+															filePanel.body,
+															'<span><a href="#" onclick="FileAttachDetail.show('
+																	+ af[i].fileId
+																	+ ')">'
+																	+ af[i].fileName
+																	+ '</a><img class="img-delete" src="'
+																	+ __ctxPath
+																	+ '/images/system/delete.gif" onclick="removeFile(this,\'DBinfoCenterDbArchivesReFiles.fileIds\','
+																	+ af[i].fileId
+																	+ ')"/>&nbsp;|&nbsp;</span>');
+										}
+									}
+									/*}
+						});*/
+				},
+				failure : function(form, action) {
+				}
+			});
+		}
+	}
+})

@@ -1,0 +1,205 @@
+WSOfficeSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		WSOfficeSentArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id : 'WSOfficeSentArchiveDepCheckWin',
+					modal : true,
+					height : 620,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'WSDWSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=WSDWSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'WSOfficeSentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'WSOfficeSentArchiveDepCheckWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archives.archivesId',
+						id: 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						id : 'WSOfficeSentArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding:6px 0px 5px 0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '选择人员:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : 445,
+									readOnly : true,
+									allowBlank : false,
+									id : 'WSOfficeSentArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'WSOfficeSentArchiveDepCheck.viceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+										var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+										DepLeaders.getView(
+											function(userIds, userNames) {
+												Ext.getCmp('WSOfficeSentArchiveDepCheck.viceLeaderIds').setValue(userIds);
+												Ext.getCmp('WSOfficeSentArchiveDepCheck.LeaderNames')
+														.setValue(userNames);
+											}, true, null,url).show();
+									}
+								}]
+					}, {
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '备注:',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440,
+									height:40
+								}/*,{
+									xtype : 'button',
+									text : '常用批示语',
+									style:'padding-top:10px;',
+									iconCls : 'menu-new-document',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('WSOfficeSentArchiveDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}*/]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-ok',
+								   text:'完成排版',
+								   handler:this.completeSetting
+								}),
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	completeSetting:function(){
+		Ext.MessageBox.confirm('信息确认','请确认是否完成排版',function(btn){
+		   if(btn=='yes'){
+		     Ext.Ajax.request({
+			    url:__ctxPath+'/archive/updateIsComSettingArchives.do?archivesId=${archivesId}',
+			    method:'post',
+			    success:function(response,options){
+			      Ext.ux.Toast.msg('操作信息','排版成功！');
+			    
+			    },
+			    failure:function(response,options){
+			      Ext.ux.Toast.msg('操作信息','排版失败！');
+			    
+			    }
+	  });
+		   }
+		});
+	  
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo : sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+				Ext.apply(params,{
+					flowAssignId : Ext.getCmp('WSOfficeSentArchiveDepCheck.viceLeaderIds').getValue()
+				});
+			formPanel.getForm().submit({
+				url : __ctxPath + '/archive/updateElecArchStatusArchives.do',
+				method:'post',
+				params : {
+						'archivesId' : Ext.getCmp("archives.archivesId").getValue()
+				},
+				success : function(response, options) {
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '成功保存！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				}
+			});
+		}
+	}// end of save
+})

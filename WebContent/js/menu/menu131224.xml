@@ -1,0 +1,1227 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Menus>
+	<Items id="PersonalAffair" text="个人办公" iconCls="menu-personal-affair" isPublic="true">
+		<Item id="MyTaskView" text="我的待办事项" iconCls="menu-flowWait" />
+		<Item id="PersonalWorkPlanView" text="我的计划" iconCls="menu-cal-plan-view" />		
+		<!--<Item id="PersonalDocumentView" text="我的文件夹" iconCls="menu-personal-doc" />-->
+		<Item id="AppTeamView" text="我的工作组" iconCls="menu-flowWait" />
+		<Item id="ProfileForm" text="修改个人资料" iconCls="menu-customer" />
+		<!--<Item id="VPersonalcardinfoView" text="餐卡查询" iconCls="" />
+			<Item id="PersonalMailBoxView" text="我的邮件" iconCls="menu-mail_box" />
+			<Item id="MySubUserDiaryView" text="下属工作日志" iconCls="menu-subDiary" />
+			<Item id="PersonalWorkPlanView" text="我的计划" iconCls="menu-myplan" />
+			<Item id="DiaryView" text="我的工作日志" iconCls="menu-diary" />
+			<Item id="MessageManageView" iconCls="menu-information" text="我的消息" />
+			<Item id="UserAgentView" iconCls="menu-message" text="代办帐号管理" />
+			<Item id="PersonnelLeaveApplyView" text="我的请假" iconCls="menu-holiday" />-->
+	</Items>
+	
+	<Items id="" text="个人邮箱" iconCls="menu-info" isPublic="true">
+		<Item id="" text="写邮件" iconCls="menu-create-mail" />
+		<Item id="" text="收件箱" iconCls="menu-receive-mail" />
+		<Item id="" text="发件箱" iconCls="menu-send-mail" />
+		<Item id="" text="草稿箱" iconCls="menu-draft-mail" />
+		<Item id="" text="废纸篓" iconCls="menu-trash-mail" />
+	</Items>
+
+	<Items id="LeaderActivities" text="领导活动" iconCls="menu-duty" isPublish="false">
+		<Item id="LeaderCalendarView" text="领导日程" iconCls="menu-leaderSchedule" />
+		<Item id="AllScheduleView" text="全部安排" iconCls="menu-cal-plan-view" />
+		<Item id="EditScheduleNewForm" text="新增安排" iconCls="menu-cal-plan-view" />
+	</Items>
+	
+	<Items id="Out" text="外出人员管理" iconCls="menu-personal" isPublish="false">
+		<Item id="OutPersonView" text="外出查询" iconCls="menu-holiday" />
+		<Item id="EditOutNewView" text="外出登记" iconCls="menu-holiday" />
+		<!-- 
+			<Item id="TodayOutView" text="今天的情况" iconCls="menu-dutyRegister" />
+			<Item id="RecallPersonView" text="已撤销登记" iconCls="menu-repealedRegister" /> 
+			-->
+	</Items>
+	
+	<!-- 公司法律法規 -->
+	<!--
+		<Items id="Laws" text="法律法规管理" iconCls="menu-flow" isPublic="true">
+				<item id="LawsView" text="法律列表" iconCls="menu-notice"></item>
+				<item id="LawsTypeView" text="按分类查询" iconCls="menu-sortSearch"></item>
+				<item id="LawsAuthorView" text="按颁布单位查询" iconCls="menu-issueUnitsSearch"></item>
+				<item id="LawsForm" text="录入法规" iconCls="menu-notice"></item> 
+		</Items>
+		-->
+	
+	<Items id="ArchiveIssue" text="发文管理" iconCls="menu-archive">
+		<Item id="ArchivesInitialView" text="发文拟稿" iconCls="menu-archive-draft" />
+		<Item id="ArchivesDraftManage" text="待办件" iconCls="menu-archive-draft-manage"/>
+		<Item id="ArchivesIssueMonitor" text="在办件" iconCls="menu-archive-monitor"/>
+		<Item id="ArchivesIssueSearch" text="发文库" iconCls="menu-archive-search"/>
+		<Item id="ArchivesIssueManage" text="公文分发" iconCls="menu-archive-issue-manage"/>
+		<Item id="ArchivesDocument" text="手动归档" iconCls="menu-archive-handout"/>
+		<Item id="ArchivesDraftAllManage" text="发文查询" iconCls="menu-archive-draft-manage"/>
+		<!--
+				<Item id="ArchivesDraftManage" text="拟稿管理" iconCls="menu-archive-draft-manage">
+					<Function id="_ArchivesDrafmQuery" text="查看" iconCls="menu-list">
+						<url>/archive/listArchives.do</url>
+					</Function>
+					<Function id="_ArchivesDrafmEdit" text="编辑" iconCls="btn-edit">
+						<url>/archive/listArchives.do</url>
+						<url>/archive/getFlowArchFlowConf.do</url>
+						<url>/archive/getArchives.do</url>
+					</Function>
+					<Function id="_ArchivesDrafmDel" text="删除" iconCls="menu-del">
+						<url>/archive/listArchives.do</url>
+						<url>/archive/multiDelArchives.do</url>
+					</Function>
+				</Item>
+				<Item id="ArchivesIssueSearch" text="发文查询" iconCls="menu-archive-search">
+					<Function id="_ArchivesIssueSearchQuery" text="查看" iconCls="menu-list">
+						<url>/archive/listArchives.do</url>
+					</Function>
+				</Item>
+				<Item id="ArchivesIssueMonitor" text="发文监控" iconCls="menu-archive-monitor">
+					<Function id="_ArchivesIssueMonitorQuery" text="查看" iconCls="menu-list">
+						<url>/archive/listArchives.do</url>
+					</Function>
+					<Function id="_ArchivesIssueHasten" text="催办" inconCls="menu-archives-remind">
+						<url>/archive/listArchives.do</url>
+						<url>/archive/hastenArchives.do</url>
+					</Function>
+				</Item>
+				<Item id="ArchivesIssueManage" text="发文管理" iconCls="menu-archive-issue-manage">
+					<Function id="_ArchivesIssueManageQuery" text="查看" iconCls="menu-list">
+						<url>/archive/listArchives.do</url>
+					</Function>
+				</Item> 
+				<Item id="ArchivesDocument" text="发文归档" iconCls="menu-archive-handout">
+					<Function id="_ArchivesDocumentQuery" text="查看" iconCls="menu-list">
+						<url>/archive/listArchives.do</url>
+					</Function>
+				</Item>
+				<Item id="DocHistoryView" text="公文版本管理" iconCls="menu-archive-history">
+					<Function id="_DocHistoryQuery" text="查看" iconCls="menu-list">
+						<url>/archive/listDocHistory.do</url>
+					</Function>
+					<Function id="_DocHistoryDel" text="删除" iconCls="menu-del">
+						<url>/archive/listDocHistory.do</url>
+						<url>/archive/multiDelDocHistory.do</url>
+					</Function>
+				</Item>
+			 -->
+	</Items>
+		
+	<Items id="ArchiveReceive" text="收文管理" iconCls="menu-communicate">
+		<Item id="ArchivesRecRecordView" text="收文登记" iconCls="menu-arch-reg"/>
+		<Item id="ArchDispatchView" text="待办件" iconCls="menu-arch-dispatch"/>
+		<Item id="ArchivesRecCtrlView" text="在办件" iconCls="menu-arch-controll"/>
+		<Item id="ArchReadView" text="督办件" iconCls="menu-arch-reader"/>
+		<Item id="ArchivesHandleView" text="收文库" iconCls="menu-arch-handler"/>
+		<Item id="ArchivesRecAllView" text="收文查询" iconCls="menu-arch-controll"/>
+		<!--
+			<Item id="ArchivesRecView" text="收文登记" iconCls="menu-arch-reg" />
+			<Item id="ArchDispatchView" text="收文管理" iconCls="menu-arch-dispatch">
+				<Function id="_ArchDispatchQuery" text="查看" iconCls="menu-list">
+					<url>/archive/listArchDispatch.do</url>
+				</Function>
+			</Item>
+			<Item id="ArchivesHandleView" text="收文查询" iconCls="menu-arch-handler">
+				<Function id="_ArchivesHandleQuery" text="查看" iconCls="menu-list">
+					<url>/archive/listArchivesHandle.do</url>
+				</Function>
+			</Item>
+			<Item id="ArchivesRecCtrlView" text="收文监控" iconCls="menu-arch-controll">
+				<Function id="_ArchivesRecCtrlQuery" text="查看" iconCls="menu-list">
+					<url>/archive/listArchives.do</url>
+				</Function>
+				<Function id="_ArchivesRecHasten" text="催办" inconCls="menu-archives-remind">
+					<url>/archive/listArchives.do</url>
+					<url>/archive/hastenArchives.do</url>
+				</Function>
+			</Item>
+			<Item id="ArchReadView" text="收文归档" iconCls="menu-arch-reader">
+				<Function id="_ArchReadQuery" text="查看" iconCls="menu-list">
+					<url>/archive/listArchDispatch.do</url>
+				</Function>
+			</Item>
+			-->
+	</Items>
+	
+	<Items id="Plan" text="公文中转站" iconCls="menu-workPlan" isPublic="false">
+		<Item id="documentChangeTrainsView" text="公文下载" iconCls="menu-planmanage" />
+		<!--<Item id="WorkPlanView" text="个人公文下载" iconCls="menu-planmanage" />
+		<Item id="NewWorkPlanForm" text="单位公文接收" iconCls="menu-newplan" />-->
+	</Items>	
+			
+	<Items id="FlowStatisticsReport" text="公文统计分析报表" iconCls="menu-cal-plan" isPublic="false">
+		<Item id="FlowStatisticsSendView" text="发文统计报表" iconCls="menu-archive-charge" />
+		<Item id="FlowStatisticsReceiveView" text="收文统计报表" iconCls="menu-collectStatisticalForm" />
+		<Item id="FlowStatisticsByComStepView" text="公文超时统计报表" iconCls="menu-overtimeStatisticsJournaling" />
+	</Items>
+		
+	<Items id="Arch" text="档案管理" iconCls="menu-arch" isPublic="false">
+		<Item id="DocDirectoryView" text="档案列表" iconCls="menu-record"/>
+		<Item id="ToBeDocFilesView" text="待归档件" iconCls="menu-record"/>
+		<Item id="DocFilesView" text="文件查询" iconCls="menu-record" />
+	</Items>
+	
+	
+	<Items id="Personal" text="值班管理" iconCls="menu-personal" isPublic="false">
+		<Item id="DutyPlanView" text="值班安排" iconCls="menu-signInOff">
+			<Function id="_DutyPlanEdit" text="编辑值班" iconCls="btn-edit">
+				<url>/duty/saveDutyPlan.do</url>
+				<url>/duty/dutyListDutyStaff.do</url>
+			</Function>
+		</Item>
+		<Item id="DutySignView" text="值班签到" iconCls="menu-dutySetting"/>
+		<!-- <Items id="PersonalDuty" text="个人考勤" iconCls="menu-person" isPublic="false">
+				<Item id="SignInOffView" text="上下班签到" iconCls="menu-signInOff" />
+				<Item id="PersonnelLeaveApplyView" text="请假管理" iconCls="menu-holiday" />
+				<Item id="ErrandsRegisterOutView" text="外出登记" iconCls="menu-errands" />
+			</Items>
+			<Items id="DutyManager" text="考勤管理" iconCls="menu-dutySetting"
+				isPublic="false">
+				<Items id="Duty" text="考勤设置" iconCls="menu-duty">
+					<Item id="HolidayRecordView" text="假期设置" iconCls="menu-holidayRecord">
+						<Function id="_HolidayRecordQuery" text="查看假期设置" iconCls="menu-list">
+							<url>/personal/listHolidayRecord.do</url>
+						</Function>
+						<Function id="_HolidayRecordAdd" text="添加假期设置" iconCls="menu-add">
+							<url>/personal/listHolidayRecord.do</url>
+							<url>/personal/saveHolidayRecord.do</url>
+						</Function>
+						<Function id="_HolidayRecordEdit" text="修改假期设置" iconCls="btn-edit">
+							<url>/personal/listHolidayRecord.do</url>
+							<url>/personal/getHolidayRecord.do</url>
+							<url>/personal/saveHolidayRecord.do</url>
+						</Function>
+						<Function id="_HolidayRecordDel" text="删除假期设置" iconCls="menu-del">
+							<url>/personal/listHolidayRecord.do</url>
+							<url>/personal/multiDelHolidayRecord.do</url>
+						</Function>
+					</Item>
+					<Item id="DutySectionView" text="班次定义" iconCls="menu-dutySection">
+						<Function id="_DutySectonQuery" text="查看班次定义" iconCls="menu-list">
+							<url>/personal/listDutySection.do</url>
+						</Function>
+						<Function id="_DutySectonAdd" text="添加班次定义" iconCls="menu-add">
+							<url>/personal/listDutySection.do</url>
+							<url>/personal/saveDutySection.do</url>
+						</Function>
+						<Function id="_DutySectonEdit" text="修改班次定义" iconCls="btn-edit">
+							<url>/personal/listDutySection.do</url>
+							<url>/personal/saveDutySection.do</url>
+							<url>/personal/getDutySection.do</url>
+						</Function>
+						<Function id="_DutySectonDel" text="删除班次定义" iconCls="menu-del">
+							<url>/personal/listDutySection.do</url>
+							<url>/personal/multiDelDutySection.do</url>
+						</Function>
+					</Item>
+					<Item id="DutySystemView" text="班制定义" iconCls="menu-dutySystem">
+						<Function id="_DutySystemQuery" text="查看班制定义" iconCls="menu-list">
+							<url>/personal/listDutySystem.do</url>
+						</Function>
+						<Function id="_DutySystemAdd" text="添加班制定义" iconCls="menu-add">
+							<url>/personal/listDutySystem.do</url>
+							<url>/personal/settingDutySystem.do</url>
+							<url>/personal/saveDutySystem.do</url>
+						</Function>
+						<Function id="_DutySystemEdit" text="修改班制定义" iconCls="btn-edit">
+							<url>/personal/listDutySystem.do</url>
+							<url>/personal/getDutySystem.do</url>
+							<url>/personal/saveDutySystem.do</url>
+						</Function>
+						<Function id="_DutySystemDel" text="删除班制定义" iconCls="menu-del">
+							<url>/personal/listDutySystem.do</url>
+							<url>/personal/multiDelDutySystem.do</url>
+						</Function>
+					</Item>
+					<Item id="DutyView" text="排班管理" iconCls="menu-classManage">
+						<Function id="_DutyQuery" text="查看排班" iconCls="menu-list">
+							<url>/personal/listDuty.do</url>
+						</Function>
+						<Function id="_DutyAdd" text="添加排班" iconCls="menu-add">
+							<url>/personal/listDuty.do</url>
+							<url>/personal/saveDuty.do</url>
+							<url>/personal/comboDutySystem.do</url>
+						</Function>
+						<Function id="_DutyEdit" text="修改排班" iconCls="btn-edit">
+							<url>/personal/listDuty.do</url>
+							<url>/personal/saveDuty.do</url>
+							<url>/personal/comboDutySystem.do</url>
+							<url>/personal/getDuty.do</url>
+						</Function>
+						<Function id="_DutyDel" text="删除排班" iconCls="menu-del">
+							<url>/personal/listDuty.do</url>
+							<url>/personal/multiDelDuty.do</url>
+						</Function>
+					</Item>
+				</Items>
+				<Item id="DutyStatsView" text="考勤统计" iconCls="menu-dutyStats"/>
+
+				<Item id="DutyRegisterView" text="考勤信息" iconCls="menu-dutyRegister"
+					isPublic="false">
+					<Function id="_DutyRegisterQuery" text="查看考勤信息" iconCls="menu-list">
+						<url>/personal/listDutyRegister.do</url>
+					</Function>
+					<Function id="_DutyRegisterAdd" text="补签" iconCls="menu-add">
+						<url>/personal/listDutyRegister.do</url>
+						<url>/personal/saveDutyRegister.do</url>
+						<url>/personal/comboDutySection.do</url>
+					</Function>
+					<Function id="_DutyRegisterDel" text="删除考勤信息" iconCls="menu-del">
+						<url>/personal/listDutyRegister.do</url>
+						<url>/personal/multiDelDutyRegister.do</url>
+					</Function>
+				</Item>
+				<Item id="DutyRegisterPersonView" text="个人考勤查询" iconCls="menu-checkingSearch" />
+			</Items>-->
+	</Items>
+	
+	<Items id="OutMeeting" text="外来会议通知" iconCls="menu-signed-process" isPublic="false">
+		<Item id="MeetingRecord" text="会议登记" iconCls="menu-add"/>
+		<Item id="WaitingOutMeeting" text="待办件" iconCls="menu-confApply"/>
+		<Item id="GoingOutMeeting" text="在办件" iconCls="menu-flowMine"/>
+		<Item id="AllOutMeeting" text="所有会议" iconCls="menu-flowManager"/>
+	</Items>
+	
+	<Items id="MeetingManager" text="会议管理" iconCls="menu-conference" isPublic="false">
+		<Item id="ConfBoardroom" text="会议室查询及预约" iconCls="menu-confApply">
+			<Function id="_ConfBoardroom" text="会议室使用确认" iconCls="menu-confApply">
+				<url>/admin/listConferenceBoardroo.do</url>
+				<url>/admin/tempConference.do</url>
+			</Function>
+		</Item>
+		<!--<Item id="ConfBoardrooSearch" text="会议室查询及预约" iconCls="menu-confApply">
+			<Items id="OutMeeting" text="外来会议通知" iconCls="menu-conference" isPublic="false">
+				<Item id="MeetingRecord" text="会议登记" iconCls="menu-add"/>
+				<Item id="WaitingMeeting" text="待办件" iconCls="menu-confApply"/>
+				<Item id="GoingMeeting" text="在办件" iconCls="menu-flowMine"/>
+				<Item id="ArchiveMeeting" text="文件归档" iconCls="menu-archive-monitor"/>
+				<Item id="AllMeeting" text="所有会议" iconCls="menu-flowManager"/>
+				<Item id="ExpiredMeeting" text="过期会议" iconCls="menu-confApply"/>
+				<Item id="FinishedMeeting" text="已结束会议" iconCls="menu-flowEnd"/>
+			</Items>
+
+			<Item id="ConfBoardrooSearch" text="会议室查询及预约" iconCls="menu-confApply">
+				<Function id="_ConfBoardrooSearch" text="会议室查询及预约" iconCls="menu-confApply">
+					<url>/admin/getPicBoardRoomConference.do</url>
+				</Function>
+			</Item> -->
+		<!--<Item id="MyJoinedConferenceView" text="我发起的会议" iconCls="menu-conference_myjoined">
+				<Function id="_MyJoinedConferenceView" text="我发起的会议" iconCls="menu-conference_myjoined">
+					<url>/admin/myJoinedConference.do</url>
+				</Function>
+			</Item>-->
+		<!--<Item id="MyJoinConferenceView" text="我的会议" iconCls="menu-conferen_myjoin">
+				<Function id="_MyJoinConferenceView" text="我的会议" iconCls="menu-conferen_myjoin">
+					<url>/admin/myJoinConference.do</url>
+				</Function>
+			</Item>-->
+		<Item id="ZanCunConferenceView" text="会议室使用确认" iconCls="menu-conference_zancun">
+			<Function id="_ZanCunConferenceView" text="会议室使用确认" iconCls="menu-conference_zancun">
+				<url>/admin/zanCunConference.do</url>
+			</Function>
+		</Item>
+		<!--<Item id="ConfCompletedView" text="会议使用调整" iconCls="menu-confApply">
+				<Function id="_ConfCompletedView" text="会议使用调整" iconCls="menu-confApply">
+					<url>/admin/listConference.do</url>
+				</Function>
+			</Item>-->
+		<!--<Item id="BoardrooView" text="会议室管理" iconCls="menu-conference_boardRoom">
+				<Function id="_BoardRooQuery" text="会议室管理" iconCls="menu-conference_boardRoom">
+					<url>/admin/listBoardroo.do</url>
+					<url>/admin/saveBoardroo.do</url>
+					<url>/admin/multiDelBoardroo.do</url>
+					<url>/admin/getBoardroo.do</url>
+					<url>/admin/getRoomInfoBoardroo.do</url>
+				</Function>
+			</Item> -->
+		<Item id="MeetingRoomView" text="会议室管理" iconCls="menu-conference_boardRoom">
+			<Function id="_MeetingRoomQuery" text="会议室管理" iconCls="menu-conference_boardRoom">
+				<url>/admin/listBoardroo.do</url>
+				<url>/admin/saveBoardroo.do</url>
+				<url>/admin/multiDelBoardroo.do</url>
+				<url>/admin/getBoardroo.do</url>
+				<url>/admin/getRoomInfoBoardroo.do</url>
+			</Function>
+		</Item>
+		<!--<Item id="BoardTypeView" text="会议类型管理" iconCls="menu-confernece_boardType">
+				<Function id="_BoardTypeQuery" text="会议类型管理" iconCls="menu-boardType">
+					<url>/admin/listBoardType.do</url>
+					<url>/admin/saveBoardType.do</url>
+					<url>/admin/multiDelBoardType.do</url>
+					<url>/admin/getBoardType.do</url>
+				</Function>
+			</Item>-->
+		<!--<Item id="ConfSummaryView" text="会议纪要管理" iconCls="menu-confSummary">
+				<Function id="_ConfSummaryView" text="会议纪要管理" iconCls="menu-confSummary">
+					<url>/admin/listConfSummary.do</url>
+					<url>/admin/multiConfSummary.do</url>
+				</Function>
+			</Item>-->
+		<!--<Item id="ConfSummarySearchView" text="会议纪要查询" iconCls="menu-meetingSearch">
+				<Function id="_ConfSummarySearchView" text="会议纪要查询" iconCls="menu-confSummary">
+				</Function>
+			</Item>-->
+	</Items>
+
+	
+	<Items id="VehicleManagement" text="车辆管理" iconCls="menu-car" isPublic="false">
+		<Item id="CarApplyStartForm" text="	重庆市交委用车申请单" iconCls="menu-driverManage" />
+		<Item id="VehicleManagementView" text="车辆档案" iconCls="menu-car" >
+			<Function id="_CarQuery" text="查看车辆" iconCls="menu-list">
+				<url>/admin/listCar.do</url>
+			</Function>
+			<Function id="_CarAdd" text="添加车辆" iconCls="menu-add">
+				<url>/admin/listCar.do</url>
+				<url>/admin/saveCar.do</url>
+				<url>/admin/delphotoCar.do</url>
+			</Function>
+			<Function id="_CarEdit" text="编辑车辆" iconCls="btn-edit">
+				<url>/admin/listCar.do</url>
+				<url>/admin/saveCar.do</url>
+				<url>/admin/getCar.do</url>
+				<url>/admin/delphotoCar.do</url>
+			</Function>
+			<Function id="_CarDel" text="删除车辆" iconCls="menu-del">
+				<url>/admin/listCar.do</url>
+				<url>/admin/multiDelCar.do</url>
+			</Function>
+		</Item>
+		<Item id="VehicleDriverView" text="司机管理" iconCls="menu-driverManage" />
+		<!-- <Item id="VehicleRepairView" text="车辆维修管理" iconCls="menu-car_repair">
+				<Function id="_CarRepairQuery" text="查看维修记录" iconCls="menu-list">
+					<url>/admin/listCartRepair.do</url>
+				</Function>
+				<Function id="_CarRepairAdd" text="添加维修记录" iconCls="menu-add">
+					<url>/admin/listCartRepair.do</url>
+					<url>/admin/saveCartRepair.do</url>
+				</Function>
+				<Function id="_CarRepairEdit" text="编辑维修记录" iconCls="btn-edit">
+					<url>/admin/listCartRepair.do</url>
+					<url>/admin/saveCartRepair.do</url>
+					<url>/admin/getCartRepair.do</url>
+				</Function>
+				<Function id="_CarRepairDel" text="删除维修记录" iconCls="menu-del">
+					<url>/admin/listCartRepair.do</url>
+					<url>/admin/multiDelCartRepair.do</url>
+				</Function>
+			</Item> -->
+		<Item id="WaitApplyView" text="待批申请" iconCls="menu-car_apply">
+			<Function id="_CarApplyQuery" text="查看车辆申请记录" iconCls="menu-list">
+				<url>/admin/listCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyAdd" text="添加申请记录" iconCls="menu-add">
+				<url>/admin/listCarApply.do</url>
+				<url>/admin/saveCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyEdit" text="编辑申请记录" iconCls="btn-edit">
+				<url>/admin/listCarApply.do</url>
+				<url>/admin/saveCarApply.do</url>
+				<url>/admin/getCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyDel" text="删除申请记录" iconCls="menu-del">
+				<url>/admin/listCarApply.do</url>
+				<url>/admin/multiDelCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyCheck" text="审批申请" iconCls="btn-ok">
+				<url>/admin/checkCarApply.do</url>
+				<url>/admin/getCarApply.do</url>
+			</Function>
+		</Item>
+		<Item id="VehicleApplyView" text="审批中的文件" iconCls="menu-car_apply">
+			<Function id="_CarApplyQuery" text="查看车辆申请记录" iconCls="menu-list">
+				<url>/admin/listCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyAdd" text="添加申请记录" iconCls="menu-add">
+				<url>/admin/listCarApply.do</url>
+				<url>/admin/saveCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyEdit" text="编辑申请记录" iconCls="btn-edit">
+				<url>/admin/listCarApply.do</url>
+				<url>/admin/saveCarApply.do</url>
+				<url>/admin/getCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyDel" text="删除申请记录" iconCls="menu-del">
+				<url>/admin/listCarApply.do</url>
+				<url>/admin/multiDelCarApply.do</url>
+			</Function>
+			<Function id="_CarApplyCheck" text="审批申请" iconCls="btn-ok">
+				<url>/admin/checkCarApply.do</url>
+				<url>/admin/getCarApply.do</url>
+			</Function>
+		</Item>
+		<!--	<Item id="OilCardFeeCardView" text="油卡/粤通卡管理" iconCls="" />
+			<Item id="CarCardHistoryView" text="油卡/粤通卡使用记录" iconCls="" />-->
+		<Item id="VehicleUsingView" text="车辆使用情况" iconCls="menu-carAllot" />
+		<Item id="VehicleDistributionView" text="用车日志" iconCls="menu-carAllot" />
+	
+		<!-- 	<Item id="VehicleUsingView" text="用车日志" iconCls="menu-useCarsAddressbook" /> -->
+		<Items id="MileagesView" text="里程管理" iconCls="" >
+			<Item id="ClassifyView" text="分类查询" iconCls=""/>
+		</Items>
+		<Items id="CarCostRecordView" text="费用记录" iconCls="menu-notice" >
+			<!--<Items id="CarCostRecordSelectByTypeToTalView" text="分类查询" iconCls="menu-sortSearch">
+					<Item id="CarCostSelectByCarAndTimeView" text="按车辆和时间分" iconCls=""/>
+					<Item id="CarCostSelectByCarAndTypeView" text="按车辆和类别分" iconCls=""/>
+					<Item id="CarCostSelectByRecordTimeView" text="按记录时间分" iconCls=""/>
+					<Item id="CarCostSelectByCostTypeView" text="按费用类别分" iconCls=""/>
+				</Items>-->
+		</Items>
+		
+		<Item id="CarCostTypeView" text="费用类别管理"  iconCls=""/>
+		<Item id="CostStatisticsView" text="费用统计"  iconCls=""/>
+	</Items>
+
+	<Items id="Document" text="公文包管理" iconCls="menu-document" isPublic="false">
+		<Item id="NewPublicDocumentForm" text="新建公共文档" iconCls="menu-new-document" />
+		<Item id="DocFolderSharedView" text="公共文件夹" iconCls="menu-public-fol">
+			<Function id="_DocFolderSharedManage" text="公共文件夹管理" iconCls="menu-manage">
+				<url>/document/saveDocFolder.do</url>
+				<url>/document/getDocFolder.do</url>
+				<url>/document/removeDocFolder.do</url>
+			</Function>
+			<Function id="_DocPrivilegeQuery" text="查看权限" iconCls="menu-list">
+				<url>/document/listDocPrivilege.do</url>
+			</Function>
+			<Function id="_DocPrivilegeAdd" text="添加权限" iconCls="menu-add">
+				<url>/document/listDocPrivilege.do</url>
+				<url>/document/addDocPrivilege.do</url>
+			</Function>
+			<Function id="_DocPrivilegeEdit" text="编辑权限" iconCls="btn-edit">
+				<url>/document/listDocPrivilege.do</url>
+				<url>/document/changeDocPrivilege.do</url>
+			</Function>
+			<Function id="_DocPrivilegeDel" text="删除权限" iconCls="menu-del">
+				<url>/document/listDocPrivilege.do</url>
+				<url>/document/multiDelDocPrivilege.do</url>
+			</Function>
+		</Item>
+		<Item id="FindPublicDocumentView" text="查看公共文档" iconCls="menu-find-doc" />
+		<Item id="PersonalDocumentView" text="我的文档" iconCls="menu-personal-doc" />
+		<Item id="DocumentSharedView" text="共享个人文档" iconCls="menu-folder-shared" />
+		<Item id="DocFolderMoveForm" text="个人文件夹转移" iconCls="menu-folder-go" />		
+	</Items>
+	
+	<Items id="Flow" text="电子签核管理" iconCls="menu-flow" isPublic="false">
+		<Item id="FlowManagerView" text="电子签核管理" iconCls="menu-flowManager">
+			<Function id="_FlowQuery" text="查看流程" iconCls="menu-list">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/processDetail.do</url>
+			</Function>
+			<Function id="_ProTypeManage" text="流程类型" iconCls="menu-manage">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/saveProType.do</url>
+				<url>/flow/removeProType.do</url>
+				<url>/flow/getProType.do</url>
+			</Function>
+			<Function id="_FlowAdd" text="发布流程" iconCls="menu-add">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/saveProDefinition.do</url>
+				<url>/flow/listProType.do</url>
+				<url>/flow/getProDefinition.do</url>
+			</Function>
+			<Function id="_FlowEdit" text="编辑流程" iconCls="btn-edit">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/saveProDefinition.do</url>
+				<url>/flow/listProType.do</url>
+				<url>/flow/getProDefinition.do</url>
+			</Function>
+			<Function id="_FlowDel" text="删除流程" iconCls="menu-del">
+				<url>/flow/rootProType.do</url>
+				<url>/flow/listProDefinition.do</url>
+				<url>/flow/multiDelProDefinition.do</url>
+			</Function>
+			<Function id="_FlowCheck" text="查看" iconCls="menu-list">
+				<url>/flow/processDetail.do</url>
+			</Function>
+			<Function id="_FlowSetting" text="人员设置" iconCls="menu-manage">
+				<url>/flow/saveProUserAssign.do</url>
+				<url>/flow/listProUserAssign.do</url>
+			</Function>
+		</Item>
+		<Item id="NewProcess" text="新建电子申请单" iconCls="menu-flowNew" />
+		<Item id="ProcessReportView" text="流程综合查询" iconCls="menu-flowManager" />
+		<Item id="ProcessCreatorReportView" text="我发起的流程" iconCls="menu-flowMine" />
+		<Item id="ProcessTPReportView" text="我参与的流程" iconCls="menu-flowPr" />
+		<Item id="ProcessRunFinishView" text="已完成的电子申请单" iconCls="menu-flowEnd"/>
+		<Item id="OdCommonCommentsView" text="常用批示语管理" iconCls="menu-archive-sign" />
+		<Item id="CommonUnitsView" text="常用单位管理" iconCls="menu-archive-charge" />
+		<Item id="OdPersonalSignView" text="个性签名管理" iconCls="menu-archive-charge" />
+		<Item id="FileSnConfigView" text="编号办法管理" iconCls="menu-flowManager" />
+		<Item id="FlowSnConfigView" text="公文编号配置" iconCls="menu-archive-handout" />
+		<Item id="SeeFlowSnConfigOrderView" text="预约编号管理" iconCls="" />
+		<Item id="ArchiveTypeTempView" text="公文类别管理" iconCls="menu-archive-template">
+			<Function id="_ArchiveTypeTempQuery" text="查看" iconCls="menu-list">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+			</Function>
+			<Function id="_ArchivesTypeAdd" text="添加类别" iconCls="menu-add">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+				<url>/archive/saveArchivesType.do</url>
+			</Function>
+			<Function id="_ArchivesTypeEdit" text="修改类别" iconCls="btn-edit">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+				<url>/archive/saveArchivesType.do</url>
+				<url>/archive/getArchivesType.do</url>
+			</Function>
+			<Function id="_ArchivesTypeDel" text="删除类别" iconCls="menu-del">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+				<url>/archive/multiDelArchivesType.do</url>
+			</Function>
+			<Function id="_ArchivesTempAdd" text="添加模板" iconCls="menu-add">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+				<url>/archive/saveArchTemplate.do</url>
+				<url>/archive/comboArchivesType.do</url>
+			</Function>
+			<Function id="_ArchivesTempEdit" text="编辑模板" iconCls="btn-edit">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+				<url>/archive/saveArchTemplate.do</url>
+				<url>/archive/comboArchivesType.do</url>
+				<url>/archive/getArchTemplate.do</url>
+			</Function>
+			<Function id="_ArchviesTempDel" text="删除模板" iconCls="menu-del">
+				<url>/archive/treeArchivesType.do</url>
+				<url>/archive/listArchTemplate.do</url>
+				<url>/archive/multiDelArchTemplate.do</url>
+			</Function>
+		</Item>
+		<!--
+			<Item id="OdCirUserView" text="我的传阅" iconCls="menu-archive-handout" />
+			<Item id="ProcessCCReportView" text="阅知给我的流程" iconCls="menu-flowManager" />
+			<Item id="MyCCArchives" text="抄报我的电子申请单" iconCls="menu-archive-monitor" />
+			<Item id="MyTaskView" text="待办事项" iconCls="menu-flowWait" />
+			<Item id="MyProcessRunView" text="我参与的电子申请单" iconCls="menu-flowPr"/>
+			<Item id="ProcessRunView" text="我申请的电子申请单" iconCls="menu-flowMine" />		
+			<Item id="OdPersonalSignView" text="个性签名管理" iconCls="menu-archive-charge" />
+			<Item id="OdFlowtypeView" text="公文编号配置" iconCls="menu-archive-handout" />
+			<Item id="ArchivesDocument" text="公文归档" iconCls="menu-archive-handout"/>
+			<Item id="TopicTecAndAdjuForm" text="会议议题汇总及调整" iconCls="menu-archive-handout" />
+			-->
+	</Items>
+	
+	<Items id="SystemSetting" text="系统设置" iconCls="menu-system" isPublic="false">
+		<Item id="DepartmentView" text="部门管理" iconCls="menu-department">
+			<Function id="_DepartmentQuery" text="查看部门" iconCls="menu-list">
+				<url>/system/listDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentAdd" text="新建部门" iconCls="menu-add">
+				<url>/system/listDepartment.do</url>
+				<url>/system/addDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentEdit" text="修改部门" iconCls="btn-edit">
+				<url>/system/listDepartment.do</url>
+				<url>/system/addDepartment.do</url>
+				<url>/system/detailDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+			<Function id="_DepartmentDel" text="删除部门" iconCls="menu-del">
+				<url>/system/listDepartment.do</url>
+				<url>/system/removeDepartment.do</url>
+				<url>/system/selectAppUser.do</url>
+				<url>/system/saveAppUser.do</url>
+			</Function>
+		</Item>
+		<Item id="AppUserView" text="帐号管理" iconCls="menu-appuser">
+			<Function id="_AppUserQuery" text="查看账号" iconCls="menu-list">
+				<url>/system/listAppUser.do</url>
+			</Function>
+			<Function id="_AppUserAdd" text="添加账号" iconCls="menu-add">
+				<url>/system/listAppUser.do</url>
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/listDepartment.do</url>
+			</Function>
+			<Function id="_AppUserEdit" text="编辑账号" iconCls="btn-edit">
+				<url>/system/listAppUser.do</url>
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/listDepartment.do</url>
+			</Function>
+			<Function id="_AppUserDel" text="删除账号" iconCls="menu-del">
+				<url>/system/listAppUser.do</url>
+				<url>/system/multiDelAppUser.do</url>
+			</Function>
+			<Function id="_AppUserReset" text="重置密码" iconCls="btn-password">
+				<url>/system/listAppUser.do</url> 
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/createPasswordAppUser.do</url>
+			</Function>
+			<Function id="_AppUserCapacity" text="重置共享空间大小" iconCls="btn-password">
+				<url>/system/listAppUser.do</url>
+				<url>/system/chooseRolesAppUser.do</url>
+				<url>/system/selectedRolesAppUser.do</url>
+				<url>/system/listDepartment.do</url>
+			</Function>
+			<Function id="_AppUserAgent" text="代办账号设置" iconCls="btn-super">
+				<url>/system/saveAgentAppUser.do</url>
+			</Function>
+		</Item>
+		<Item id="AppRoleView" text="角色设置" iconCls="menu-role">
+			<Function id="_AppRoleList" text="查看角色" iconCls="menu-list">
+				<url>/system/listAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleAdd" text="添加角色" iconCls="menu-add">
+				<url>/system/listAppRole.do</url>
+				<url>/system/saveAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleEdit" text="编辑角色" iconCls="btn-edit">
+				<url>/system/listAppRole.do</url>
+				<url>/system/saveAppRole.do</url>
+				<url>/system/getAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleDel" text="删除角色" iconCls="menu-del">
+				<url>/system/listAppRole.do</url>
+				<url>/system/mulDelAppRole.do</url>
+			</Function>
+			<Function id="_AppRoleGrant" text="授权角色" iconCls="btn-grant">
+				<url>/system/listAppRole.do</url>
+				<url>/system/grantXmlAppRole.do</url>
+				<url>/system/getAppRole.do</url>
+				<url>/system/grantAppRole.do</url>
+			</Function>
+		</Item>
+		<Item id="FileAttachView" text="附件管理" iconCls="menu-attachment">
+			<Function id="_FileAttachQuery" text="查看附件" iconCls="menu-list">
+				<url>/system/listFileAttach.do</url>
+			</Function>
+			<Function id="_FileAttachEdit" text="编辑附件" iconCls="btn-edit">
+				<url>/system/saveFileAttach.do</url>
+				<url>/system/listFileAttach.do</url>
+				<url>/system/getFileAttach.do</url>
+			</Function>
+			<Function id="_FileAttachDel" text="删除附件" iconCls="menu-del">
+				<url>/system/listFileAttach.do</url>
+				<url>/system/multiDelFileAttach.do</url>
+			</Function>
+		</Item>
+	</Items>
+  
+	<!--
+		<Items id="MgrPhoneBook" text="通讯录管理" iconCls="menu-book-manage" isPublic="false">
+				<Item id="InnerPhoneBKView" text="内部通讯录管理" iconCls="menu-interioBooklistManage" />
+				<Item id="AddrbookOuterView" text="外部通讯录管理" iconCls="menu-outAddressbookManage" />
+			</Items>
+			<Items id="Info" text="综合信息管理" iconCls="menu-info" isPublic="false">
+				<Item id="NoticeView" text="公司公告管理" iconCls="menu-notice">
+					<Function id="_NoticeQuery" text="查看公告" iconCls="menu-list">
+					</Function>
+					<Function id="_NoticeAdd" text="添加公告" iconCls="menu-add">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeEdit" text="编辑公告" iconCls="btn-edit">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeDel" text="删除公告" iconCls="menu-del">
+							<url>/info/multiDelNotice.do</url>
+						</Function>
+					</Item>
+					<Item id="NoticeDepartmentView" text="部门公告管理" iconCls="menu-notice">
+						<Function id="_Department_NoticeQuery" text="查看公告" iconCls="menu-list">
+						</Function>
+						<Function id="_Department_NoticeAdd" text="添加公告" iconCls="menu-add">
+							<url>/info/saveNotice.do</url>
+						</Function>
+						<Function id="_Department_NoticeEdit" text="编辑公告" iconCls="btn-edit">
+							<url>/info/saveNotice.do</url>
+						</Function>
+						<Function id="_Department_NoticeDel" text="删除公告" iconCls="menu-del">
+							<url>/info/multiDelNotice.do</url>
+						</Function>
+					</Item>
+				<Item id="NoticeView_1" text="公司公告管理" iconCls="menu-notice" params="{suffix:'1',type:'1',title:'公司公告管理'}">
+					<Function id="_NoticeQuery_1" text="查看公告" iconCls="menu-list">
+					</Function>
+					<Function id="_NoticeAdd_1" text="添加公告" iconCls="menu-add">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeEdit_1" text="编辑公告" iconCls="btn-edit">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeDel_1" text="删除公告" iconCls="menu-del">
+						<url>/info/multiDelNotice.do</url>
+					</Function>
+				</Item>
+				<Item id="NoticeView_2" text="部门公告管理" iconCls="menu-notice" params="{suffix:'2',type:'2',title:'部门公告管理'}">
+					<Function id="_NoticeQuery_2" text="查看公告" iconCls="menu-list">
+					</Function>
+					<Function id="_NoticeAdd_2" text="添加公告" iconCls="menu-add">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeEdit_2" text="编辑公告" iconCls="btn-edit">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeDel_2" text="删除公告" iconCls="menu-del">
+						<url>/info/multiDelNotice.do</url>
+					</Function>
+				</Item>
+				<Item id="NoticeView_3" text="部门文件管理" iconCls="menu-notice" params="{suffix:'3',type:'3',title:'部门文件管理'}">
+					<Function id="_NoticeQuery_3" text="查看部门文件" iconCls="menu-list">
+					</Function>
+					<Function id="_NoticeAdd_3" text="添加部门文件" iconCls="menu-add">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeEdit_3" text="编辑部门文件" iconCls="btn-edit">
+						<url>/info/saveNotice.do</url>
+					</Function>
+					<Function id="_NoticeDel_3" text="删除部门文件" iconCls="menu-del">
+						<url>/info/multiDelNotice.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_1" text="公司新闻管理" iconCls="menu-news" params="{suffix:'1',type:'1',title:'公司新闻管理'}">
+					<Function id="_NewsQuery_1" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_1" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_1" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_1" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_2" text="人事信息管理" iconCls="menu-news" params="{suffix:'2',type:'3',title:'人事信息管理'}">
+					<Function id="_NewsQuery_2" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_2" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_2" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_2" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_3" text="党群信息管理" iconCls="menu-news" params="{suffix:'3',type:'22',title:'党群信息管理'}">
+					<Function id="_NewsQuery_3" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_3" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_3" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_3" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_4" text="企业文化信息管理" iconCls="menu-news" params="{suffix:'4',type:'4',title:'企业文化信息管理'}">
+					<Function id="_NewsQuery_4" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_4" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_4" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_4" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_5" text="服务资讯信息管理" iconCls="menu-news" params="{suffix:'5',type:'6',title:'服务资讯信息管理'}">
+					<Function id="_NewsQuery_5" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_5" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_5" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_5" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_6" text="运营公司文件管理" iconCls="menu-news" params="{suffix:'6',type:'25',title:'运营公司文件管理'}">
+					<Function id="_NewsQuery_6" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_6" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_6" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_6" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_7" text="总公司文件管理" iconCls="menu-news" params="{suffix:'7',type:'26',title:'总公司文件管理'}">
+					<Function id="_NewsQuery_7" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_7" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_7" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_7" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_13" text="部门文件管理" iconCls="menu-news" params="{suffix:'13',type:'32',title:'部门文件管理'}">
+						<Function id="_NewsQuery_13" text="查看新闻" iconCls="menu-list">
+							<url>/info/categoryNews.do</url>
+						 </Function>
+						<Function id="_NewsAdd_13" text="添加新闻" iconCls="menu-add">
+							<url>/info/categoryNews.do</url>
+							<url>/info/treeNewsType.do</url>
+							<url>/info/saveNews.do</url>
+						</Function>
+						<Function id="_NewsEdit_13" text="编辑新闻" iconCls="btn-edit">
+							<url>/info/categoryNews.do</url>
+							<url>/info/treeNewsType.do</url>
+							<url>/info/saveNews.do</url>
+						</Function>
+						<Function id="_NewsDel_13" text="删除新闻" iconCls="menu-del">
+							<url>/info/categoryNews.do</url>
+							<url>/info/treeNewsType.do</url>
+							<url>/info/multiDelNews.do</url>
+						</Function>
+					</Item>
+				<Item id="NewsView_8" text="运营公司会议纪要管理" iconCls="menu-news" params="{suffix:'8',type:'27',title:'运营公司会议纪要管理'}">
+					<Function id="_NewsQuery_8" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_8" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_8" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_8" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_9" text="总公司会议纪要管理" iconCls="menu-news" params="{suffix:'9',type:'28',title:'总公司会议纪要管理'}">
+					<Function id="_NewsQuery_9" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_9" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_9" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_9" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_10" text="其他会议纪要管理" iconCls="menu-news" params="{suffix:'10',type:'31',title:'其他会议纪要管理'}">
+					<Function id="_NewsQuery_10" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_10" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_10" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_10" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_11" text="外来文件管理" iconCls="menu-news" params="{suffix:'11',type:'29',title:'外来文件管理'}">
+					<Function id="_NewsQuery_11" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_11" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_11" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_11" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsView_12" text="外来通知管理" iconCls="menu-news" params="{suffix:'12',type:'30',title:'外来通知管理'}">
+					<Function id="_NewsQuery_12" text="查看新闻" iconCls="menu-list">
+						<url>/info/categoryNews.do</url>
+					</Function>
+					<Function id="_NewsAdd_12" text="添加新闻" iconCls="menu-add">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsEdit_12" text="编辑新闻" iconCls="btn-edit">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/saveNews.do</url>
+					</Function>
+					<Function id="_NewsDel_12" text="删除新闻" iconCls="menu-del">
+						<url>/info/categoryNews.do</url>
+						<url>/info/treeNewsType.do</url>
+						<url>/info/multiDelNews.do</url>
+					</Function>
+				</Item>
+					<Item id="CompanyNoticeAuditingView" text="公司公告审核">
+						<Function id="_Company_NoticeAuditingEdit" text="审核" iconCls="menu-list">
+							 <url>/info/auditing.do</url>
+						</Function>
+					</Item>
+					<Item id="DepartmentNoticeAuditingView" text="部门公告审核">
+						<Function id="_Department_NoticeAuditingEdit" text="审核" iconCls="menu-list">
+							 <url>/info/auditing.do</url>
+						</Function>
+					</Item>
+				<Item id="NoticeAuditingView_1" text="公司公告审核" iconCls="menu-notice" params="{suffix:'1',type:'1',title:'公司公告审核'}">
+					<Function id="_NoticeAuditingEdit_1" text="审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NoticeAuditingView_2" text="部门公告审核" iconCls="menu-notice" params="{suffix:'2',type:'2',title:'部门公告审核'}">
+					<Function id="_NoticeAuditingEdit_2" text="审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NoticeAuditingView_3" text="部门文件审核" iconCls="menu-notice" params="{suffix:'3',type:'3',title:'部门文件审核'}">
+					<Function id="_NoticeAuditingEdit_3" text="审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="CompanyNewsAuditingView" text="公司新闻审核">
+							<Function id="_Company_NewsAuditing" text="公司新闻审核" iconCls="menu-list">
+								<url>/info/auditing.do</url>
+							</Function>
+						</Item>		
+						<Item id="PersonalNewsAuditingView" text="人事信息审核">
+							<Function id="_PersonalNewsAuditing" text="人事信息审核" iconCls="menu-list">
+								<url>/info/auditing.do</url>
+							</Function>
+						</Item>
+						<Item id="PartyNewsAuditingView" text="党群信息审核">
+							 <Function id="_PartyNewsAuditing" text="党群信息审核" iconCls="menu-list">
+								 <url>/info/auditing.do</url>
+							</Function>
+						</Item>
+						<Item id="CompanyCultureNewsAuditingView" text="企业文化信息审核">
+							<Function id="_CompanyCultureNewsAuditing" text="企业文化信息审核" iconCls="menu-list">
+								 <url>/info/auditing.do</url>
+							</Function>
+						</Item>
+						<Item id="ServiceNewsAuditingView" text="服务咨询信息审核">
+							<Function id="_ServiceNewsAuditing" text="服务咨询信息审核" iconCls="menu-list">
+								 <url>/info/auditing.do</url>
+							</Function>
+						</Item>
+					</Items>
+				<Item id="NewsAuditingView_1"   text="公司新闻审核" params="{suffix:'1',type:'1',title:'公司新闻审核'}">
+					<Function id="_NewsAuditing_1" text="公司新闻审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+
+				<Item id="NewsAuditingView_2"  text="人事信息审核" params="{suffix:'2',type:'3',title:'人事信息审核'}">
+					<Function id="_NewsAuditing_2" text="人事信息审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_3"  text="党群信息审核" params="{suffix:'3',type:'22',title:'党群信息审核'}">
+					<Function id="_NewsAuditing_3" text="党群信息审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_4"  text="企业文化信息审核" params="{suffix:'4',type:'4',title:'企业文化信息审核'}">
+					<Function id="_NewsAuditing_4" text="企业文化信息审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_5"  text="服务资讯信息审核" params="{suffix:'5',type:'6',title:'服务资讯信息审核'}">
+					<Function id="_NewsAuditing_5" text="服务资讯信息审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item> 
+
+				<Item id="NewsAuditingView_6"  text="运营公司文件审核" params="{suffix:'6',type:'25',title:'运营公司文件审核'}">
+					<Function id="_NewsAuditing_6" text="运营公司文件审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_7"  text="总公司文件审核" params="{suffix:'7',type:'26',title:'总公司文件审核'}">
+					<Function id="_NewsAuditing_7" text="总公司文件审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				 <Item id="NewsAuditingView_13"  text="部门文件审核" params="{suffix:'13',type:'32',title:'部门文件审核'}">
+								<Function id="_NewsAuditing_13" text="部门文件审核" iconCls="menu-list">
+									<url>/info/auditing.do</url>
+								</Function>
+					 </Item>
+				<Item id="NewsAuditingView_8"  text="运营公司会议纪要审核" params="{suffix:'8',type:'27',title:'运营公司会议纪要审核'}">
+					<Function id="_NewsAuditing_8" text="运营公司会议纪要审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_9"  text="总公司会议纪要审核" params="{suffix:'9',type:'28',title:'总公司会议纪要审核'}">
+					<Function id="_NewsAuditing_9" text="总公司会议纪要审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_10"  text="其他会议纪要审核" params="{suffix:'10',type:'31',title:'其他会议纪要审核'}">
+					<Function id="_NewsAuditing_10" text="其他会议纪要审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_11"  text="外来文件审核" params="{suffix:'11',type:'29',title:'外来文件审核'}">
+					<Function id="_NewsAuditing_11" text="外来文件审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+				<Item id="NewsAuditingView_12"  text="外来通知审核" params="{suffix:'12',type:'30',title:'外来通知审核'}">
+					<Function id="_NewsAuditing_12" text="外来通知审核" iconCls="menu-list">
+						<url>/info/auditing.do</url>
+					</Function>
+				</Item>
+			</Items>	
+			<Items id="Task" text="我的秘书" iconCls="menu-task" isPublic="false">
+				<Item id="AppointmentView" text="我的约会" iconCls="menu-appointment" />
+				<Item id="MyPlanTaskView" text="我的日程管理" iconCls="menu-cal-plan" />
+				<Item id="CalendarPlanView" text="任务管理" iconCls="menu-cal-plan-view" />
+				<Item id="DiaryView" text="工作日志管理" iconCls="menu-diary" />
+			</Items>
+
+			<Items id="Plan" text="工作计划管理" iconCls="menu-workPlan" isPublic="false">
+				<Item id="PlanTypeView" text="计划类型管理" iconCls="menu-plantype">
+					<Function id="_PlanTypeQuery" text="查看类型" iconCls="menu-list">
+						<url>/task/listPlanType.do</url>
+					</Function>
+					<Function id="_PlanTypeAdd" text="添加类型" iconCls="menu-add">
+						<url>/task/listPlanType.do</url>
+						<url>/task/savePlanType.do</url>
+					</Function>
+					<Function id="_PlanTypeEdit" text="编辑类型" iconCls="btn-edit">
+						<url>/task/listPlanType.do</url>
+						<url>/task/savePlanType.do</url>
+						<url>/task/getPlanType.do</url>
+					</Function>
+					<Function id="_PlanTypeDel" text="删除类型" iconCls="menu-del">
+						<url>/task/listPlanType.do</url>
+						<url>/task/multiDelPlanType.do</url>
+					</Function>
+				</Item>
+				<Item id="WorkPlanView" text="计划管理" iconCls="menu-planmanage" />
+				<Item id="NewWorkPlanForm" text="新建工作计划" iconCls="menu-newplan" />
+				<Item id="PersonalWorkPlanView" text="我的计划" iconCls="menu-myplan" />
+				<Item id="DepWorkPlanView" text="部门计划" iconCls="menu-depplan" />
+			</Items>
+
+			<Items id="WorkSummary" text="工作总结管理" iconCls="menu-signed-process" isPublic="false">
+				<Item id="WorkSummaryView" text="工作总结管理" iconCls="" />
+				<Item id="WorkSummaryAuthView" text="工作总结审核" iconCls="" />
+				<Item id="WorkSummarySumView" text="工作总结汇总管理" iconCls="" />
+				<Item id="WorkSummarySumAuthView" text="工作总结汇总审核" iconCls="" />
+			</Items>
+			<Items id="Communication" text="通讯管理" iconCls="menu-communicate"
+				isPublic="true">
+				<Items id="PhoneBook" iconCls="menu-phonebook" text="通讯簿">
+					<Item id="PersonalPhoneBookView" iconCls="menu-personal-phoneBook"
+						text="个人通讯簿">
+					</Item>
+					<Item id="SharedPhoneBookView" iconCls="menu-phonebook-shared"
+						text="共享通讯录"></Item>
+				</Items>
+				<Items id="InnerMail" text="内部邮件" iconCls="menu-mail">
+					<Item id="MailForm" iconCls="menu-mail_send" text="新建邮件"></Item>
+					<Item id="PersonalMailBoxView" iconCls="menu-mail_box" text="个人邮箱"></Item>
+				</Items>
+				<Items id="OutMail" text="外部邮件" iconCls="menu-mail">
+					<Item id="OutMailForm" iconCls="menu-mail_send" text="新建邮件"></Item>
+					<Item id="OutMailBoxView" iconCls="menu-mail_box" text="外部邮箱"></Item>
+					<Item  id="OutMailUserSetingForm" iconCls="menu-system" text="邮箱设置"></Item>
+				</Items>
+				<Item id="MessageManageView" iconCls="menu-message" text="内部信息" />
+				<Item id="SmsMobileView" iconCls="menu-mobile" text="手机短信"/>
+				<Item iconCls="" text="手机短信"></Item>
+				<Item text="所有邮件"></Item> 
+				<Item text="邮件查询"></Item>
+			</Items>
+			-->
+		
+			
+</Menus>

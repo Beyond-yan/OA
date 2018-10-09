@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="GBK"?>
+<process name="ZGZJJMeetingFiles" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="360,30,50,50" name="收文登记">
+		<transition g="-48,-17" name="to 主要领导批示" to="主要领导批示" />
+	</start>
+	<task g="310,130,140,50" name="主要领导批示">
+		<transition g="-48,-17" name="to 拟办分发" to="拟办分发" />
+	</task>
+	<task g="330,230,100,50" name="拟办分发">
+		<transition g="-48,-17" name="to 拟办结果" to="拟办结果" />
+	</task>
+	<decision g="360,330,100,50" name="拟办结果">
+		<transition g="240,355:-65,7" name="to 分管领导批示" to="分管领导批示">
+			<condition expr="#{isOfficeLeader=='1'}" />
+		</transition>
+		<transition g="-48,-17" name="to 处室会签" to="处室会签">
+			<condition expr="#{isOfficeLeader=='2'}" />
+		</transition>
+		<transition g="530,455:-48,-7" name="to 结束" to="结束">
+			<condition expr="#{isOfficeLeader=='3'}" />
+		</transition>
+	</decision>
+	<task g="170,280,140,50" name="分管领导批示">
+		<transition g="240,255:-48,-17" name="to 拟办分发" to="拟办分发" />
+	</task>
+	<task g="330,430,100,50" name="处室会签">
+		<transition g="-48,-17" name="to 结束" to="结束" />
+	</task>
+	<end g="360,530,50,50" name="结束" />
+</process>

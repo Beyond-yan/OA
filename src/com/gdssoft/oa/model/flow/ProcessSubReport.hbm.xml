@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+	<class name="com.gdssoft.oa.model.flow.ProcessSubReport" table="Process_Report">
+		<id name="runid" column="runid" type="java.lang.Long" length="19">
+			<generator class="assigned"></generator>
+		</id>
+		<property name="name" type="java.lang.String" update="false"
+			insert="false" access="property" column="name" length="256" not-null="true"
+			unique="false" />
+		<property name="creator" type="java.lang.String" update="false"
+			insert="false" access="property" column="creator" length="128"
+			not-null="true" unique="false" />
+		<property name="creatorid" type="java.lang.Long" update="false"
+			insert="false" access="property" column="creatorid" length="19" not-null="true"
+			unique="false" />			
+		<property name="issuedep" type="java.lang.String" update="false"
+			insert="false" access="property" column="issuedep" length="128"
+			not-null="false" unique="false" />
+		<property name="createtime" type="java.util.Date" update="false"
+			insert="false" access="property" column="createtime"
+			not-null="false" unique="false" />
+			
+		<property name="subject" type="java.lang.String" update="false"
+			insert="false" access="property" column="subject" length="256"
+			not-null="false" unique="false" />
+			
+		<property name="shortcontent" type="java.lang.String" update="false"
+			insert="false" access="property" column="shortcontent" length="19"
+			not-null="false" unique="false" />
+		<property name="defid" type="java.lang.Long" update="false"
+			insert="false" access="property" column="defid" length="19"
+			not-null="false" unique="false" />
+		<property name="piid" type="java.lang.String" update="false"
+			insert="false" access="property" column="piid" length="64" not-null="true"
+			unique="false" />
+		<property name="userid" type="java.lang.Long" update="false"
+			insert="false" access="property" column="userid" length="19" not-null="true"
+			unique="false" />
+		<property name="archivesid" type="java.lang.Long" update="false"
+			insert="false" access="property" column="archivesid" length="19"
+			not-null="false" unique="false" />	
+		<property name="ccuserid" type="java.lang.Long" update="false"
+			insert="false" access="property" column="CCUSERID" length="19"
+			not-null="false" unique="false" />	
+		<property name="datavalue" type="java.lang.String" update="false"
+			insert="false" access="property" column="datavalue" length="255"
+			not-null="false" unique="false" />
+		<property name="pathA" type="java.lang.String" update="false"
+			insert="false" access="property" column="pathA" length="255"
+			not-null="false" unique="false" />
+		<property name="pathB" type="java.lang.String" update="false"
+			insert="false" access="property" column="pathB" length="255"
+			not-null="false" unique="false" />
+		<property name="pathC" type="java.lang.String" update="false"
+			insert="false" access="property" column="pathC" length="255"
+			not-null="false" unique="false" />										
+		<property name="runStatus" type="java.lang.Integer" update="false"
+			insert="false" access="property" column="runStatus" length="19" 
+			not-null="true" unique="false" />	
+		<!-- parentArchId -> archivesid -->			
+		<property name="parentArchId" type="java.lang.Long" update="false"
+			insert="false" access="property" column="archivesid" length="19"
+			not-null="false" unique="false" />													
+	</class>
+
+</hibernate-mapping>

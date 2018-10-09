@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fenfaOption"  type="long" length="0" isShowed="false" />
+	<field name="forkNextUserId" label="会签下一步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="leader2UserIds" label="leader2UserIds" type="varchar" length="1000" isShowed="true" />
+</fields>

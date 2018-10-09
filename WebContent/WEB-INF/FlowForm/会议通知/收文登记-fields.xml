@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="noticeId" label="primaryKey" type="long" isShowed="false" />
+	<field name="defId" type="varchar" isShowed="false" />
+	<field name="meetingRemark" type="varchar" lable="meetingRemark" isShowed="false" />
+	<field name="meetingState" lable="meetingState" type="varchar" isShowed="false" />
+	<field name="smsMsg" lable="smsMsg" type="varchar" isShowed="false" />
+	<field name="userId" lable="流程发起人" type="varchar" isShowed="false" />
+	<field name="mainDepId" lable="主办部门" type="varchar" isShowed="false" />
+</fields>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class
+		name="com.gdssoft.oa.model.archive.OdArchivescc"
+		table="od_archives_cc"
+		select-before-update="false"
+		dynamic-update="false"
+		dynamic-insert="false"
+		optimistic-lock="version"
+		> 
+		<id name="Id" column="Id" type="java.lang.Long" length="19"> 
+			<generator class="native"></generator> 
+		</id>  
+		<property
+			name="readTime"
+			type="java.util.Date"
+			update="true"
+			insert="true"
+			access="property"
+			column="READ_TIME"
+			length="23"
+			not-null="false"
+			unique="false"
+			/>
+		<property
+			name="status"
+			type="java.lang.Short"
+			update="true"
+			insert="true"
+			access="property"
+			column="STATUS"
+			length="50"
+			not-null="false"
+			unique="false"
+			/>
+		<property
+			name="givemeReadTime"
+			type="java.util.Date"
+			update="true"
+			insert="true"
+			access="property"
+			column="GIVEME_READ_TIME"
+			length="23"
+			not-null="false"
+			unique="false"
+			/>
+		<property
+			name="givemeReadUser"
+			type="java.lang.String"
+			update="true"
+			insert="true"
+			access="property"
+			column="GIVEME_READ_USER"
+			length="50"
+			not-null="false"
+			unique="false"
+			/>
+		<many-to-one name="archives" class="com.gdssoft.oa.model.archive.Archives" not-null="false" fetch="select"> 
+      		<column name="archives_Id"/> 
+    	</many-to-one> 
+		<!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+			fetch="select"
+			not-null="false"
+			>	
+			<column name="APP_USER_ID" />
+		</many-to-one>
+	</class>
+</hibernate-mapping>

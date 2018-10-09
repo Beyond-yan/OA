@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="XinZhengFuYiJueDing01" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="360,20,50,50" name="发文拟稿">
+		<transition g="-33,-10" name="to 拟稿结果" to="拟稿结果"/>
+	</start>
+	<decision g="360,120,50,50" name="拟稿结果">
+		<transition g="-36,-16" name="to 处室初核" to="处室初核">
+			<condition expr="#{nigaoOption=='1'}"/>
+		</transition>
+		<transition g="153,147;156,410:-33,-32" name="to 处室复核" to="处室复核">
+			<condition expr="#{nigaoOption=='2'}"/>
+		</transition>
+	</decision>
+	<task g="325,220,120,50" name="处室初核">
+		<transition g="-34,-14" name="to 初核送出" to="初核送出"/>
+	</task>
+	<decision g="360,320,50,50" name="初核送出">
+		<transition g="-35,-14" name="to 处室复核" to="处室复核">
+			<condition expr="#{roomNext=='2'}"/>
+		</transition>
+		<transition g="-68,-21" name="to 重新发起" to="重新发起">
+			<condition expr="#{roomNext=='1'}"/>
+		</transition>
+	</decision>
+	<task g="565,316,120,50" name="重新发起">
+		<transition g="624,245:-117,-20" name="to 处室初核" to="处室初核"/>
+	</task>
+	<task g="325,420,120,50" name="处室复核">
+		<transition g="-36,-13" name="to 核稿结果" to="核稿结果"/>
+	</task>
+	<decision g="360,520,50,50" name="核稿结果">
+		<transition g="-59,-29" name="to 处室会签(部门发起)" to="处室会签(部门发起)">
+			<condition expr="#{depLeaderOption=='sign'}"/>
+		</transition>
+		<transition g="-42,-17" name="to 办公室审核" to="办公室审核">
+			<condition expr="#{depLeaderOption=='office'}"/>
+		</transition>
+	</decision>
+	<task g="75,520,160,52" name="处室会签(部门发起)">
+		<transition g="154,443:-26,23" name="to 处室核稿" to="处室复核"/>
+	</task>
+	<task g="325,620,120,50" name="办公室审核">
+		<transition g="-35,-12" name="to 审核结果" to="审核结果"/>
+	</task>
+	<decision g="360,720,50,50" name="审核结果">
+		<transition g="360,745:-127,-27" name="to 处室会签(办公室发起)" to="处室会签(办公室发起)">
+			<condition expr="#{officeLeaderOption=='offcieSignOffice'}"/>
+		</transition>
+		<transition g="-33,-23" name="to 领导会签" to="领导会签">
+			<condition expr="#{officeLeaderOption=='leaderSign'}"/>
+		</transition>
+		<transition g="-19,-14" name="to 签发" to="签发">
+			<condition expr="#{officeLeaderOption=='distribute'}"/>
+		</transition>
+	</decision>
+	<task g="75,720,160,50" name="处室会签(办公室发起)">
+		<transition g="154,646:-39,29" name="to 办公室审核" to="办公室审核"/>
+	</task>
+	<task g="565,720,120,50" name="领导会签">
+		<transition g="625,645:-36,27" name="to 办公室审核" to="办公室审核"/>
+	</task>
+	<task g="325,820,120,50" name="签发">
+		<transition g="-23,-13" name="to 编号" to="编号"/>
+	</task>
+	<task g="325,920,120,50" name="编号">
+		<transition g="-23,-12" name="to 结束" to="结束"/>
+	</task>
+	<end g="360,1020,120,50" name="结束"/>
+</process>

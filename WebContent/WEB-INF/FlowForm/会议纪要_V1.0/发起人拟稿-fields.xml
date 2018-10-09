@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	
+	<field name="archives.archivesId" label="primaryKey" type="long" isShowed="false" />
+    <field name="archives.typeId" label="公文类型ID" type="long" isShowed="false"/>
+	<field name="archives.issueDep" label="拟稿单位" type="varchar" length="128"/>
+	<field name="archives.depId" label="发文部门ID" type="long" isShowed="false"/>
+	<field name="archives.subject" label="标题" type="varchar" length="256"/>
+	<field name="archives.privacyLevel" label="秘密等级" type="varchar" length="50"/>
+	<field name="archives.recDepNames" label="发行范围" type="varchar" length="50"/>
+	<field name="archives.issuerId" label="经办人ID" type="long" isShowed="false"/>
+	<field name="flowAssignId" label="发文审核人ID" type="varchar" isShowed="false"/>
+	<field name="assignUserId" label="下一步执行人ID" type="varchar" isShowed="false"/>
+	<field name="isOfficeLeader" label="是否为室经理" type="varchar" isShowed="false"/>
+	<field name="todepid" label="主送部门ID" type="varchar" length="0" isShowed="false"/>
+	
+</fields>

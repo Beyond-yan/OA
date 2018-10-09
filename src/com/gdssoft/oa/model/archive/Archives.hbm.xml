@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 请假管理 -->
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.archive.Archives" table="archives" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="archivesId" column="archivesId" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="isReserveNo" type="java.lang.Integer" update="true" insert="true" access="property" column="is_reserve_no" length="10" not-null="false" unique="false"/>  
+    <property name="typeName" type="java.lang.String" update="true" insert="true" access="property" column="typeName" length="128" not-null="false" unique="false"/>  
+    <property name="archivesNo" type="java.lang.String" update="true" insert="true" access="property" column="archivesNo" length="100" not-null="false" unique="false"/>  
+    <property name="issueDep" type="java.lang.String" update="true" insert="true" access="property" column="issueDep" length="128" not-null="false" unique="false"/>  
+    <property name="subject" type="java.lang.String" update="true" insert="true" access="property" column="subject" length="256" not-null="false" unique="false"/>  
+    <property name="issueDate" type="java.util.Date" update="true" insert="true" access="property" column="issueDate" length="19" not-null="true" unique="false"/>  
+    <property name="createtime" type="java.util.Date" update="true" insert="true" access="property" column="createtime" length="19" not-null="true" unique="false"/>  
+    <property name="status" type="java.lang.Short" update="true" insert="true" access="property" column="status" length="5" not-null="true" unique="false"/>  
+    <property name="shortContent" type="java.lang.String" update="true" insert="true" access="property" column="shortContent" length="1024" not-null="false" unique="false"/>  
+    <property name="fileCounts" type="java.lang.Integer" update="true" insert="true" access="property" column="fileCounts" length="10" not-null="true" unique="false"/>  
+    <property name="privacyLevel" type="java.lang.String" update="true" insert="true" access="property" column="privacyLevel" length="50" not-null="false" unique="false"/>  
+    <property name="urgentLevel" type="java.lang.String" update="true" insert="true" access="property" column="urgentLevel" length="50" not-null="false" unique="false"/>  
+    <property name="issuer" type="java.lang.String" update="true" insert="true" access="property" column="issuer" length="50" not-null="false" unique="false"/>  
+    <property name="issuerId" type="java.lang.Long" update="true" insert="true" access="property" column="issuerId" length="19" not-null="false" unique="false"/>  
+    <property name="keywords" type="java.lang.String" update="true" insert="true" access="property" column="keywords" length="256" not-null="false" unique="false"/>  
+    <property name="sources" type="java.lang.String" update="true" insert="true" access="property" column="sources" length="50" not-null="false" unique="false"/>  
+    <property name="archType" type="java.lang.Short" update="true" insert="true" access="property" column="archType" length="5" not-null="true" unique="false"/>  
+    <many-to-one name="archivesType" class="com.gdssoft.oa.model.archive.ArchivesType" fetch="select"> 
+      <column name="TYPEID"/> 
+    </many-to-one> 
+    <property name="recDepIds" type="java.lang.String" update="true" insert="true" access="property" column="recDepIds" length="2000" not-null="false" unique="false"/>  
+    <property name="recDepNames" type="java.lang.String" update="true" insert="true" access="property" column="recDepNames" length="2000" not-null="false" unique="false"/>  
+    <property name="handlerUids" type="java.lang.String" update="true" insert="true" access="property" column="handlerUids" length="256" not-null="false" unique="false"/>  
+    <property name="handlerUnames" type="java.lang.String" update="true" insert="true" access="property" column="handlerUnames" length="256" not-null="false" unique="false"/>  
+    <property name="orgArchivesId" type="java.lang.Long" update="true" insert="true" access="property" column="orgArchivesId" length="19" not-null="false" unique="false"/>  
+    <property name="depSignNo" type="java.lang.String" update="true" insert="true" access="property" column="depSignNo" length="100" not-null="false" unique="false"/>  
+    <property name="parentArchId" type="java.lang.Long" update="true" insert="true" access="property" column="PARENT_ARCH_ID" length="19" not-null="false" unique="false"/>  
+    <property name="isPublic" type="java.lang.Short" update="true" insert="true" access="property" column="IS_PUBLIC" length="5" not-null="false" unique="false"/>
+     <!-- add by liusicen -->
+    <property name="limitedDate" type="java.util.Date" update="true" insert="true" access="property" column="LIMITED_DATE" length="19" not-null="false" unique="false"/>  
+    <property name="writtenDate" type="java.util.Date" update="true" insert="true" access="property" column="WRITTEN_DATE" length="19" not-null="false" unique="false"/> 
+    <property name="orgDepName" type="java.lang.String" update="true" insert="true" access="property" column="ORGDEP_NAME" length="120" not-null="false" unique="false"/>
+    <!-- add by shizenghua-->
+    <property name="archPrinter" type="java.lang.String" update="true" insert="true" access="property" column="ARCH_PRINTER" length="100" not-null="false" unique="false"/>
+    <property name="archChecker" type="java.lang.String" update="true" insert="true" access="property" column="ARCH_CHECKER" length="100" not-null="false" unique="false"/>
+   
+    <!-- add by tony -->
+    <property name="reviewUser" type="java.lang.Long" update="true" insert="true" access="property" column="REVIEW_USER" length="100" not-null="false" unique="false"/>
+    <property name="reviewUserName" type="java.lang.String" update="true" insert="true" access="property" column="REVIEW_USER_NAME" length="100" not-null="false" unique="false"/>
+    <property name="sendTo" type="java.lang.String" update="true" insert="true" access="property" column="SEND_TO" length="200" not-null="false" unique="false"/>
+    <property name="ccTo" type="java.lang.String" update="true" insert="true" access="property" column="CC_TO" length="200" not-null="false" unique="false"/>
+    <property name="isStandard" type="java.lang.Short" update="true" insert="true" access="property" column="IS_STANDARD" length="1" not-null="false" unique="false"/>
+    <property name="isShared" type="java.lang.Integer" update="true" insert="true" access="property" column="IS_SHARED" length="1" not-null="false" unique="false"/>
+    <property name="unPublicReasons" type="java.lang.String" update="true" insert="true" access="property" column="UNPUBLIC_REASONS" length="200" not-null="false" unique="false"/>
+    <property name="orgDepId" type="java.lang.String" update="true" insert="true" access="property" column="ORGDEP_ID" length="200" not-null="false" unique="false"/>
+    <property name="signDate" type="java.util.Date" update="true" insert="true" access="property" column="SIGN_DATE" length="19" not-null="false" unique="false"/> 
+    <property name="signUserId" type="java.lang.Long" update="true" insert="true" access="property" column="SIGN_USER_ID" length="19" not-null="false" unique="false"/>
+    <property name="standardApprover" type="java.lang.Long" update="true" insert="true" access="property" column="STANDARD_APPROVER" length="100" not-null="false" unique="false"/>
+    <property name="standardApproveDate" type="java.util.Date" update="true" insert="true" access="property" column="STANDARD_APPROVE_DATE" length="19" not-null="false" unique="false"/>  
+    <property name="snConfigId" type="java.lang.Long" update="true" insert="true" access="property" column="SN_CONFIG_ID" length="19" not-null="false" unique="false"/>
+    <property name="isreceive" type="java.lang.Long" update="true" insert="true" access="property" column="IS_RECEIVE" length="100" not-null="false" unique="false"/>
+     <property name="isdraft" type="java.lang.Long" update="true" insert="true" access="property" column="IS_DRAFT" length="100" not-null="false" unique="false"/>
+     <property name="receiveDate" type="java.util.Date" update="true" insert="true" access="property" column="RECEIVE_DATE" length="100" not-null="false" unique="false"/>
+    <property name="isComSetting" type="java.lang.Long" update="true" insert="true" access="property" column="CONTENT_FORMAT" length="19" not-null="false" unique="false"/>  
+     <property name="enclosure" type="java.lang.String" update="true" insert="true" access="property" column="ENCLOSURE" length="200" not-null="false" unique="false"/>  
+     <property name="transfered" type="java.lang.Integer" update="true" insert="false" access="property" column="TRANSFERED" length="1" not-null="false" unique="false"/>
+     
+    <property name="electronicDocDate" type="java.util.Date" update="true" insert="true" access="property" column="ELECTRONIC_DOC_DATE" length="19" not-null="false" unique="false"/>
+    <property name="examineRecordNumber" type="java.lang.String" update="true" insert="true" access="property" column="EXAMINE_RECORD_NUMBER" length="200" not-null="false" unique="false"/>  
+    <!-- imported bi-directional many-to-one association to ArchivesType -->  
+    <!-- imported bi-directional many-to-one association to Department -->  
+    <many-to-one name="department" class="com.gdssoft.oa.model.system.Department" not-null="false" fetch="select"> 
+      <column name="depId"/> 
+    </many-to-one> 
+    
+        
+    <many-to-one name="processRun" 	class="com.gdssoft.oa.model.flow.ProcessRun"  not-null="false" fetch="select">	
+		<column name="PROCESS_INS_ID" />
+	</many-to-one> 
+    <!-- exported bi-directional one-to-many association to ArchivesDep -->  
+    <!--<set name="archivesDeps" table="archives_dep" lazy="true" inverse="true" cascade="all-delete-orphan" sort="unsorted"> 
+      <key> 
+        <column name="archivesId"/> 
+      </key>  
+      <one-to-many class="com.gdssoft.oa.model.archive.ArchivesDep"/> 
+    </set>  -->
+    <set name="archivesHandles" table="archives_handle" lazy="true" inverse="true" sort="unsorted"> 
+      <key> 
+        <column name="archivesId"/> 
+      </key>  
+      <one-to-many class="com.gdssoft.oa.model.archive.ArchivesHandle"/> 
+    </set>  
+    <set name="archivesDocs" table="archives_doc" lazy="true" inverse="false" sort="unsorted"> 
+      <key column="archivesId"/>  
+      <one-to-many class="com.gdssoft.oa.model.archive.ArchivesDoc"/> 
+    </set>  
+    <set name="leaders" table="leader_read" lazy="true" inverse="true" sort="unsorted"> 
+      <key> 
+        <column name="archivesId"/> 
+      </key>  
+      <one-to-many class="com.gdssoft.oa.model.archive.LeaderRead"/> 
+    </set>  
+    <set name="archivesDispatch" table="arch_dispatch" lazy="true" inverse="false" sort="unsorted"> 
+      <key column="archivesId"/>  
+      <one-to-many class="com.gdssoft.oa.model.archive.ArchDispatch"/> 
+    </set>  
+    <set name="archivesAttends" table="archives_attend" lazy="true" inverse="true" sort="unsorted"> 
+      <key column="archivesId"/>  
+      <one-to-many class="com.gdssoft.oa.model.archive.ArchivesAttend"/> 
+    </set> 
+    <property name="isArchive" type="java.lang.Short" update="true" insert="true" access="property" column="IS_ARCHIVE" length="5" not-null="false" unique="false"/>
+  	<many-to-one name="odFlowtype" 	class="com.gdssoft.oa.model.archive.OdFlowtype"  not-null="false" fetch="select">	
+		<column name="FLOW_TYPE_ID" />
+	</many-to-one> 
+	
+  <set name="archivesCCs" table="OD_ARCHIVES_CC" inverse="false" lazy="true"> 
+      <key column="archives_id"/>  
+		<many-to-many fetch="join" class="com.gdssoft.oa.model.system.AppUser" column="app_user_id"/> 
+    </set>  
+	
+	<set name="archivesFiles" table="ARCHIVES_ATTACHMENT" lazy="true" inverse="false">
+      <key column="ARCHIVESID"/>  
+		<many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="FILEID"/> 
+    </set>  
+  </class> 	
+</hibernate-mapping>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.archive.OdCirPaper"
+        table="OD_CIR_PAPER"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="cirPaperId"
+            column="CIR_PAPER_ID"
+            type="java.lang.Long"
+            length="19"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="subject"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="SUBJECT"
+            length="1024"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="shortContent"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="SHORT_CONTENT"
+            length="2048"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="CREATOR_ID" />
+		</many-to-one>
+ <!-- exported bi-directional one-to-many association to OdCirFile -->
+	
+	 <set name="odCirFiles" table="OD_CIR_FILE" cascade="save-update" inverse="false" lazy="true"> 
+      <key column="CIR_PAPER_ID"/>  
+		<many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="FILE_ID"/> 
+    </set>     
+ <!-- exported bi-directional one-to-many association to OdCirUser -->
+	<set name="odCirUsers"
+	     table="od_cir_user"
+	     lazy="true"
+	     inverse="true"
+	     cascade="save-update"
+	     sort="unsorted"
+	>
+		<key>
+			<column name="CIR_PAPER_ID"/>
+		</key>
+		<one-to-many
+			class="com.gdssoft.oa.model.archive.OdCirUser"
+		/>
+	</set>     
+    </class>
+</hibernate-mapping>

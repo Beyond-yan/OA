@@ -1,0 +1,509 @@
+﻿AuditSentArchiveStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		AuditSentArchiveStart.superclass.constructor.call(this, {
+					id : 'AuditSentArchiveStart',
+					title : '审计处发文处理笺',
+					layout : 'form',
+					modal : true,
+					width : 900,
+					iconCls : 'menu-archive-draft',
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [{
+								text : '启动流程',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}]
+				});
+	},
+	save : function() {
+		var reviewUserName = Ext.get("AuditSentArchiveStart.flowAssignId").dom.value;
+		Ext.getCmp("AuditSentArchiveStart.reviewUserName").setValue(reviewUserName);
+		var flowAssignId = Ext.getCmp("AuditSentArchiveStart.flowAssignId").getValue();
+		var defId = this.defId;
+		/*if (this.store.getCount() == 0) {// 公文正文附件为空
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文附件!');
+			return false;
+		}*/
+		if (this.formPanel.getForm().isValid()) {
+			var formPanel = this.formPanel;
+
+			var docParams = [];
+			for (var i = 0, cnt = this.store.getCount(); i < cnt; i++) {
+				docParams.push(this.store.getAt(i).data);
+			}
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					docs : Ext.encode(docParams)
+				},
+				success : function(fp, action) {
+					var archivesId = action.result.archivesId;
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					var fileIds = Ext.getCmp('auditSentAttachments.fileIds').getValue();
+					var isReserveNo=formPanel.getCmpByName('archives.isReserveNo').getGroupValue();
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/saveProcessActivity.do',
+						method : 'post',
+						waitMsg : '正在发起流程...',
+						params : {
+							defId : defId,
+							sendUserId:curUserInfo.userId,
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo : sendInfo,
+							isReserveNo: isReserveNo,
+							archivesId : archivesId,
+							flowAssignId : flowAssignId,
+							fileIds : fileIds?fileIds:'_',
+							startFlow : true
+						},
+						success : function(response,options) {
+							var processInsId = options.result.runId;
+							Ext.Ajax.request({
+									url : __ctxPath + '/archive/updateRunIdArchives.do',
+									params : {
+										'archivesId' : archivesId,
+										'runId' : processInsId
+									},
+									method:'post',
+									success : function(response, options) {
+										Ext.ux.Toast.msg('操作信息', '拟稿成功！');
+										Ext.getCmp('centerTabPanel').remove(Ext
+												.getCmp('ProcessRunStart' + defId));
+										refreshTaskPanelView();
+									}
+								});
+						}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	initUIComponents : function() {
+		this.docGridPanel = new ArchivesUtil({
+			panelId :'AuditSentArchiveStart',
+			isStart : true,
+			archType: 0,
+			archivesId : this.archivesId
+		}).getGridPanelWithFullTools();
+		var fp =this.formPanel = new Ext.FormPanel({
+			id : 'AuditSentArchiveForm',
+			url : __ctxPath + '/archive/saveNormalArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 80,
+			width : 900,
+			padding : '5px',
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 200,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+								fieldLabel : "拟稿部门",
+								value : curUserInfo.depName,
+								readOnly : true
+							}, {
+								xtype : 'combo',
+								fieldLabel : "发文单位",
+								name : 'archives.issueDep',
+								triggerAction : 'all',
+								lazyRender : true,
+								editable : false,
+								fieldLabel : '发文单位',
+								store : ['重庆市交通委员会',
+										'中共重庆市交通委员会', '中共重庆市交通委员会机关党委',
+										'中共重庆市交通纪律检查委员会', '共青团重庆市交通委员会',
+										'重庆市交通委员会直属机关工会']
+							}, {
+								xtype : 'combo',
+								fieldLabel : '文种',
+								hiddenName : "archives.archivesType.typeId",
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/archive/comboArchivesType.do',
+											autoLoad : true,
+											fields : ['typeId', 'typeName']
+										})
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '缓急',
+								triggerAction : 'all',
+								allowBlank : true,
+								editable : false,
+								name : 'archives.urgentLevel',
+								emptyText : '急缓程度',
+								store : ['特急', '急件', '加急', '平急']
+							}, {
+								fieldLabel : '拟稿',
+								name : "archives.issuer",
+								readOnly : true,
+								value : curUserInfo.fullname
+							}, {
+								xtype : 'combo',
+								name : 'archives.sources',
+								triggerAction : 'all',
+								editable : false,
+								fieldLabel : '行文方向',
+								store : ['上行文', '平行文', '下行文']
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '密级',
+								triggerAction : 'all',
+								allowBlank : true,
+								editable : false,
+								name : 'archives.privacyLevel',
+								emptyText : '一般',
+								store : ['一般']
+							}, {
+								xtype : "hidden",
+								name : "archives.reviewUserName",
+								id : "AuditSentArchiveStart.reviewUserName"
+							}, {
+								xtype : "combo",
+								hiddenName : "archives.reviewUser",
+								fieldLabel : "核稿",
+								id : 'AuditSentArchiveStart.flowAssignId',
+								valueField : 'flowAssignId',
+								displayField : 'flowAssignName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/system/arrLeadersAppUser.do?roles='+roleMap.get('officeDeputyDirectorRoleID')+','+roleMap.get('officeDirectorRoleID'),
+											autoLoad : true,
+											fields : ['flowAssignId',
+													'flowAssignName']
+										})
+							}, {
+								xtype : 'numberfield',
+								id: 'AuditSentArchiveStart.fileCounts',
+								name : 'archives.fileCounts',
+								fieldLabel : '份数',
+								value : 1
+							}]
+				}]
+			}, {
+				xtype : 'textfield',
+				name : 'archives.subject',
+				allowBlank : false,
+				width : '96.5%',
+				fieldLabel : '标题',
+				listeners: {
+							'change' : function(t){
+						       if(t.getValue()!=""){
+						       		Ext.getCmp('SearchSubject').setValue(t.getValue());
+						       		Ext.getCmp('ProcessStartOASearchGrid').getStore().baseParams = {
+										'subject' : Ext.getCmp('SearchSubject').getValue(),
+										'archType': "0",
+										'docName' : Ext.getCmp('SearchDocNames').getValue(),
+										'fileName': Ext.getCmp('SearchFileNames').getValue()
+									}
+							        Ext.Ajax.request({
+										url : __ctxPath + '/archive/oaSearchListArchives.do',
+										params : {
+											'subject' : t.getValue(),
+											'archType': "0",
+											'docName' : Ext.getCmp('SearchDocNames').getValue(),
+											'fileName': Ext.getCmp('SearchFileNames').getValue()
+										},
+										method:'post',
+										success : function(response, options) {
+											var data=Ext.util.JSON.decode(response.responseText)
+											Ext.getCmp('ProcessStartOASearchGrid').getStore().loadData(data);
+										}
+									});
+						       }
+						     }
+						}
+			},{
+				xtype : 'container',
+				layout : 'hbox',
+				style : 'padding:0px 0px 5px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '主送：',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.sendTo',
+							id : 'AuditSentArchiveStart.sendTo',
+							width : '76%'
+						},{
+							style : 'padding-left:5px;',
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '常用主送单位',
+							handler : function() {
+								UnitsSelector.getView(
+									function(ids, names) {
+										Ext.getCmp('AuditSentArchiveStart.sendTo')
+											.setValue(names);
+										}, false,1).show();
+							}
+						}]
+			}, {
+				xtype : 'container',
+				layout : 'hbox',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '抄送：',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.ccTo',
+							allowBlank : true,
+							id : 'AuditSentArchiveStart.ccTo',
+							width : '76%'
+						}, {
+							xtype : 'button',
+							style : 'padding-left:5px;',
+							iconCls : 'menu-department',
+							text : '常用抄送单位',
+							handler : function() {
+								UnitsSelector.getView(
+									function(ids, names) {
+										Ext.getCmp('AuditSentArchiveStart.ccTo')
+											.setValue(names);
+										}, false,2).show();
+							}
+						}]
+			}, {
+				xtype : 'fieldset',
+				style:'padding-top:6px',
+				border : false,
+				defaults : {
+					anchor : '98%,98%'
+				},
+				items : [this.docGridPanel]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [{
+							columnWidth : .88,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id : 'auditSentAttachments.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 4px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .12,
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document',
+										judge_size : 'no',
+										upload_autostart : true,
+										callback : function(data) {
+											var fileIds = Ext.getCmp('auditSentAttachments.fileIds');
+											var filePanel = Ext.getCmp('auditSentAttachments.personFilePanel');
+											var fileNames="";
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+												if(i>0){
+													fileNames+=" ";
+												}
+												fileNames+=data[i].filename;
+												
+												Ext.DomHelper
+														.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'auditSentAttachments.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+											Ext.getCmp('SearchFileNames').setValue(fileNames);
+											Ext.getCmp('ProcessStartOASearchGrid').getStore().baseParams = {
+												'subject' : Ext.getCmp('SearchSubject').getValue(),
+												'archType': "0",
+												'docName' : Ext.getCmp('SearchDocNames').getValue(),
+												'fileName': Ext.getCmp('SearchFileNames').getValue()
+											}
+											Ext.Ajax.request({
+													url : __ctxPath + '/archive/oaSearchListArchives.do',
+													params : {
+														'subject' : Ext.getCmp('SearchSubject').getValue(),
+														'archType': "0",
+														'docName' : Ext.getCmp('SearchDocNames').getValue(),
+														'fileName': fileNames
+													},
+													method:'post',
+													success : function(response, options) {
+														var data=Ext.util.JSON.decode(response.responseText)
+														Ext.getCmp('ProcessStartOASearchGrid').getStore().loadData(data);
+													}
+											});
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext.getCmp('auditSentAttachments.fileIds');
+									var filePanel = Ext.getCmp('auditSentAttachments.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								id : 'auditSentAttachments.fileIds',
+								name : 'fileIds'
+							}]
+						}]
+			}, {
+				id : 'AuditSentArchiveStart.isReserveNo',
+				border : false,
+				labelWidth:105,
+				layout : 'form',
+				items : {
+					xtype : 'radiogroup',
+					fieldLabel : '是否使用预约编号',
+					id:'AuditSentArchiveStart.radiogroup',
+					hideParent : true,
+					items : [{
+								boxLabel : '是',
+								name : 'archives.isReserveNo',
+								inputValue : 1
+							}, {
+								boxLabel : '否',
+								name : 'archives.isReserveNo',
+								inputValue : 0
+							}]
+				}
+			}, {
+				border : false,
+				layout : 'form',
+				labelWidth : 105,
+				items : {
+					xtype : 'radiogroup',
+					allowBlank : false,
+					fieldLabel : '是否规范性文件',
+					items : [{
+								boxLabel : '是',
+								name : 'archives.isStandard',
+								inputValue : 1
+							}, {
+								boxLabel : '否',
+								name : 'archives.isStandard',
+								inputValue : 0
+							}]
+				}
+			},{
+				xtype:'hidden',
+				name:'archives.issuerId',
+				value:curUserInfo.userId
+			},{
+				xtype:'hidden',
+				name:'archives.archType',
+				id : 'archivesArchType',
+				value:0
+			}]
+		});
+		Ext.getCmp('ProcessStartOASearchGrid').getStore().baseParams = {
+			'subject' : Ext.getCmp('SearchSubject').getValue(),
+			'archType': "0",
+			'docName' : Ext.getCmp('SearchDocNames').getValue(),
+			'fileName': Ext.getCmp('SearchFileNames').getValue()
+		}
+		var did=defId;
+		Ext.Ajax.request({
+						url : __ctxPath + '/snconfig/listByPageFileSnConfigOrder.do',
+						params : {
+							'flowId' : did,
+							'userId':curUserInfo.userId,
+							'isUsed':0
+						},
+						method:'post',
+						success : function(response, options) {
+							var af=Ext.util.JSON.decode(response.responseText).result;
+							if(af==""){
+							  Ext.getCmp('AuditSentArchiveStart.isReserveNo').hide();
+							  fp.getCmpByName('archives.isReserveNo').setValue(3);
+							  Ext.getCmp('AuditSentArchiveStart.radiogroup').allowBlank=true;
+							}else{
+							Ext.getCmp('AuditSentArchiveStart.isReserveNo').show();
+							Ext.getCmp('AuditSentArchiveStart.radiogroup').allowBlank=false;
+							}
+						}
+			});
+	}
+})

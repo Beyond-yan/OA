@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="forkNextUserId" label="会签下一步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="nibanUserIds" label="nibanUserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="leaderUserIds" label="leaderUserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="leaderUserIdsLengths" label="leaderUserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="meetingRemark" type="varchar" lable="meetingRemark" isShowed="false" />
+	<field name="meetingState" lable="meetingState" type="varchar" isShowed="false" />
+	<field name="smsMsg" lable="smsMsg" type="varchar" isShowed="false" />
+	<field name="nibanResult" lable="nibanResult" type="varchar" isShowed="false" />
+	<field name="mainDepId" lable="主办部门" type="varchar" isShowed="false" />
+</fields>

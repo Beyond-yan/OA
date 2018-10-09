@@ -1,0 +1,163 @@
+ZCBPartyReceiveArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		ZCBPartyReceiveArchiveDepCheck.superclass.constructor.call(this, {
+					id:'ZCBPartyReceiveArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 620,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'ZCBPartyReceiveArchiveDepCheckDetailPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						 +'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=DWCNCBReceiveArchiveDetailPanel',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'ZCBPartyReceiveArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [/*new ArchivesUtil({
+						panelId : 'ZCBPartyReceiveArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),*/{
+						layout:'column',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		style:'padding-top:10px;',
+					   		items:[{
+							xtype : 'radiogroup',
+   							allowBlank : false,
+   							width : 500,
+   							items : [{
+    							boxLabel : '处室拟办',
+    							name : 'option',
+    							inputValue : 2,
+    							checked : true
+   								}, {
+    							boxLabel : '办理完成',
+    							name : 'option',
+    							inputValue : 1
+   								}],
+  						 fieldLabel : '审批步骤'
+					}]
+					}]
+					},{
+						   layout:'column',
+						   style:'padding:6px 0px 0px 0px',
+						   border:false,
+						   items:[{
+						   		layout:'form',
+						   		border:false,
+						   		items:[{	
+					   					fieldLabel : '审批意见',
+										name : 'leaderRead.leaderOpinion',
+										autoScroll:true,
+										maxLength:500,
+										height:40,
+										xtype:'textarea',
+										width:448
+										}]
+						     	 },{
+							   		layout:'form',
+							   		style:'padding-top:10px;padding-left:5px;',
+							   		border:false,
+							   		items:[{
+											xtype : 'button',
+											text : '常用批示语',
+											iconCls : 'menu-new-document',
+											handler : function() {
+												OdCommentsSelector.getView(
+													function(id, name) {
+													var fm = Ext
+														.getCmp('ZCBPartyReceiveArchiveDepCheckForm');
+														fm
+														.getCmpByName('leaderRead.leaderOpinion')
+														.setValue(name);
+														}, true).show();
+												}
+											}]
+						  		}]
+						}]
+					
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var option = formPanel.getCmpByName('option').getGroupValue();
+			var params = {
+				    isOver:option,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			     if (option == '1') {
+							Ext.apply(params,{
+								destName : '办理完成'
+							});
+						} 
+						else if (option == '2') {
+							Ext.apply(params,{
+								destName : '处室拟办',
+								flowAssignId : '${officeId}'
+							});
+						}
+			//alert(Ext.util.JSON.encode(params));
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '承办成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

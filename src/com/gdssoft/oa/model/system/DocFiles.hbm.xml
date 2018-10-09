@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.system.DocFiles" table="CQ_DOC_FILES"> 
+    <id name="id" column="ID" type="java.lang.Long"> 
+      <generator class="native"/> 
+    </id>  
+    <many-to-one name="department" class="com.gdssoft.oa.model.system.Department" column="DEP_ID" 	fetch="select"/>
+    <many-to-one name="docDirectory" class="com.gdssoft.oa.model.system.DocDirectory" column="DIRECTORY_ID" 	fetch="select"/>
+    <many-to-one name="archives" class="com.gdssoft.oa.model.archive.Archives" column="ARCHIVES_ID" 	fetch="select"/>
+    
+    <set name="fileList" table="CQ_DOC_FILES_ATTACH" cascade="save-update" inverse="false"> 
+      <key column="DOC_FILES_ID"/>  
+      <many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="FILE_ID"/> 
+    </set> 
+    <property name="fileName" type="java.lang.String" update="true" insert="true" access="property" column="FILE_NAME" length="128" not-null="false" unique="false"/>  
+    <property name="fileNo" type="java.lang.String" update="true" insert="true" access="property" column="FILE_NO" length="19" not-null="false" unique="false"/>  
+    <property name="pageCount" type="java.lang.Integer" update="true" insert="true" access="property" column="PAGE_COUNT" length="32" not-null="false" unique="false"/>
+    <property name="fileStatus" type="java.lang.Short" update="true" insert="true" access="property" column="FILE_STATUS" not-null="false" unique="false"/> 
+    <property name="fileType" type="java.lang.Integer" update="true" insert="true" access="property" column="FILE_TYPE" length="18" not-null="false" unique="false"/> 
+    <property name="dutyPerson" type="java.lang.String" update="true" insert="true" access="property" column="DUTY_PERSON" length="1024" not-null="false" unique="false"/>  
+    <property name="secretLevel" type="java.lang.String" update="true" insert="true" access="property" column="SECRET_LEVEL" length="50" not-null="false" unique="false"/>  
+    <property name="fileDate" type="java.util.Date" update="true" insert="true" access="property" column="FILE_DATE" length="18" not-null="false" unique="false"/> 
+    <property name="fileYear" type="java.lang.String" update="true" insert="true" access="property" column="FILE_YEAR" length="18" not-null="false" unique="false"/> 
+    <property name="retentionYear" type="java.lang.Integer" update="true" insert="true" access="property" column="RETENTION_YEAR" length="18" not-null="false" unique="false"/> 
+    <property name="retention" type="java.util.Date" update="true" insert="true" access="property" column="RETENTION" length="18" not-null="false" unique="false"/> 
+    <property name="remark" type="java.lang.String" update="true" insert="true" access="property" column="REMARK" length="18" not-null="false" unique="false"/> 
+    <property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER" length="18" not-null="false" unique="false"/> 
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_DATE" length="18" not-null="false" unique="false"/> 
+    <property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_USER" length="18" not-null="false" unique="false"/> 
+    <property name="updateDate" type="java.util.Date" update="true" insert="true" access="property" column="UPDATE_DATE" length="18" not-null="false" unique="false"/>
+    <!--add by sicen.liu-->
+    <property name="rowNumber" type="java.lang.Long" update="true" insert="true" access="property" column="ROW_NUMBER" length="18" not-null="false" unique="false"/> 
+    <property name="fileNumber" type="java.lang.Long" update="true" insert="true" access="property" column="FILE_NUMBER" length="18" not-null="false" unique="false"/> 
+    <property name="sourceType" type="java.lang.Long" update="true" insert="true" access="property" column="SOURCE_TYPE" length="18" not-null="false" unique="false"/>
+    <property name="fileIssup" type="java.lang.String" update="true" insert="true" access="property" column="FILE_ISSUP" length="18" not-null="false" unique="false"/>  
+  </class> 
+</hibernate-mapping>

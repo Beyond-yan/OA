@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+    <field name="flowAssignId"  type="varchar" length="10" isShowed="false" />
+    <field name="defId"  type="varchar" length="10" isShowed="false"/>
+    <field name="archivesId"  type="varchar" length="0" isShowed="false" />
+    <field name="sendUserId" label="拟稿人id" type="varchar" length="100" isShowed="false" />
+</fields>

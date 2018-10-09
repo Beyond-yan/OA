@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	
+	<class name="com.gdssoft.oa.model.summary.WorkSummary" table="work_summary"
+		select-before-update="false" dynamic-update="false" dynamic-insert="false"
+		optimistic-lock="version">
+		<id name="summaryid" column="summaryid" type="java.lang.Long"
+			length="19">
+			<generator class="native" />
+		</id>
+		<property name="summarydate" type="java.util.Date" update="true"
+			insert="true" access="property" column="summarydate" length="23"
+			not-null="true" unique="false" />
+		<property name="typeNo" type="int" update="true" insert="true"
+			access="property" column="type_no" length="23" not-null="true"
+			unique="false" />
+		<property name="yearNo" type="int" update="true" insert="true"
+			access="property" column="year_no" length="23" not-null="true"
+			unique="false" />
+		<property name="summarytype" type="java.lang.String" update="true"
+			insert="true" access="property" column="summarytype" length="10"
+			not-null="true" unique="false" />
+		<property name="title" type="java.lang.String" update="true"
+			insert="true" access="property" column="title" length="100" not-null="true"
+			unique="false" />
+		<property name="completestate" type="java.lang.String"
+			update="true" insert="true" access="property" column="completestate"
+			length="1073741823" not-null="false" unique="false" />
+		<property name="deptstate" type="java.lang.String" update="true"
+			insert="true" access="property" column="deptstate" length="1073741823"
+			not-null="false" unique="false" />
+		<property name="trouble" type="java.lang.String" update="true"
+			insert="true" access="property" column="trouble" length="1073741823"
+			not-null="false" unique="false" />
+		<property name="jobanalysis" type="java.lang.String" update="true"
+			insert="true" access="property" column="jobanalysis" length="1073741823"
+			not-null="false" unique="false" />
+		<property name="jobplan" type="java.lang.String" update="true"
+			insert="true" access="property" column="jobplan" length="1073741823"
+			not-null="false" unique="false" />
+		<property name="comment" type="java.lang.String" update="true"
+			insert="true" access="property" column="comment" length="1073741823"
+			not-null="false" unique="false" />
+		<property name="createid" type="java.lang.Long" update="true"
+			insert="true" access="property" column="createid" length="19"
+			not-null="true" unique="false" />
+		<property name="createtime" type="java.util.Date" update="true"
+			insert="true" access="property" column="createtime" length="23"
+			not-null="true" unique="false" />
+		<property name="lasteditid" type="java.lang.Long" update="true"
+			insert="true" access="property" column="lasteditid" length="19"
+			not-null="true" unique="false" />
+		<property name="lastedittime" type="java.util.Date" update="true"
+			insert="true" access="property" column="lastedittime" length="23"
+			not-null="true" unique="false" />
+		<property name="isAuthorized" type="java.lang.Integer"
+			update="true" insert="true" access="property" column="isAuthorized"
+			length="19" not-null="true" unique="false" />
+
+		<!-- imported bi-directional many-to-one association to Department -->
+		<many-to-one name="department" class="com.gdssoft.oa.model.system.Department"
+			not-null="false" fetch="select">
+			<column name="deptid" />
+		</many-to-one>
+		<filter name="yearnofilter" condition=":yearNo=year_no"/>
+		<filter name="typefilter" condition=":summarytype=summarytype"/>
+		<filter name="typenofilter" condition=":typeNo=type_no"/>
+		<filter name="isauthorizedfilter" condition=":isAuthorized=isAuthorized"/>
+		
+	</class>
+	
+	<filter-def name="yearnofilter">
+	　<filter-param name="yearNo" type="java.lang.Integer"/>
+	</filter-def>
+	<filter-def name="typefilter">
+	　<filter-param name="summarytype" type="java.lang.String"/>
+	</filter-def>
+	<filter-def name="typenofilter">
+	　<filter-param name="typeNo" type="java.lang.Integer"/>
+	</filter-def>
+	<filter-def name="isauthorizedfilter">
+	　<filter-param name="isAuthorized" type="java.lang.Integer"/>
+	</filter-def>
+</hibernate-mapping>

@@ -1,0 +1,847 @@
+TrafficEnforceTeamSentArchiveReStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		TrafficEnforceTeamSentArchiveReStart.superclass.constructor.call(this, {
+					id : 'TrafficEnforceTeamSentArchiveReStart',
+					title : '交通执法总队联合发文处理笺',
+					layout : 'form',
+					modal : true,
+					width : 800,
+					iconCls : 'menu-archive-draft',
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end]
+				});
+				
+				
+		$ImportSimpleJs([__ctxPath + '/js/archive/ArchivesDocForm.js',
+		__ctxPath + '/js/archive/ArchivesDocForm.js',
+		__ctxPath + '/js/archive/ArchivesDocHistoryWin.js',
+		__ctxPath + '/js/archive/ArchiveTypeTempView.js',
+		__ctxPath + '/js/archive/ArchTemplateView.js',
+		__ctxPath + '/js/archive/ArchTemplateForm.js',
+		__ctxPath + '/js/archive/OfficeTemplateView.js',
+		__ctxPath + '/js/archive/ArchTemplateSelector.js']);
+		
+		
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		var reviewUserName = Ext.get("TrafficEnforceTeamSentArchiveReStart.flowAssignId").dom.value;
+		Ext.getCmp("TrafficEnforceTeamSentArchiveReStart.reviewUserName").setValue(reviewUserName);
+		var fileIds = Ext.getCmp('TrafficEnforceTeamReFiles.fileIds').getValue();
+		if (panel.store.getCount() == 0) {// 公文正文附件为空
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文附件!');
+			return false;
+		}
+		if (formPanel.getForm().isValid()) {
+			var docParams=Ext.getCmp("TrafficEnforceTeamSentArchiveReStart.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					archivesRecfileIds : Ext.getCmp("TrafficEnforceTeamSentArchiveReStart.reFileId").getValue()
+				},
+				success : function(fp, action) {
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var flowAssignId = Ext.getCmp("TrafficEnforceTeamSentArchiveReStart.flowAssignId").getValue();
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/nextProcessActivity.do',
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : {
+							taskId : panel.taskId,
+							signalName : signalName,
+							activityName : activityName,
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							flowAssignId : flowAssignId,
+							fileIds : fileIds?fileIds:'_'
+						},
+						success : function(response, options) {
+							Ext.ux.Toast.msg('操作信息', '拟稿成功！');
+							Ext.getCmp('centerTabPanel').remove(Ext
+									.getCmp('ProcessForm' + panel.taskId));
+							refreshTaskPanelView();
+						}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	addArchiveDoc : function() {
+		// 判断是否选择了文档分类
+		var archiveTypeId = Ext.getCmp('archiveTypeId');
+		new ArchTemplateSelector({
+					callback : function(fileId, tempPath) {
+						var store = Ext.getCmp('TrafficEnforceTeamReGrid').getStore();
+						var curView = Ext.getCmp('TrafficEnforceTeamSentArchiveReStart');
+						// 返回文档附加记录
+						var callback = function(archivesDoc) {
+							curView.insertNewDoc(store, archivesDoc);
+						};
+						new ArchivesDocForm({
+									fileId : fileId,
+									docPath : tempPath,
+									callback : callback
+								}).show();
+					}
+				}).show();
+
+	},
+	/**
+	 * 插入附加文件记录
+	 */
+	insertNewDoc : function(store, archivesDoc) {
+		var orec;
+		if (store.recordType) {
+			orec = new store.recordType();
+			orec.data = {};
+			orec.data['docId'] = archivesDoc.docId;
+			orec.data['fileId'] = archivesDoc.fileId;
+			orec.data['docPath'] = archivesDoc.docPath;
+			orec.data['docName'] = archivesDoc.docName;
+			orec.data['curVersion'] = archivesDoc.curVersion
+					? archivesDoc.curVersion
+					: 1;
+			orec.data.newRecord = true;
+			orec.commit();
+			store.add(orec);
+		}
+	},
+
+	/**
+	 * 添加新的公文文档，以一个空白的文档开始
+	 */
+	addNewArchiveDoc : function() {
+		if (navigator.appName == "Microsoft Internet Explorer") {
+		} else {
+			Ext.Msg.alert("提示", "请选择IE浏览器操作此功能！");
+			// return;
+		}
+		var store = this.store;
+		var curView = this;
+		// 返回文档附加记录
+		var callback = function(archivesDoc) {
+			curView.insertNewDoc(store, archivesDoc);
+		};
+		new ArchivesDocForm({
+					callback : callback
+				}).show();
+	},
+
+	/**
+	 * 上传附件
+	 */
+	uploadArchiveDoc : function() {
+		var store = this.store;
+		var curView = this;
+		var callback = function(data) {
+			for (var i = 0; i < data.length; i++) {
+				var archivesDoc = {
+					docId : 0,// 用于标记尚未持久化的记录
+					fileId : data[i].fileId,
+					docPath : data[i].filepath,
+					docName : data[i].filename,
+					curVersion : 1
+				};
+				curView.insertNewDoc(store, archivesDoc);
+			}
+		};
+		var dialog = App.createUploadDialog({
+					file_cat : 'archive',
+					callback : callback
+				});
+		dialog.show();
+	},
+	/**
+	 * 删除公文附件
+	 */
+	deleteArchiveDoc : function() {
+		var grid = Ext.getCmp("TrafficEnforceTeamReGrid");
+
+		var selectRecords = grid.getSelectionModel().getSelections();
+
+		if (selectRecords.length == 0) {
+			Ext.Msg.alert("信息", "请选择要删除的文档！");
+			return;
+		}
+
+		var record = selectRecords[0];
+		var store = grid.getStore();
+
+		var docId = record.data.docId;
+		if (docId == 0) {
+			Ext.Msg.confirm('信息确认', '您确认要删除所选文档吗？', function(btn) {
+						if (btn == 'yes') {
+							store.remove(record);
+						}
+					});// end of comfirm
+		} else {
+			Ext.Msg.confirm('信息确认', '您确认要删除所选文档吗？', function(btn) {
+						if (btn == 'yes') {
+							Ext.Ajax.request({
+										url : __ctxPath
+												+ '/archive/multiDelArchivesDoc.do',
+										params : {
+											ids : docId
+										},
+										method : 'POST',
+										success : function(response, options) {
+											Ext.ux.Toast.msg('操作信息',
+													'成功删除该文档附件！');
+											store.remove(record);
+										},
+										failure : function(response, options) {
+											Ext.ux.Toast.msg('操作信息',
+													'操作出错，请联系管理员！');
+										}
+									});
+						}
+					});// end of comfirm
+		}
+	},
+	/**
+	 * 查看公文附件
+	 */
+	detailArchivesDoc : function() {
+		var grid = Ext.getCmp("TrafficEnforceTeamReGrid");
+
+		var selectRecords = grid.getSelectionModel().getSelections();
+
+		if (selectRecords.length == 0) {
+			Ext.Msg.alert("信息", "请选择要查看的文档！");
+			return;
+		}
+		var record = selectRecords[0];
+		var path = record.data.docPath;
+		var docId = record.data.docId;
+		var fileId = null;
+		if (record.data.fileAttach) {
+			fileId = record.data.fileAttach.fileId;
+		} else {
+			fileId = record.data.fileId;
+		}
+		var store = grid.getStore();
+		var curView = Ext.getCmp('TrafficEnforceTeamSentArchiveReStart');
+		// 返回文档附加记录
+		var callback = function(archivesDoc) {
+			store.remove(record);
+			curView.insertNewDoc(store, archivesDoc);
+		};
+		new ArchivesDocForm({
+					fileId : fileId,
+					docId : docId,
+					docPath : path,
+					callback : callback
+				}).show();
+	},
+	initUIComponents : function() {
+		this.archivesId = '${archivesId}';
+		
+		var reviewStore = new Ext.data.SimpleStore({
+									url : __ctxPath + '/system/arrLeadersAppUser.do?roles=100156',
+									autoLoad:true,
+									fields : ['flowAssignId','flowAssignName']
+								});
+		
+		this.store = new Ext.data.JsonStore({
+					url : __ctxPath + '/archive/listArchivesDoc.do?archivesId='
+							+ this.archivesId,
+					root : 'result',
+					totalProperty : 'totalCounts',
+					remoteSort : true,
+					fields : [{
+								name : 'docId',
+								type : 'int'
+							}, 'fileAttach', 'creator', 'creatorId','fileId',
+							'menderId', 'mender', 'docName', 'docStatus',
+							'curVersion', 'docPath', 'updatetime', 'createtime']
+				});
+		this.store.setDefaultSort('docId', 'desc');
+		if (this.archivesId) {
+			this.store.load();
+		}
+		
+		
+		this.toolbar = new Ext.Toolbar({
+					height : 30,
+					items : [{
+								text : '按模板在线添加',
+								iconCls : 'menu-archive-template',
+								handler : this.addArchiveDoc,
+								scope : this
+							}, {
+								text : '在线添加',
+								iconCls : 'btn-edit-online',
+								handler : this.addNewArchiveDoc,
+								scope : this
+							}, '-', {
+								text : '上传文档',
+								iconCls : 'btn-upload',
+								handler : this.uploadArchiveDoc,
+								scope : this
+							}, '-', {
+								text : '删除附件文档',
+								iconCls : 'btn-del',
+								scope : this,
+								handler : this.deleteArchiveDoc
+							}, '-', {
+								text : '查看文档',
+								iconCls : 'menu-archive-issue-manage',
+								scope : this,
+								handler : this.detailArchivesDoc
+							}]
+				});
+
+		var sm = new Ext.grid.CheckboxSelectionModel({
+					singleSelect : true
+				});
+		// 初始化附件文档
+		this.docGridPanel = new Ext.grid.EditorGridPanel({
+			title : '公文正文',
+			iconCls : 'menu-attachment',
+			columnWidth : 0.6,
+			border : true,
+			id : 'TrafficEnforceTeamReGrid',
+			autoScroll : true,
+			height : 240,
+			store : this.store,
+			tbar : this.toolbar,
+			sm : sm,
+			columns : [new Ext.grid.RowNumberer(), sm, {
+						dataIndex : 'docId',
+						hidden : true
+					}, {
+						dataIndex : 'fileAttach',
+						hidden : true
+					}, {
+					   	dataIndex:'fileId',
+					   	hidden:true
+					}, {
+						dataIndex : 'docStatus',
+						hidden : true
+					}, {
+						dataIndex : 'menderId',
+						hidden : true
+					}, {
+						dataIndex : 'creatorId',
+						hidden : true
+					}, {
+						dataIndex : 'docName',
+						width : 150,
+						header : '文档名称'
+					}, {
+						dataIndex : 'docPath',
+						header : '文档路径',
+						width : 200
+					}, {
+						dataIndex : 'curVersion',
+						header : '当前版本'
+					}, {
+						header : '管理',
+						width : 100,
+						dataIndex : 'docId',
+						sortable : false,
+						renderer : function(value, metadata, record, rowIndex,
+								colIndex) {
+							var str = '';
+							if (value != null && value != 0) {
+								str += '<button title="历史版本" value=" " class="btn-archive-history" onclick="ArchivesDraftWin.attach('
+										+ value + ')">&nbsp;&nbsp;</button>';
+							}
+							return str;
+						}
+					}]
+		});
+
+		this.formPanel = new Ext.FormPanel({
+			url : __ctxPath + '/archive/saveArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 70,
+			width : 800,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+					}, [	{
+								name : 'archives.archivesId',
+								mapping : 'archivesId'
+							}, {
+								name : 'archives.issueDep',
+								mapping : 'issueDep'
+							}, {
+							    name:'archives.status',
+							    mapping:'status'
+							}, {
+								name : 'archives.subject',
+								mapping : 'subject'
+							}, {
+								name : 'archives.fileCounts',
+								mapping : 'fileCounts'
+							}, {
+								name : 'archives.privacyLevel',
+								mapping : 'privacyLevel'
+							}, {
+								name : 'archives.urgentLevel',
+								mapping : 'urgentLevel'
+							}, {
+								name : 'archives.issuer',
+								mapping : 'issuer'
+							}, {
+								name : 'archives.issuerId',
+								mapping : 'issuerId'
+							}, {
+								name:'archives.sources',
+								mapping:'sources'
+							}, {
+								name:'archives.archType',
+								mapping:'archType'
+							}, {
+								name:'archives.isPublic',
+								mapping:'isPublic'
+							}, {
+								name : 'archives.reviewUserName',
+								mapping : 'reviewUserName'
+							}, {
+								name : 'archives.sendTo',
+								mapping : 'sendTo'
+							}, {
+								name : 'archives.ccTo',
+								mapping : 'ccTo'
+							},{
+								name:'archives.isStandard',
+								mapping:'isStandard'
+							},{
+								name:'archives.unPublicReasons',
+								mapping:'unPublicReasons'
+							}]),
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 150,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+								fieldLabel : "拟稿单位",
+								value : curUserInfo.depName,
+								readOnly : true
+							}, {
+								xtype : 'combo',
+								fieldLabel : "发文单位",
+								name : 'archives.issueDep',
+								triggerAction : 'all',
+								listWidth:200,
+								lazyRender : true,
+								editable : false,
+								fieldLabel : '发文单位',
+								store : ['重庆市交通委员会', '重庆市交通委员会办公室',
+										'中共重庆市交通委员会', '中共重庆市交通委员会机关党委',
+										'中共重庆市交通纪律检查委员会', '共青团重庆市交通委员会',
+										'重庆市交通委员会直属机关工会']
+							}, {
+								xtype:'combo',
+								id:'TrafficEnforceTeamSentArchiveReStart.archivesType',
+								fieldLabel : '文种',
+								hiddenName : "archives.archivesType.typeId",
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath + '/archive/comboArchivesType.do',
+											autoLoad:true,
+											fields : ['typeId', 'typeName']
+								})
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '缓急',
+								triggerAction : 'all',
+								editable : false,
+								name : 'archives.urgentLevel',
+								emptyText : '急缓程度',
+								store : ['特急', '急件', '加急', '平急', '缓急']
+							}, {
+								fieldLabel : '拟稿',
+								name : "archives.issuer",
+								readOnly : true,
+								value : curUserInfo.fullname
+							}, {
+								xtype : 'combo',
+								name : 'archives.sources',
+								triggerAction : 'all',
+								editable : false,
+								fieldLabel : '行文方向',
+								store : ['上行文', '平行文', '下行文']
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '密级',
+								triggerAction : 'all',
+								editable : false,
+								name : 'archives.privacyLevel',
+								emptyText : '密级程度',
+								store : ['一般', '秘密', '机密', '绝密', '密级']
+							}, {
+								xtype : "hidden",
+								name : "archives.reviewUserName",
+								id : "TrafficEnforceTeamSentArchiveReStart.reviewUserName"
+							},{
+								xtype : "combo",
+								hiddenName : "archives.reviewUser",
+								fieldLabel : "核稿",
+								id : 'TrafficEnforceTeamSentArchiveReStart.flowAssignId',
+								valueField : 'flowAssignId',
+								displayField : 'flowAssignName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : reviewStore
+							},{
+								xtype : 'numberfield',
+								name : 'archives.fileCounts',
+								fieldLabel : '份数',
+								value : 1
+							}]
+				}]
+			}, {
+				xtype : 'container',
+				layout : 'hbox',
+				style : 'padding:0px 0px 5px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '主送:',
+							width : 75
+						}, {
+							xtype : 'textfield',
+							name : 'archives.sendTo',
+							width : '72.1%',
+							id : 'TrafficEnforceTeamSentArchiveReStart.sendTo'
+						}, {
+							style : 'padding-left:5px;',
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '选择部门',
+							handler : function() {
+								var url = __ctxPath +"/system/select3Department.do?depId=100130";
+								DepSelector3.getView(
+										function(depIds, depNames) {
+											Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.sendTo')
+													.setValue(depNames);
+										}, false,null,url).show();
+							}
+						}]
+			}, {
+				xtype : 'container',
+				layout : 'hbox',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '抄送:',
+							width : 75
+						}, {
+							xtype : 'textfield',
+							name : 'archives.ccTo',
+							id : 'TrafficEnforceTeamSentArchiveReStart.ccTo',
+							width : '72.1%'
+						}, {
+							xtype : 'button',
+							style : 'padding-left:5px;',
+							iconCls : 'menu-department',
+							text : '选择抄送人',
+							handler : function() {
+								var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles=100152,100156&depIds='+curUserInfo.depId;
+										DepLeaders.getView(
+											function(userIds, userNames) {
+												Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.ccTo')
+														.setValue(userNames);
+											}, false, null,url).show();
+							}
+						}]
+			}, {
+				xtype : 'fieldset',
+				style:'padding-top:6px',
+				border : false,
+				defaults : {
+					anchor : '96%,90%'
+				},
+				items : [this.docGridPanel]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [{
+							columnWidth : .85,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id : 'TrafficEnforceTeamReFiles.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 4px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .12,
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document',
+										judge_size : 'no',
+										upload_autostart : true,
+										callback : function(data) {
+											var fileIds = Ext.getCmp('TrafficEnforceTeamReFiles.fileIds');
+											var filePanel = Ext.getCmp('TrafficEnforceTeamReFiles.personFilePanel');
+
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+
+												Ext.DomHelper
+														.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'TrafficEnforceTeamReFiles.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext.getCmp('TrafficEnforceTeamReFiles.fileIds');
+									var filePanel = Ext.getCmp('TrafficEnforceTeamReFiles.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								id : 'TrafficEnforceTeamReFiles.fileIds',
+								name : 'fileIds'
+							}]
+						}]
+			}, {
+				xtype : 'textfield',
+				name : 'archives.subject',
+				allowBlank : false,
+				width : '93%',
+				fieldLabel : '标题'
+			}, {
+				xtype : 'radiogroup',
+				fieldLabel : '是否规范性',
+				items : [{
+							boxLabel : '规范性文件',
+							id:'TrafficEnforceTeamSentArchiveReStart.standard',
+							name : 'archives.isStandard',
+							inputValue : 1
+						}, {
+							boxLabel : '普通文件',
+							id:'TrafficEnforceTeamSentArchiveReStart.unStandard',
+							name : 'archives.isStandard',
+							inputValue : 0
+						}]
+			}, {
+				xtype : 'radiogroup',
+				fieldLabel : '是否公开',
+				items : [{
+					boxLabel : '不公开',
+					id:'TrafficEnforceTeamSentArchiveReStart.unPublic',
+					name : 'archives.isPublic',
+					inputValue : 0,
+					listeners : {
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').allowBlank = false;
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').show();
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').el.parent().parent().show();
+							}
+						}
+					}
+				},{
+					boxLabel : '公开到外网',
+					id:'TrafficEnforceTeamSentArchiveReStart.public',
+					name : 'archives.isPublic',
+					inputValue : 1,
+					listeners : {
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').allowBlank = true;
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').hide();
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').el.parent().parent().hide();
+								Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').setValue("");
+							}
+						}
+					}
+				}]
+			}, {
+				fieldLabel : '不公开原因',
+				xtype : 'textfield',
+				allowBlank: false,
+				name : 'archives.unPublicReasons',
+				id : 'TrafficEnforceTeamSentArchiveReStart.unPublicReasons',
+				width : '93%'
+			},{
+				xtype:'hidden',
+				name:'archives.issuerId',
+				value:curUserInfo.userId
+			},{
+				xtype:'hidden',
+				name:'archives.archType',
+				value:0
+			},{
+				xtype:'hidden',
+				name:'archives.archivesId'
+			},{
+				xtype:'hidden',
+				name:'archives.status'
+			},{
+				xtype:'hidden',
+				id:'TrafficEnforceTeamSentArchiveReStart.reFileId'
+			}]
+		});
+		
+		if (this.archivesId) {
+				var filePanel = Ext.getCmp('TrafficEnforceTeamReFiles.personFilePanel');
+				var fileIds = Ext.getCmp("TrafficEnforceTeamReFiles.fileIds");
+				Ext.Ajax.request({
+						url : __ctxPath + '/archive/getAttachFilesArchives.do',
+						params : {
+							'fileIds' : '${fileIds}'
+						},
+						method:'post',
+						success : function(response, options) {
+							var af=Ext.util.JSON.decode(response.responseText).data;
+							if(af!=null){
+							for (var i = 0; i < af.length; i++) {
+								if (fileIds.getValue() != '') {
+									fileIds.setValue(fileIds.getValue() + ',');
+								}
+								fileIds.setValue(fileIds.getValue() + af[i].fileId);
+								Ext.DomHelper
+										.append(
+												filePanel.body,
+												'<span><a href="#" onclick="FileAttachDetail.show('
+														+ af[i].fileId
+														+ ')">'
+														+ af[i].fileName
+														+ '</a><img class="img-delete" src="'
+														+ __ctxPath
+														+ '/images/system/delete.gif" onclick="removeFile(this,\'TrafficEnforceTeamReFiles.fileIds\','
+														+ af[i].fileId
+														+ ')"/>&nbsp;|&nbsp;</span>');
+							}
+						}
+						}
+			});
+		
+			this.formPanel.getForm().load({
+				deferredRender : false,
+				url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='
+						+ this.archivesId,
+				waitMsg : '正在载入数据...',
+				method:'post',
+				success : function(form, action) {
+					var isStandard=action.result.data['archives.isStandard'];
+					var isPublic=action.result.data['archives.isPublic'];
+					if(isPublic==0){
+						Ext.get("TrafficEnforceTeamSentArchiveReStart.unPublic").dom.checked=true;
+					}else{
+						Ext.get("TrafficEnforceTeamSentArchiveReStart.public").dom.checked=true;
+						Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').allowBlank = true;
+						Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').hide();
+						Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.unPublicReasons').el.parent().parent().hide();
+					}
+					if(isStandard==0){
+						Ext.get("TrafficEnforceTeamSentArchiveReStart.unStandard").dom.checked=true;
+					}else{
+						Ext.get("TrafficEnforceTeamSentArchiveReStart.standard").dom.checked=true;
+					}
+					var data = Ext.decode(action.response.responseText).data[0];
+					Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.archivesType').setValue(data.parentArchId);
+					Ext.getCmp('TrafficEnforceTeamSentArchiveReStart.flowAssignId').setValue(data.reviewUser);
+				},
+				failure : function(form, action) {
+				}
+			});
+		}
+	}
+})

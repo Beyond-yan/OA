@@ -1,0 +1,455 @@
+JGDWBSentFilesDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		JGDWBSentFilesDepCheck.superclass.constructor.call(this, {
+					id:'JGDWCSCHJGDWBSentFilesDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			id :'JGDWFFJGDWXSentArchiveDepCheck.displayPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&sentPanelId=JGDWFFJGDWXSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'JGDWBSentFilesDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'JGDWCSCHJGDWBSentFilesDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						width : 100,
+						items : [ {
+							boxLabel : '办公室审核',
+							name : 'depOption',
+							inputValue : 3,
+							checked : true,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('JGDWBSentFilesDepCheck.signDep').hide();
+										Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = true;
+										Ext.getCmp('JGDWBSentFilesDepCheck.Leaders').hide();
+										Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = true;
+									}
+								}
+							}
+						},{
+							boxLabel : '处室会签(部门发起)',
+							name : 'depOption',
+							inputValue : 1,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('JGDWBSentFilesDepCheck.signDep').show();
+										Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = false;
+										Ext.getCmp('JGDWBSentFilesDepCheck.Leaders').hide();
+										Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = true;
+									}
+								}
+							}
+						}, {
+							boxLabel : '处室复核',
+							name : 'depOption',
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('JGDWBSentFilesDepCheck.signDep').hide();
+										Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = true;
+										Ext.getCmp('JGDWBSentFilesDepCheck.Leaders').show();
+										Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = false;
+									}
+								}
+							}
+						}/*,{
+							boxLabel : '退回',
+							name : 'depOption',
+							inputValue : 4,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('JGDWBSentFilesDepCheck.signDep').hide();
+										Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = true;
+										Ext.getCmp('JGDWBSentFilesDepCheck.Leaders').hide();
+										Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = true;
+									}
+								}
+							}
+						}*/],
+						fieldLabel : '审批步骤'
+					}, {
+						xtype : 'container',
+						id : 'JGDWBSentFilesDepCheck.signDep',
+						layout : 'column',
+						hidden : true,
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '选择人员:',
+									width : 105
+								}, {
+									id : 'JGDWBSentFilesDepCheck.signerNames',
+									xtype : 'textfield',
+									width : 445,
+									allowBlank : true,
+									readOnly : true
+								}, {
+									id : 'JGDWBSentFilesDepCheck.signdepIds',
+									xtype : 'hidden'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('officeDeputyDirectorRoleID')+','+roleMap.get('officeDirectorRoleID');
+										DepLeaders.getView(
+												function(userIds, userNames) {
+													Ext.getCmp('JGDWBSentFilesDepCheck.signdepIds').setValue(userIds);
+													Ext.getCmp('JGDWBSentFilesDepCheck.signerNames')
+															.setValue(userNames);
+												}, false, null,url).show();
+									}
+								}]
+					}, {
+						id : 'JGDWBSentFilesDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						hidden:true,
+						style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '负 责 人:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : 445,
+									readOnly : true,
+									allowBlank:true,
+									id : 'JGDWBSentFilesDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									name : 'SentArchiveDepCheck.LeaderIds',
+									id : 'JGDWBviceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+										var url = __ctxPath + '/system/depLeadersTreeDepartment.do?roles=100152,100156&depIds='+curUserInfo.depId;
+										DepLeaders.getView(
+											function(userIds, userNames) {
+												Ext.getCmp('JGDWBviceLeaderIds').setValue(userIds);
+												Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames')
+														.setValue(userNames);
+											}, true, null,url).show();
+									}
+								}]
+					}, {
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审批意见:',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									allowBlank:false,
+									width : 440,
+									height:40
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '常用批示语',
+									style:'margin-top:10px;margin-left:5px;',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('JGDWBSentFilesDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					
+					}]
+		});
+		
+		if(taskId){
+			Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				if(prevDestName.toString().indexOf("会签")!=-1 ||prevDestName.toString().indexOf("复核")!=-1){
+					Ext.getCmp('JGDWBSentFilesDepCheck.return').hide();
+				}
+			},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+		}
+		
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								}),new Ext.Button({
+								   iconCls:'btn-changeTask',
+								   id : 'JGDWBSentFilesDepCheck.return',
+								   text:'退回',
+								   handler:this.backsetp.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	backsetp:function(formPanel, panel, signalName, activityName, destination) {
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank=true;
+		Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank=true;
+		if (formPanel.getForm().isValid()) {
+			var option = 4;//formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();		
+			var depLeaderOption;
+			
+			var params = {
+					depNext:option,//部门下一步审核人
+					depExerId:curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					status:'已处理',
+					comments : '退回'
+				};
+			
+			if (1 == option ) {	
+				var signUserIds = Ext.getCmp('JGDWBSentFilesDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+					signUserIds : signUserIds,
+//					status:'呈处室会签(部门发起)',
+					destName : '处室会签(部门发起)'
+				});
+			} else if (2 == option ) { //处室
+				Ext.apply(params,{
+//					status:'呈处室复核',
+					flowAssignId : Ext.getCmp('JGDWBviceLeaderIds').getValue()
+				});
+			} else if(4==option){
+				Ext.apply(params,{
+					flowAssignId :'${flowStartUserId}'
+				});
+			}
+			
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextForSyncProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+                timeout : 120000,
+				params : params,
+				success : function(fp, action) {
+					## Ext.ux.Toast.msg('操作信息', '处室初核成功！');
+                    // --无后续的错误友好提示开始
+                    var jsonResult = action.result;
+                    if (jsonResult) {
+                        if (jsonResult && jsonResult.success == "true") {
+                            Ext.ux.Toast.msg("操作信息", "操作成功！");
+                        } else {
+                            var resultMsg = "信息保存出错，请联系管理员！";
+                            var resuIcon = Ext.MessageBox.ERROR;
+                            if (jsonResult.message && jsonResult.message != null) {
+                                resultMsg = jsonResult.message;
+                                if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+                                    resuIcon= Ext.MessageBox.WARNING;
+                                }
+                            }
+                            Ext.MessageBox.show({
+                                title : '操作信息',
+                                msg : resultMsg,
+                                buttons : Ext.MessageBox.OK,
+                                icon : resuIcon
+                            });
+                        }
+                    }
+                    // --无后续的错误友好提示结束
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					## Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+                    Ext.MessageBox.show({
+                        title : '操作信息',
+                        msg : '当前系统繁忙，请稍后再处理！',
+                        buttons : Ext.MessageBox.OK,
+                        icon : Ext.MessageBox.WARNING
+                    });
+				}
+			});
+		}
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+        var optionPre = formPanel.getCmpByName('depOption').getGroupValue();
+        if (optionPre == 3) {
+            Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = true;
+            Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = true;
+        } else if (optionPre == 1) {
+            Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = false;
+            Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = true;
+        } else if (optionPre == 2) {
+            Ext.getCmp('JGDWBSentFilesDepCheck.signerNames').allowBlank = true;
+            Ext.getCmp('JGDWBSentFilesDepCheck.LeaderNames').allowBlank = false;
+        }
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();			
+			var depLeaderOption;
+			
+			var params = {
+					depNext:option,//部门下一步审核人
+					depExerId:curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			
+			if (1 == option ) {	
+				var signUserIds = Ext.getCmp('JGDWBSentFilesDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+					signUserIds : signUserIds,
+//					status:'呈处室会签(部门发起)',
+					destName : '处室会签(部门发起)'
+				});
+			} else if (2 == option ) { //处室
+				Ext.apply(params,{
+//					status:'呈处室复核',
+					flowAssignId : Ext.getCmp('JGDWBviceLeaderIds').getValue()
+				});
+			} else if(4==option){
+				Ext.apply(params,{
+//					status:'呈重新发起',
+					flowAssignId :'${flowStartUserId}'
+				});
+			}
+			
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextForSyncProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+                timeout : 120000,
+				params : params,
+				success : function(fp, action) {
+					## Ext.ux.Toast.msg('操作信息', '处室初核成功！');
+                    // --无后续的错误友好提示开始
+                    var jsonResult = action.result;
+                    if (jsonResult) {
+                        if (jsonResult && jsonResult.success == "true") {
+                            Ext.ux.Toast.msg("操作信息", "操作成功！");
+                        } else {
+                            var resultMsg = "信息保存出错，请联系管理员！";
+                            var resuIcon = Ext.MessageBox.ERROR;
+                            if (jsonResult.message && jsonResult.message != null) {
+                                resultMsg = jsonResult.message;
+                                if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+                                    resuIcon= Ext.MessageBox.WARNING;
+                                }
+                            }
+                            Ext.MessageBox.show({
+                                title : '操作信息',
+                                msg : resultMsg,
+                                buttons : Ext.MessageBox.OK,
+                                icon : resuIcon
+                            });
+                        }
+                    }
+                    // --无后续的错误友好提示结束
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					## Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+                    Ext.MessageBox.show({
+                        title : '操作信息',
+                        msg : '当前系统繁忙，请稍后再处理！',
+                        buttons : Ext.MessageBox.OK,
+                        icon : Ext.MessageBox.WARNING
+                    });
+				}
+			});
+		}
+	}// end of save
+})

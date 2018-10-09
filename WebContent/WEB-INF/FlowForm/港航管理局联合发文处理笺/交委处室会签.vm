@@ -1,0 +1,152 @@
+GHGLJLHZSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GHGLJLHZSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'GHGLJCSHQGHGLJLHZSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 620,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {//alert('${depExerId}')
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/ganghanglianheSentFiles/SentArchiveDetail.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id:'GHGLJLHZSentArchiveDepCheckForm',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [ new ArchivesUtil({
+						panelId : 'GHGLJCSHQGHGLJLHZSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						xtype : 'radiogroup',
+						allowBlank : false,
+						width : 100,
+						items : [{
+							boxLabel : '办公室会签',
+							name : 'depOption',
+							inputValue : 2,
+							checked : true
+						}, {
+							boxLabel : '办公室审核',
+							name : 'depOption',
+							inputValue : 1
+						}],
+						fieldLabel : '审批步骤'
+					},{
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审核意见',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '选择常用批示语',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('GHGLJLHZSentArchiveDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var option=formPanel.getCmpByName('depOption').getGroupValue();//alert(option);
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+				    jiaoweichushiUserId:curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo:sendInfo,
+					//depLeaderOption : '同意',
+					fourthNext:option,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+				
+			/*if (1 == option ) {	//办公室审核
+				Ext.apply(params,{
+					flowAssignId : '${officeExerId}'
+				});
+			}else*/ if (2 == option ) {	//办公室会签
+				Ext.apply(params,{
+					flowAssignId : '${depExerId}'
+				});
+			} 
+				
+			//alert(Ext.util.JSON.encode(params));
+			//return;
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '成功保存！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

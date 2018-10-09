@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.out.OutPerson" table="CQ_OUTWORKER_REGISTER" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="id" column="ID" type="java.lang.Long"> 
+      <generator class="native"></generator> 
+    </id>  
+   <!--  <property name="userId" type="java.lang.String" update="true" insert="true" access="property" column="USER_ID" length="200" not-null="false" unique="false"/>  -->
+    <property name="destiantionAddress" type="java.lang.String" update="true" insert="true" access="property" column="DESTINATION_ADDRESS" length="200" not-null="false" unique="false"/>  
+    <property name="outReson" type="java.lang.String" update="true" insert="true" access="property" column="OUT_RESON" length="200" not-null="false" unique="false"/>  
+    <property name="workConsign" type="java.lang.String" update="true" insert="true" access="property" column="WORK_CONSIGN" length="200" not-null="false" unique="false"/>  
+    <property name="zipCode" type="java.lang.String" update="true" insert="true" access="property" column="ZIP_CODE" length="200" not-null="false" unique="false"/>  
+    <property name="contactAddress" type="java.lang.String" update="true" insert="true" access="property" column="CONTACT_ADDRESS" length="1000" not-null="false" unique="false"/>
+    <property name="deleted" type="java.lang.String" update="true" insert="true" access="property" column="DELETED" length="200" not-null="false" unique="false"/>  
+    <property name="contactName" type="java.lang.String" update="true" insert="true" access="property" column="CONTACT_NAME" length="200" not-null="false" unique="false"/> 
+    <property name="telphone" type="java.lang.String" update="true" insert="true" access="property" column="TELPHONE" length="200" not-null="false" unique="false"/>  
+    <property name="mobilephone" type="java.lang.String" update="true" insert="true" access="property" column="MOBILEPHONE" length="200" not-null="false" unique="false"/>  
+    <property name="fax" type="java.lang.String" update="true" insert="true" access="property" column="FAX" length="200" not-null="false" unique="false"/>     
+    <property name="startDate" type="java.util.Date" update="true" insert="true" access="property" column="START_DATE"  not-null="false" unique="false"/> 
+    <property name="endDate" type="java.util.Date" update="true" insert="true" access="property" column="END_DATE"  not-null="false" unique="false"/>  
+    <!-- <property name="leaderId" type="java.lang.Long" update="true" insert="true" access="property" column="LEADER_ID"  not-null="false" unique="false"/> -->
+    <many-to-one name="appUser" column="USER_ID" class="com.gdssoft.oa.model.system.AppUser"/>
+    <property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER" length="64" not-null="false" unique="false"/>    
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_DATE"  not-null="false" unique="false"/>  
+    <property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_USER" length="64" not-null="false" unique="false"/>
+    <property name="updateDate" type="java.util.Date" update="true" insert="true" access="property" column="UPDATE_DATE"  not-null="false" unique="false"/>
+    <!--
+    <many-to-one name="leaderName" class="com.gdssoft.oa.model.system.AppUser" not-null="false" fetch="select"> 
+      <column name="userId"/> 
+    </many-to-one> -->
+  </class> 
+</hibernate-mapping>

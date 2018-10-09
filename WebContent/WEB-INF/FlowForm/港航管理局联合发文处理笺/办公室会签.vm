@@ -1,0 +1,241 @@
+GHGLJLHDSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GHGLJLHDSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'GHGLJBGSHQGHGLJLHDSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 650,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {//alert(curUserInfo.userId);
+
+		this.displayPanel = new Ext.Panel({
+			id : 'GHGLJLHDSentArchiveDepCheckPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/ganghanglianheSentFiles/SentArchiveDetail.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'GHGLJLHDSentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'GHGLJBGSHQGHGLJLHDSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(), {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						width : 100,
+						items : [{
+							boxLabel : '交委处室会签',
+							name : 'depOption',
+							inputValue : 1,
+							checked : true,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signDep').show();
+										Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signerNames').allowBlank = false;
+										/*Ext.getCmp('officeSignerCont').hide();
+										Ext.getCmp('officeSigner').allowBlank = true;*/
+									}
+								}
+							}
+						}, {
+							boxLabel : '办公室审核',
+							name : 'depOption',
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signDep').hide();
+										Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signerNames').allowBlank = true;
+										/*Ext.getCmp('officeSignerCont').show();
+										Ext.getCmp('officeSigner').allowBlank = false;*/
+									}
+								}
+							}
+						},{
+							boxLabel : '签发',
+							name : 'depOption',
+							inputValue : 3,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signDep').show();
+										Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signerNames').allowBlank = false;
+										/*Ext.getCmp('officeSignerCont').hide();
+										Ext.getCmp('officeSigner').allowBlank = true;*/
+									}
+								}
+							}
+						}],
+						fieldLabel : '审批步骤'
+					}, {
+						xtype : 'container',
+						id : 'GHGLJLHDSentArchiveDepCheck.signDep',
+						layout : 'column',
+						style : 'padding-left:0px;margin-left:0px;',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '负责人:',
+									style : 'padding:0px 0px 0px 0px;',
+									width : 104
+								}, {
+									id : 'GHGLJLHDSentArchiveDepCheck.signerNames',
+									xtype : 'textfield',
+									width : 445,
+									allowBlank : false,
+									readOnly : true
+								}, {
+									id : 'GHGLJLHDSentArchiveDepCheck.signdepIds',
+									xtype : 'hidden'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择人员',
+									handler : function() {
+										var option = formPanel.getCmpByName('depOption').getGroupValue();
+										var url = __ctxPath +"/system/depLeadersTreeDepartment.do";
+										if(option==3){
+											url+= '?roles=100175';
+										}else{
+											url+= '?roles=100152,100156&depIds=';
+										}
+										DepLeaders.getView(
+											function(userIds, userNames) {
+												Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signdepIds').setValue(userIds);
+												Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signerNames')
+														.setValue(userNames);
+											},option==3, null,url).show();
+								
+									}
+								}]
+					}, {
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审核意见',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '选择常用批示语',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('GHGLJLHDSentArchiveDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					secondNext:option,//部门下一步审核人
+					depExerId:curUserInfo.userId,
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : msgPanel.getCmpByName('sendMail').getValue(),
+					sendMsg : msgPanel.getCmpByName('sendMsg').getValue(),
+					sendInfo:sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			
+			if (1 == option ) {	//交委处室会签
+				var signUserIds = Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+					destName : '交委处室会签',
+					signUserIds : signUserIds
+				});
+			}else if (3 == option ) {	//签发
+				var leaderIds = Ext.getCmp('GHGLJLHDSentArchiveDepCheck.signdepIds').getValue();
+				Ext.apply(params,{
+					flowAssignId : leaderIds
+				});
+			} 
+			/*else if(){	//办公室
+				Ext.apply(params,{
+					flowAssignId : Ext.getCmp('officeSigner').getValue()
+				});
+			}*/
+			//alert(Ext.util.JSON.encode(params));
+			//return;
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '成功保存！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

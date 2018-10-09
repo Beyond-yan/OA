@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.gdssoft.oa.model.info"> 
+  <class name="Notice" table="notice"> 
+    <id name="noticeId" type="java.lang.Long"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="postName" not-null="false"/>  
+    <property name="noticeTitle" not-null="false"/>  
+    <property name="noticeContent" type="java.lang.String" update="true" insert="true" access="property" column="noticeContent" length="65535" not-null="false" unique="false"/>  
+    <property name="effectiveDate" type="java.util.Date"/>  
+    <property name="expirationDate" type="java.util.Date"/>  
+    <property name="state" type="java.lang.Short"/> 
+    
+     
+      <!-- edit by smart on 20110512 -->
+    <property name="depId" type="java.lang.Long" update="true" insert="true" access="property" column="depId" length="5" not-null="false" unique="false"/>
+ 
+    <property name="auditingStatus" type="java.lang.Integer" update="true" insert="true" access="property" column="auditingStatus" length="10" not-null="false" unique="false"/>
+    <property name="auditingPerson" type="java.lang.String" update="true" insert="true" access="property" column="auditingPerson" length="30" not-null="false" unique="false"/>
+    <property name="auditingCreateDate" type="java.util.Date" update="true" insert="true" access="property" column="auditingCreateDate" length="19" not-null="false" unique="false"/>
+    <property name="createtime" type="java.util.Date" update="true" insert="true" access="property" column="createtime" length="19" not-null="false" unique="false"/>
+    
+    <property name="replyCounts" type="java.lang.Integer" update="true" insert="true" access="property" column="replyCounts" length="10" not-null="false" unique="false"/>  
+    <property name="viewCounts" type="java.lang.Integer" update="true" insert="true" access="property" column="viewCounts" length="10" not-null="false" unique="false"/>  
+    <property name="updateTime" type="java.util.Date" update="true" insert="true" access="property" column="updateTime" length="19" not-null="false" unique="false"/>  
+    <property name="ordertop" type="java.lang.Integer" update="true" insert="true" access="property" column="ordertop" length="5" not-null="false" unique="false"/>
+    <property name="type" type="java.lang.Integer" update="true" insert="true" access="property" column="type" length="5" not-null="false" unique="false"/>
+   <property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER" length="64" not-null="false" unique="false"/> 
+   <property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_USER" length="64" not-null="false" unique="false"/>   
+    <set name="attachFiles" table="NOTICE_FILE" cascade="save-update" inverse="false" lazy="true">
+    	<key column="noticeId"/>
+    	<many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="fileId"/>
+    </set>
+
+		<!-- imported bi-directional many-to-one association to Department -->
+		<!--<many-to-one name="department" class="com.gdssoft.oa.model.system.Department"
+			not-null="false" fetch="select">
+			<column name="depId" />
+		</many-to-one>-->
+    <many-to-one name="infoType" class="com.gdssoft.oa.model.info.InfoType"
+			not-null="false" fetch="select">
+			<column name="INFO_TYPE" />
+	</many-to-one>
+  </class> 
+</hibernate-mapping>

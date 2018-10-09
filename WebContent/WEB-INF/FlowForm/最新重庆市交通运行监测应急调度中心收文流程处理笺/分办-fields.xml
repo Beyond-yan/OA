@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="divNext" label="下步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="underTakeId" label="承办负责人" type="long" length="10" isShowed="false" />
+	<field name="fenBanUserId" label="分办负责人" type="long" length="10" isShowed="false" />
+</fields>

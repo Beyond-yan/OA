@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.system.DocDirectory" table="CQ_DOC_DIRECTORY" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="id" column="ID" type="java.lang.Long" > 
+      <generator class="native"/> 
+    </id>  
+    <property name="directoryName" type="java.lang.String" update="true" insert="true" access="property" column="DIRECTORY_NAME" length="128" not-null="false" unique="false"/>  
+    <property name="parentId" type="java.lang.Long" update="true" insert="true" access="property" column="PARENT_ID" length="19" not-null="false" unique="false"/>
+    <property name="dirYear" type="java.lang.Integer" update="true" insert="true" access="property" column="DIR_YEAR" length="32" not-null="false" unique="false"/>  
+    <property name="retention" type="java.util.Date" update="true" insert="true" access="property" column="RETENTION" length="1024" not-null="false" unique="false"/>  
+    <property name="isSendDir" type="java.lang.Integer" update="true" insert="true" access="property" column="IS_SEND_DIR" length="18" not-null="false" unique="false"/> 
+    <property name="orderNo" type="java.lang.Integer" update="true" insert="true" access="property" column="ORDER_NO" length="18" not-null="false" unique="false"/> 
+    <property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER" length="18" not-null="false" unique="false"/> 
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_DATE" length="18" not-null="false" unique="false"/> 
+    <property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_USER" length="18" not-null="false" unique="false"/> 
+    <property name="updateDate" type="java.util.Date" update="true" insert="true" access="property" column="UPDATE_DATE" length="18" not-null="false" unique="false"/> 
+    <property name="retentionYear" type="java.lang.Integer" update="true" insert="true" access="property" column="RETENTION_YEAR" length="32" not-null="false" unique="false"/> 
+    
+    <property name="startFileNo" type="java.lang.Long" update="true" insert="true" access="property" column="START_FILE_NO"  not-null="false" unique="false"/> 
+    <property name="endFileNo" type="java.lang.Long" update="true" insert="true" access="property" column="END_FILE_NO"  not-null="false" unique="false"/>
+    <property name="fileAmount" type="java.lang.Integer" update="true" insert="true" access="property" column="FILE_AMOUNT" length="18" not-null="false" unique="false"/>  
+    <property name="isMakeFileNumber" type="java.lang.Integer" update="true" insert="true" access="property" column="IS_MAKE_FILENUMBER" length="18" not-null="false" unique="false"/>   
+    
+    <many-to-one name="department" class="com.gdssoft.oa.model.system.Department" column="DEPT_ID"/>
+  </class> 
+</hibernate-mapping>

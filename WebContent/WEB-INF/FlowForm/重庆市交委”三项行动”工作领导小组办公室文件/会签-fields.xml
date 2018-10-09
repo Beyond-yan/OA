@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="hqJumpNext" label="会签流向" type="varchar" length="100" isShowed="true"/>
+	<field name="checkNext" label="部门后流向" type="varchar" length="100" isShowed="true" />
+</fields>

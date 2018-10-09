@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://www.springframework.org/schema/security" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:b="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.4.xsd">	
+   <http entry-point-ref="casProcessingFilterEntryPoint" access-denied-page="/403.jsp">  
+        <intercept-url pattern="/images/**" filters="none"/>
+        <intercept-url pattern="/css/**" filters="none"/>
+        <intercept-url pattern="/js/**" filters="none"/>
+        <intercept-url pattern="/403*" filters="none"/>
+        <intercept-url pattern="/404*" filters="none"/>
+        <intercept-url pattern="/500*" filters="none"/>
+        <intercept-url pattern="/ext3/**" filters="none"/>
+        <intercept-url pattern="/fckeditor/**" filters="none"/>  
+        <intercept-url pattern="/info/*SuggestBox.do" filters="none"/>
+        <logout logout-url="/j_logout.do" logout-success-url="http://10.224.5.184:8080/cas/logout?service=http://10.224.5.174:8080/newoa" />  
+		<remember-me key="RememberAppUser" />
+        <anonymous />
+        <concurrent-session-control max-sessions="1" />
+    </http>
+	
+	<b:bean id="casProcessingFilter" class="org.springframework.security.ui.cas.CasProcessingFilter">
+        <custom-filter after="CAS_PROCESSING_FILTER" />
+        <b:property name="authenticationManager" ref="authenticationManager" />
+        <b:property name="defaultTargetUrl" value="http://10.224.5.174:8080/newoa/index.jsp" />
+    </b:bean>
+  
+    <b:bean id="casProcessingFilterEntryPoint"  
+        class="org.springframework.security.ui.cas.CasProcessingFilterEntryPoint">
+        <b:property name="loginUrl" value="http://10.224.5.184:8080/cas/login" />
+        <b:property name="serviceProperties" ref="casServiceProperties" />
+    </b:bean>
+  
+    <b:bean id="casServiceProperties" class="org.springframework.security.ui.cas.ServiceProperties">  
+        <b:property name="service" value="http://10.224.5.174:8080/newoa/j_spring_cas_security_check" />
+        <b:property name="sendRenew" value="false"/> 
+    </b:bean>
+  
+    <b:bean id="casAuthenticationProvider" class="org.springframework.security.providers.cas.CasAuthenticationProvider">  
+        <custom-authentication-provider />
+        <b:property name="userDetailsService" ref="appUserDao" />  
+        <b:property name="serviceProperties" ref="casServiceProperties" />  
+        <b:property name="ticketValidator">
+            <b:bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">  
+                <b:constructor-arg index="0" value="http://10.224.5.184:8080/cas" />  
+            </b:bean>
+        </b:property>  
+        <b:property name="key" value="an_id_for_this_auth_provider_only" />  
+    </b:bean> 
+   <authentication-manager alias="authenticationManager"/>
+    <b:bean id="securityInterceptorFilter" class="com.gdssoft.core.web.filter.SecurityInterceptorFilter" >
+    	<custom-filter after="FILTER_SECURITY_INTERCEPTOR" />
+		<b:property name="securityDataSource" ref="securityDataSource"/>
+	</b:bean>
+	
+	<b:bean id="securityDataSource" class="com.gdssoft.core.security.SecurityDataSource">
+		<b:property name="appRoleService" ref="appRoleService"/>
+		<b:property name="anonymousUrls">
+			<b:set>
+				<b:value>/login.do</b:value>
+				<b:value>/login.jsp</b:value>
+				<b:value>/check.do</b:value>
+				<b:value>/mobile/signIn.do</b:value>
+				<b:value>/info/suggest.do</b:value>
+			</b:set>
+		</b:property>
+		<b:property name="publicUrls">
+			<b:set>
+				<b:value>/panelTreeMenu.do</b:value>
+				<b:value>/file-upload</b:value>
+				<b:value>/index.jsp</b:value>
+			</b:set>
+		</b:property>
+	</b:bean>
+</b:beans>

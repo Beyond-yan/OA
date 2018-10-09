@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="carflow" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="163,144,47,44" name="申请">
+      <transition name="to 车队派车" to="车队派车" g="-65,-17"/>
+	</start>
+	<task g="106,241,169,46" name="车队派车">
+		<transition g="-40,-17" name="to 结束" to="结束"/>
+	</task>
+	<end g="166,333,53,49" name="结束"/>
+</process>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="CQHQSentFile" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="394,12,48,48" name="拟稿">
+      <transition g="-101,-17" name="to 中心行政办审核" to="中心行政办审核"/>
+   </start>
+   <task g="364,104,112,52" name="中心行政办审核">
+      <transition g="-77,-17" name="to 行政办跳转" to="行政办跳转"/>
+   </task>
+   <task g="369,292,113,52" name="中心领导签发">
+      <transition g="-89,-17" name="to 领导签发跳转" to="领导签发跳转"/>
+   </task>
+   <task g="559,398,92,52" name="中心领导会签">
+      <transition name="to 领导会签跳转" to="领导会签跳转" g="-42,-15"/>
+   </task>
+   <task g="377,522,92,52" name="编号">
+      <transition g="-65,-17" name="to 编号跳转" to="编号跳转"/>
+   </task>
+   <task g="379,725,92,52" name="生成电子公文">
+      <transition g="-101,-17" name="to 中心行政办分发" to="中心行政办分发"/>
+   </task>
+   <task g="373,820,106,52" name="中心行政办分发">
+      <transition g="-41,-17" name="to 结束" to="结束"/>
+   </task>
+   <decision g="397,194,48,48" name="行政办跳转">
+      <transition g="-24,-15" name="to 重新发起" to="重新发起">
+       <condition expr="#{FirstNext=='0'}"/>
+      </transition>
+      <transition g="-89,-17" name="to 中心领导签发" to="中心领导签发">
+       <condition expr="#{FirstNext=='1'}"/>
+      </transition>
+      <transition g="602,218:-53,-65" name="to 中心领导会签" to="中心领导会签">
+        <condition expr="#{FirstNext=='2'}"/>
+      </transition>
+   </decision>
+   <task g="217,194,92,52" name="重新发起">
+      <transition g="261,129:-101,-17" name="to 中心行政办审核" to="中心行政办审核"/>
+   </task>
+   <decision g="400,400,48,48" name="领导签发跳转">
+      <transition g="-42,-16" name="to 中心领导会签" to="中心领导会签">
+        <condition expr="#{SecondNext=='0'}"/>
+      </transition>
+      <transition g="-41,-17" name="to 编号" to="编号">
+       <condition expr="#{SecondNext=='1'}"/>
+      </transition>
+   </decision>
+   <decision g="402,623,48,48" name="编号跳转">
+      <transition g="-89,-17" name="to 生成电子公文" to="生成电子公文">
+        <condition expr="#{ThirdNext=='1'}"/>
+      </transition>
+      <transition name="to 中心领导会签" to="中心领导会签" g="606,648:-89,-17"/>
+   </decision>
+   <end g="405,916,48,48" name="结束"/>
+   <decision name="领导会签跳转" g="742,400,48,48">
+      <transition name="to 中心行政办审核" to="中心行政办审核" g="760,131:-101,-17">
+       <condition expr="#{FourthNext=='0'}"/>
+      </transition>
+      <transition name="to 中心领导签发" to="中心领导签发" g="641,318:0,13">
+        <condition expr="#{FourthNext=='1'}"/>
+      </transition>
+      <transition name="to 编号" to="编号" g="641,547:-3,-38">
+       <condition expr="#{FourthNext=='2'}"/>
+      </transition>
+   </decision>
+</process>

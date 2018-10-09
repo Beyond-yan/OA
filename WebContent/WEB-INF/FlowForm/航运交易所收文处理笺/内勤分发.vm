@@ -1,0 +1,371 @@
+WSDWOfficeDistributeView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		WSDWOfficeDistributeView.superclass.constructor.call(this, {
+					id : 'WSDWOfficeDistributeViewWin',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 560,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									}),
+									new Ext.Button({
+									   iconCls:'btn-changeTask',
+									   text:'退回',
+									   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	backsetp:function(formPanel,panel,activityName){
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		Ext.getCmp('WSDWOfficeDistributeViewWin.proposeLeaderNames').allowBlank=true;
+		if (!formPanel.getForm().isValid()){return false;}
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId;
+				var docParams=Ext.getCmp("WSDWOfficeDistributeViewWin.reFileId");
+				/*for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+					if(panel.store.getAt(i).data.fileId!=''){
+						if(docParams.getValue()!=""){
+							docParams.setValue(docParams.getValue()+',');
+						} 
+					} 
+					docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+				}*/
+				//alert(processForm[0].activityName + " " + processForm[0].creatorId  +" " + activityName + " " + "to"+processForm[0].activityName); 
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : formPanel.getCmpByName('leaderOpinion').getValue(),
+								destName : prevDestName,
+								status : '退回',
+								//看是否指定了执行人员
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+//							Ext.Ajax.request({
+//								url : __ctxPath + "/archive/updateArchDocsArchives.do",
+//								params : {
+//										  arcRecfileIds : Ext.getCmp('WSDWOfficeDistributeViewWin.reFileId').getValue(),
+//										  'archives.archivesId':'${archivesId}'
+//										  },
+//								method : 'POST',
+//								success : function(fp, action) {
+										 Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+										 AppUtil.removeTab('ProcessForm' + panel.taskId);
+										 refreshTaskPanelView();
+//		                        },
+//								failure : function(fp, action) {
+//									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+//								}
+//							});
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	/**
+	 * 保存公文的方法,传入公文状态作为参数
+	 */
+	onSave : function(formPanel, panel, signalName, activityName) {
+		/*if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		var userId = Ext.getCmp('WSDWOfficeDistributeViewWin.userId').getValue();
+		var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+		var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+		var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+		var comments=formPanel.getCmpByName('leaderOpinion').getValue();
+		var params={
+			taskId : panel.taskId,
+			signalName : signalName,
+			activityName : activityName,
+			sendMail : sendMail,
+			sendMsg : sendMsg,
+			proposeId : userId,
+			sendInfo : sendInfo,
+			comments:comments
+		};
+		var organizeIds=Ext.getCmp('WSDWOfficeDistributeViewWin.viceLeaderIds').getValue();
+		if(organizeIds!=null&&organizeIds!=''){
+			Ext.apply(params,{
+				sentNext : 1,
+				destName : '处内协办',
+//				status : '呈处内协办',
+				signUserIds : organizeIds
+			});
+		}else{
+			if(userId!=0){
+				Ext.apply(params,{
+					sentNext : 2,
+//					status : '呈处内拟办',
+					flowAssignId:userId
+				});
+			}
+		}
+		if (formPanel.getForm().isValid()) {
+			var docParams=Ext.getCmp("WSDWOfficeDistributeViewWin.reFileId");
+			/*for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}*/
+			formPanel.getForm().submit({
+						method : 'POST',
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						params : params,
+						waitMsg : '正在提交数据...',
+						success : function(fp, action) {
+							 Ext.ux.Toast.msg("操作信息", "分发成功！");
+							 AppUtil.removeTab('ProcessForm' + taskId);
+							 refreshTaskPanelView();     
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}
+	},
+
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 获取处内拟办负责人
+		var initStore = new Ext.data.SimpleStore({
+					url :  __ctxPath+ '/system/getAllByDepIdAppUser.do?depId=0',
+					autoLoad : true,
+					fields : ['userId', 'fullname']
+				});
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					// title:'流程审批信息',
+					autoHeight : true,
+					columnWidth : 1,
+					id:'WSDWJWDWNQFFReceiveArchiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=WSDWJWDWNQFFReceiveArchiveDetailPanel',
+						nocache : true
+					}
+				});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : '',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			items : [/*new ArchivesUtil({
+						panelId : 'WSDWOfficeDistributeViewWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),*/{
+						id : 'WSDWOfficeDistributeViewWin.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '处内协办负责人:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '60%',
+									readOnly : true,
+									id : 'WSDWOfficeDistributeViewWin.organizeLeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'WSDWOfficeDistributeViewWin.viceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style:'padding-left:5px;',
+									text : '协办处室',
+									handler : function() {
+										var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds=1266870';
+										DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('WSDWOfficeDistributeViewWin.viceLeaderIds').setValue(userIds);
+											Ext.getCmp('WSDWOfficeDistributeViewWin.organizeLeaderNames').setValue(fullnames);
+										},false, null,url).show();
+									}
+								},  {
+										xtype : 'button',
+										text : '清除记录',
+										iconCls : 'reset',
+										handler : function() {
+											Ext.getCmp('WSDWOfficeDistributeViewWin.organizeLeaderNames')
+													.setValue('');
+													Ext.getCmp('WSDWOfficeDistributeViewWin.viceLeaderIds')
+													.setValue('');
+
+										}
+									}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '处内拟办负责人:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '60%',
+									readOnly : true,
+									allowBlank:false,
+									id : 'WSDWOfficeDistributeViewWin.proposeLeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'WSDWOfficeDistributeViewWin.userId',
+									value:0
+								},{
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style:'padding-left:5px;',
+									text : '拟办处室',
+									handler : function() {
+										var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds=1266870';
+										DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('WSDWOfficeDistributeViewWin.userId').setValue(userIds);
+											Ext.getCmp('WSDWOfficeDistributeViewWin.proposeLeaderNames').setValue(fullnames);
+										},true, null,url).show();
+									}
+								}]
+					},/*{
+						xtype : 'container',
+						id : 'WSDWOfficeDistributeViewWin.leader',
+						style:'padding:6px 0px 0px 0px',
+						layout : 'column',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '处内拟办负责人:',
+									width : 105
+								}, {
+									xtype : "combo",
+									id : "WSDWOfficeDistributeViewWin.leaderName",
+									valueField : 'userId',
+									displayField : 'fullname',
+									editable : false,
+									allowBlank : false,
+									triggerAction : 'all',
+									forceSelection : true,
+									width : 450,
+									store : initStore,
+									listeners : {
+										select : function(cbo, record, index) {
+											Ext.getCmp('WSDWOfficeDistributeViewWin.userId')
+													.setValue(cbo.getValue());
+										}
+									}
+								}]
+					},*/{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+				   					id:'WSDWOfficeDistributeViewWin.leaderOpinion',
+									name : 'leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:414
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('WSDWOfficeDistributeViewWin.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					},{
+						id : 'WSDWOfficeDistributeViewWin.reFileId',
+						xtype : 'hidden'
+					}]
+		});
+	}// end of init
+})

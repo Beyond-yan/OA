@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="chaNext" label="经办部门审核下步执行人" type="varchar" length="100" isShowed="false" />
+</fields>

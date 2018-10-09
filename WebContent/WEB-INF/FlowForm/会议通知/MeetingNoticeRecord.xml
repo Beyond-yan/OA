@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="MeetingNoticeRecord" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="473,31,48,48" name="收文登记">
+      <transition g="11,-6" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </start>
+   <task g="422,135,147,53" name="办公室主任拟办">
+      <transition g="10,-7" name="to 主任拟办结果" to="主任拟办结果"/>
+   </task>
+   <decision g="473,230,49,48" name="主任拟办结果">
+      <transition g="16,-12" name="to 拟办分发" to="拟办分发">
+      		<condition expr="#{zhurResult=='1'}"/>
+      </transition>
+      <transition g="-69,-22" name="to 重新登记" to="重新登记">
+     	<condition expr="#{zhurResult=='2'}"/>
+      </transition>
+   </decision>
+   <task g="186,228,92,52" name="重新登记">
+      <transition g="231,161:42,-23" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </task>
+   <task g="426,324,143,56" name="拟办分发">
+      <transition g="19,-8" name="to 拟办分发结果" to="拟办分发结果"/>
+   </task>
+   <decision g="475,419,48,48" name="拟办分发结果">
+      <transition g="17,-9" name="to 拟办分发并发" to="拟办分发并发">
+      	<condition expr="#{nibanResult=='1'}"/>
+      </transition>
+      <transition name="to 处内办理合并" to="处内办理合并" g="797,443:7,97">
+      	<condition expr="#{nibanResult=='2'}"/>
+      </transition>
+   </decision>
+   <fork g="475,516,48,48" name="拟办分发并发">
+      <transition g="-93,-22" name="to 领导批示分支" to="领导批示分支"/>
+      <transition g="16,-11" name="to 处室拟办分支" to="处室拟办分支"/>
+   </fork>
+   <foreach g="218,516,48,48" in="#{leaderUserIds}" name="领导批示分支" var="leaderUserId">
+      <transition g="-69,-22" name="to 领导批示" to="领导批示"/>
+   </foreach>
+   <foreach g="475,610,48,48" in="#{nibanUserIds}" name="处室拟办分支" var="nibanUserId">
+      <transition g="12,-9" name="to 处室内勤" to="处室内勤"/>
+   </foreach>
+   <task assignee="#{leaderUserId}" g="197,327,92,52" name="领导批示">
+      <transition g="-23,-22" name="to 拟办分发" to="拟办分发"/>
+   </task>
+   <task assignee="#{nibanUserId}" g="453,710,92,52" name="处室内勤">
+      <transition g="-95,-9" name="to 处室内勤结果" to="处室内勤结果"/>
+   </task>
+   <decision g="475,807,48,48" name="处室内勤结果">
+      <transition g="-78,-13" name="to 处长审核" to="处长审核">
+      	<condition expr="#{chishiResult=='1'}"/>
+      </transition>
+      <transition name="to 处内办理合并" to="处内办理合并" g="-18,-23">
+      	<condition expr="#{chishiResult=='2'}"/>
+      </transition>
+   </decision>
+   <task g="454,898,92,52" name="处长审核">
+      <transition g="-99,-14" name="to 处长审核结果" to="处长审核结果"/>
+   </task>
+   <decision g="475,989,48,48" name="处长审核结果">
+      <transition g="282,1013;282,735:-69,-22" name="to 处室内勤" to="处室内勤">
+      	<condition expr="#{chizhangResult=='1'}"/>
+      </transition>
+      <transition g="-91,-15" name="to 副处长审核" to="副处长审核">
+      	<condition expr="#{chizhangResult=='2'}"/>
+      </transition>
+      <transition g="699,1013;699,1328:-57,-22" name="to 经办人" to="经办人">
+      	<condition expr="#{chizhangResult=='3'}"/>
+      </transition>
+   </decision>
+   <task g="454,1078,92,52" name="副处长审核">
+      <transition g="-114,-9" name="to 副处长审核结果" to="副处长审核结果"/>
+   </task>
+   <decision g="475,1166,48,48" name="副处长审核结果">
+   	  <transition g="282,1190;282,735:-67,132" name="to 处室内勤" to="处室内勤">
+   	  	<condition expr="#{fuchizhangResult=='1'}"/>
+   	  </transition>
+      <transition g="-70,-19" name="to 经办人" to="经办人">
+      	<condition expr="#{fuchizhangResult=='2'}"/>
+      </transition>
+   </decision>
+   <task g="454,1303,92,52" name="经办人">
+      <transition g="282,1329;282,735:-81,247" name="to 处室内勤" to="处室内勤"/>
+   </task>
+   <join name="处内办理合并" multiplicity="1000" g="777,805,48,48">
+      <transition name="to 结束" to="结束" g="-18,-21"/>
+   </join>
+   <end g="922,806,48,48" name="结束"/>
+</process>

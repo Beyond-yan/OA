@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="chushiOption" label="处室意见结果" type="varchar" isShowed="false"/>
+	<field name="applyUserId" label="处室负责人" type="long" length="0" isShowed="false" />
+</fields>

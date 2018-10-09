@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="department" label="用车部门" type="varchar" length="128" isShowed="true" />
+	<field name="departmentId" label="部门id" type="varchar" length="128" isShowed="false" />
+    <field name="userFullname" label="用车人" type="varchar" length="128" isShowed="true" />
+    <field name="peopleAmount" label="车载人数" type="long" length="128" isShowed="true" />
+    <field name="reason" label="原因" type="varchar" length="388" isShowed="true" />
+    <field name="startDate" label="开始日期" type="varchar" length="128" isShowed="true" />
+    <field name="endDate" label="截止日期" type="varchar" length="128" isShowed="true" />
+    <field name="toSite" label="到达地点" type="varchar" length="128" isShowed="true" />
+    <field name="notes" label="备注" type="varchar" length="388" isShowed="true" />
+    <field name="acceptId" label="acceptId" type="varchar" length="10" isShowed="false" />
+   <!--  <field name="ishavecardriver" label="ishavecardriver" type="varchar" length="128" isShowed="false" /> 
+    <field name="iseffective" label="iseffective" type="varchar" length="128" isShowed="false" />-->
+    <field name="defId" label="defId" type="varchar" length="128" isShowed="false" />
+    <field name="userId" label="userId" type="long" length="128" isShowed="false" />
+    <field name="approvalStatus" label="审批状态" type="varchar" length="128" isShowed="true" />
+   <!-- <field name="flowAssignId" label="flowAssignId" type="varchar" length="128" isShowed="false" />-->
+</fields>

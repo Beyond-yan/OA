@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.flow.CcuserProcess"
+        table="CCUSER_PROCESS"
+        select-before-update="false"
+        dynamic-update="true"
+        dynamic-insert="true"
+        optimistic-lock="all"
+    >
+    	<composite-id>
+            <key-property name="processRunId" type="java.lang.Long">
+                <column name="PROCESS_RUN_ID" />
+            </key-property>
+            <key-property name="ccUserId" type="java.lang.Long">
+                <column name="USER_ID" />
+            </key-property>
+        </composite-id>
+        <property
+            name="createDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createUserId"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_BY"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="status"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            access="property"
+            column="STATUS"
+            not-null="false"
+            unique="false"
+        />
+      <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+	        update="false"
+	        insert="false"
+		>	
+			<column name="USER_ID" />
+		</many-to-one>
+		<many-to-one
+			name="createAppUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+	        update="false"
+	        insert="false"
+		>	
+			<column name="CREATE_BY" />
+		</many-to-one>
+    </class>
+</hibernate-mapping>

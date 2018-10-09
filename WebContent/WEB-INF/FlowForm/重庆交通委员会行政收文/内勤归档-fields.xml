@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="endNext" label="归档结果流转标识" type="varchar" length="100" isShowed="true"/>
+</fields>

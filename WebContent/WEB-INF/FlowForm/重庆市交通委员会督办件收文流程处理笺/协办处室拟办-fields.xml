@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="leaderfourId" label="协办处室办理人" type="long" length="0" isShowed="false" />
+	<field name="leaderNext"  type="long" length="0" isShowed="false" />
+</fields>

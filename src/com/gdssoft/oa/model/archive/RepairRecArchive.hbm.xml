@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.archive.RepairRecArchive"
+        table="Repair_RecArchive"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="Id"
+            type="java.lang.Long"
+            length="19"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="childDepNames"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="childDepNames"
+            length="400"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="status"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="Status"
+            length="1"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="UserID" />
+		</many-to-one>
+		
+	  <!-- imported bi-directional many-to-one association to Archives -->
+		<many-to-one
+			name="archives"
+			class="com.gdssoft.oa.model.archive.Archives"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="archivesId" />
+		</many-to-one>
+		
+		  <!-- imported bi-directional many-to-one association to ProDefinition -->
+		<many-to-one
+			name="proDefinition"
+			class="com.gdssoft.oa.model.flow.ProDefinition"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="RecProDefiniId" />
+		</many-to-one>
+		
+	     <!-- imported bi-directional many-to-one association to Department -->
+		<many-to-one
+			name="department"
+			class="com.gdssoft.oa.model.system.Department"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="childDepId" />
+		</many-to-one>
+		
+		    <!-- imported bi-directional many-to-one association to AppRole -->
+		<many-to-one
+			name="appRole"
+			class="com.gdssoft.oa.model.system.AppRole"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="RoleId" />
+		</many-to-one>
+    
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="rollFileId" label="rollFileId" type="long" isShowed="true" />
+</fields>

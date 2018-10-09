@@ -1,0 +1,224 @@
+DisciplineSectionArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		DisciplineSectionArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id :'DisciplineSectionArchiveDepCheckWin',
+					modal : true,
+					height : 680,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			id :'JJZSentArchiveDepCheck.displayPanel',
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=JJZSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'DisciplineSectionArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'DisciplineSectionArchiveDepCheckWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '备注',
+									name : 'leaderRead.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:500
+									}]
+					     	 }
+//					     	 ,{
+//						   		layout:'form',
+//						   		style:'padding-top:10px;padding-left:5px;',
+//						   		border:false,
+//						   		items:[{
+//										xtype : 'button',
+//										text : '常用批示语',
+//										iconCls : 'menu-new-document',
+//										handler : function() {
+//											OdCommentsSelector.getView(
+//												function(id, name) {
+//												var fm = Ext.getCmp('DisciplineSectionArchiveDepCheckForm');
+//													fm.getCmpByName('leaderRead.leaderOpinion')
+//													.setValue(name);
+//													}, true).show();
+//											}
+//										}]
+//					  		}
+					  		]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-ok',
+								   text:'完成排版',
+								   handler:this.completeSetting
+								}),
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								}),
+								new Ext.Button({
+											   iconCls:'btn-changeTask',
+											   text:'退回',
+											   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+											})
+								#set ($count=$count+1)
+						#end];
+	},
+	completeSetting:function(){
+		Ext.MessageBox.confirm('信息确认','请确认是否完成排版',function(btn){
+		   if(btn=='yes'){
+		     Ext.Ajax.request({
+			    url:__ctxPath+'/archive/updateIsComSettingArchives.do?archivesId=${archivesId}',
+			    method:'post',
+			    success:function(response,options){
+			      Ext.ux.Toast.msg('操作信息','排版成功！');
+			    
+			    },
+			    failure:function(response,options){
+			      Ext.ux.Toast.msg('操作信息','排版失败！');
+			    
+			    }
+	  });
+		   }
+		});
+	  
+	},
+	backsetp:function(formPanel,panel,activityName){
+/*		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (!formPanel.getForm().isValid()){return false;}
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId;
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : '退回',
+								destName : prevDestName,
+								status : '已办理',
+								// 看是否指定了执行人员
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+/*		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo : sendInfo,
+					//status:result,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			formPanel.getForm().submit({
+				url : __ctxPath + '/archive/updateElecArchStatusArchives.do',
+				method:'post',
+				waitMsg : '正在提交数据...',
+				params : {
+						'archivesId' : '${archivesId}'
+				},
+				success : function(response, options) {
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '成功生成电子公文！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				}
+			});
+		}
+	}// end of save
+})

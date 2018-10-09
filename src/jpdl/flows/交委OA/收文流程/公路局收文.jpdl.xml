@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="GLJReiceiveFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="402,22,48,52" name="收文登记">
+      <transition g="-104,-21" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </start>
+   <task g="381,124,92,52" name="办公室主任拟办">
+      <transition g="-68,-21" name="to 拟办结果" to="拟办结果"/>
+   </task>
+   <task g="387,337,92,52" name="处室拟办">
+      <transition name="to 处室承办" to="处室承办" g="-68,-21"/>
+   </task>
+   <task g="392,508,92,52" name="处室承办">
+      <transition name="to 办公室主任拟办" to="办公室主任拟办" g="261,345:-104,-21"/>
+   </task>
+   <decision g="406,224,48,48" name="拟办结果">
+      <transition g="-68,-21" name="to 重新登记" to="重新登记">
+        <condition expr="#{isOfficeLeader=='retry'}"/>
+      </transition>
+      <transition g="553,246:-68,-21" name="to 办理完成" to="办理完成">
+        <condition expr="#{isOfficeLeader=='exit'}"/>
+      </transition>
+      <transition g="-68,-21" name="to 处室拟办" to="处室拟办">
+      <condition expr="#{isOfficeLeader=='no'}"/>
+      </transition>
+      <transition g="-68,-21" name="to 领导批示" to="领导批示">
+      <condition expr="#{isOfficeLeader=='yes'}"/>
+      </transition>
+   </decision>
+   <task g="168,229,92,52" name="领导批示">
+      <transition g="214,154:-104,-21" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </task>
+   <end g="561,222,48,48" name="办理完成"/>
+   <task g="526,122,92,52" name="重新登记">
+      <transition g="-67,-17" name="to 办公室主任拟办" to="办公室主任拟办"/>
+   </task>
+</process>

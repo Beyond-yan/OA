@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="isOfficeLeader" label="流转结果" type="varchar" isShowed="false"/>
+	<field name="depId" label="部门ID" type="varchar" isShowed="false"/>
+	<field name="departmentId" label="主办部门ID" type="varchar" isShowed="false"/>
+	<field name="localNext" label="领导批示后跳转标识" type="varchar" length="100" isShowed="true" />
+	<field name="depExerId" label="拟办分发负责人" type="varchar" isShowed="false"/>
+</fields>

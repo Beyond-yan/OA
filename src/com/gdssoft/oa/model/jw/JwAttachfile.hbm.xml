@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.jw.JwAttachfile"
+        table="JW_ATTACHFILE"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="22"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="attachcode"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="ATTACHCODE"
+            length="100"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="filepath"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="FILEPATH"
+            length="500"
+            not-null="false"
+            unique="false"
+        />
+     </class>
+</hibernate-mapping>

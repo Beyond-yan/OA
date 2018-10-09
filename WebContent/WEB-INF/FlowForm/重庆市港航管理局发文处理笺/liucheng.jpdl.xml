@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="CQSGHGLJJWFWSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="260,2,48,48" name="拟稿">
+		<transition g="-130,-25" name="to 部门负责人核稿" to="部门负责人核稿"/>
+	</start>
+	<task g="222,89,126,52" name="部门负责人核稿">
+		<transition g="-31,-13" name="to 核稿结果" to="核稿结果"/>
+	</task>
+	<decision g="263,180,48,48" name="核稿结果">
+		<transition g="-69,-14" name="to 处室会签" to="处室会签">
+			<condition expr="#{depLeaderOption=='sign'}"/>
+		</transition>
+		<transition g="-32,-20" name="to 重新发起" to="重新发起">
+			<condition expr="#{depLeaderOption=='restart'}"/>
+		</transition>
+		<transition g="-55,-25" name="to 校对" to="校对">
+		<condition expr="#{depLeaderOption=='office'}"/>
+		</transition>
+	</decision>
+	<task g="42,180,143,52" name="处室会签">
+		<transition g="111,115:1,-17" name="to 部门负责人核稿" to="部门负责人核稿"/>
+	</task>
+	<task g="239,333,92,52" name="办公室审核">
+		<transition g="-65,-6" name="to 审核结果" to="审核结果"/>
+	</task>
+	<task g="373,405,92,52" name="领导会签">
+		<transition g="422,361:-100,-25" name="to 办公室审核" to="办公室审核"/>
+	</task>
+	<decision g="258,413,48,48" name="审核结果">
+		<transition g="10,-12" name="to 签发" to="签发">
+			<condition expr="#{officeLeaderOption=='distribute'}"/>
+		</transition>
+		<transition g="-36,-15" name="to 领导会签" to="领导会签">
+			<condition expr="#{officeLeaderOption=='leaderSign'}"/>
+		</transition>
+	</decision>
+	<task g="237,495,92,52" name="签发">
+		<transition g="6,-11" name="to 编号" to="编号"/>
+	</task>
+	<task g="242,566,92,52" name="编号">
+		<transition g="6,-12" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="235,646,102,52" name="生成电子公文">
+		<transition g="8,-9" name="to 分发" to="分发"/>
+	</task>
+	<task g="239,725,92,52" name="分发">
+		<transition g="6,-12" name="to 结束" to="结束"/>
+	</task>
+	<end g="265,812,48,48" name="结束"/>
+	<task g="408,179,92,52" name="重新发起">
+		<transition g="454,116:-65,-17" name="to 部门负责人核稿" to="部门负责人核稿"/>
+	</task>
+	<task g="240,248,92,52" name="校对">
+		<transition g="-100,-25" name="to 办公室审核" to="办公室审核"/>
+	</task>
+</process>

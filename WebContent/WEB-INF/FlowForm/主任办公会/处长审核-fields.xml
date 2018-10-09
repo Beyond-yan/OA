@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="chuzhangResult" label="处长审批结果" type="varchar" isShowed="false"/>
+	<field name="currentStep" label="当前步骤" type="long" length="0" isShowed="false" />
+	<field name="chuzhangUserId" label="处长批示人员ID" type="long" length="0" isShowed="false" />
+</fields>

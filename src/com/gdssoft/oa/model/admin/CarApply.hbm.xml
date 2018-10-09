@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+	<class name="com.gdssoft.oa.model.admin.CarApply" table="car_apply" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+		<id name="applyId" column="applyId" type="java.lang.Long" length="19"> 
+			<generator class="native"></generator> 
+		</id>  
+		<property name="department" type="java.lang.String" update="true" insert="true" access="property" column="department" length="64" not-null="false" unique="false"/>  
+		<property name="userId" type="java.lang.Long" update="true" insert="true" access="property" column="userId" length="19" not-null="true" unique="false"/>  
+		<property name="operatorId" type="java.lang.Long" update="true" insert="true" access="property" column="OPERATOR_ID" length="19" not-null="false" unique="false"/>  
+		<property name="userFullname" type="java.lang.String" update="true" insert="true" access="property" column="userFullname" length="32" not-null="true" unique="false"/>  
+		<property name="applyDate" type="java.util.Date" update="true" insert="true" access="property" column="applyDate" length="10" not-null="false" unique="false"/>  
+		<property name="reason" type="java.lang.String" update="true" insert="true" access="property" column="reason" length="1024" not-null="true" unique="false"/>  
+		<property name="startTime" type="java.util.Date" update="true" insert="true" access="property" column="startTime" length="19" not-null="false" unique="false"/>  
+		<property name="endTime" type="java.util.Date" update="true" insert="true" access="property" column="endTime" length="19" not-null="false" unique="false"/>  
+		<property name="proposer" type="java.lang.String" update="true" insert="true" access="property" column="proposer" length="32" not-null="false" unique="false"/>  
+		<property name="fromSite" type="java.lang.String" update="true" insert="true" access="property" column="FROM_SITE" length="50" not-null="false" unique="false"/>  
+		<property name="toSite" type="java.lang.String" update="true" insert="true" access="property" column="TO_SITE" length="50" not-null="true" unique="false"/>  
+		<property name="mileage" type="java.math.BigDecimal" update="true" insert="true" access="property" column="mileage" precision="18" scale="2" not-null="false" unique="false"/>  
+		<property name="oilUse" type="java.math.BigDecimal" update="true" insert="true" access="property" column="oilUse" precision="18" scale="2" not-null="false" unique="false"/>  
+		<property name="notes" type="java.lang.String" update="true" insert="true" access="property" column="notes" length="1024" not-null="false" unique="false"/>  
+		<property name="approvalStatus" type="java.lang.Short" update="true" insert="true" access="property" column="approvalStatus" length="5" not-null="true" unique="false"/>  
+		<property name="ishavecardriver" type="java.lang.Short" update="true" insert="true" access="property" column="ISHAVECARDRIVER" length="5" not-null="false" unique="false"/>  
+		<property name="iseffective" type="java.lang.Short" update="true" insert="true" access="property" column="ISEFFECTIVE" length="5" not-null="false" unique="false"/> 
+		<property name="carNo" type="java.lang.String" update="true" insert="true" access="property" column="CAR_NO" length="5" not-null="false" unique="false"/>   
+		<property name="driver" type="java.lang.String" update="true" insert="true" access="property" column="DRIVER" length="5" not-null="false" unique="false"/>   
+		<property name="driverId" type="java.lang.Long" update="true" insert="true" access="property" column="DRIVER_ID" length="5" not-null="false" unique="false"/>
+		<property name="onDutyTime" type="java.lang.String" update="true" insert="true" access="property" column="ONDUTYTIME" length="5" not-null="false" unique="false"/>
+		<property name="offDutyTime" type="java.lang.String" update="true" insert="true" access="property" column="OFFDUTYTIME" length="5" not-null="false" unique="false"/>
+		<property name="status" type="java.lang.Short" update="true" insert="true" access="property" column="STATUS" length="5" not-null="false" unique="false"/>
+		<property name="peopleAmount" type="java.lang.Short" update="true" insert="true" access="property" column="PEOPLE_AMOUNT" length="5" not-null="false" unique="false"/>
+		<property name="carAmount" type="java.lang.Short" update="true" insert="true" access="property" column="IS_DELETED" length="5" not-null="false" unique="false"/>
+		<property name="carIds" type="java.lang.String" update="true" insert="true" access="property" column="CARIDS" length="5" not-null="false" unique="false"/>
+	    <property name="driverIds" type="java.lang.String" update="false" insert="false" access="property" column="DRIVERIDS" length="5" not-null="false" unique="false"/>
+	    <property name="totalDistance" type="java.lang.Float" update="true" insert="true" access="property" column="TOTAL_DISTANCE" length="1000" not-null="false" unique="false"/>  
+	    <property name="totalAmount" type="java.lang.Float" update="true" insert="true" access="property" column="TOTAL_AMOUNT" length="1000" not-null="false" unique="false"/>  
+	<property
+			name="createDate"
+			type="java.util.Date"
+			update="true"
+			insert="true"
+			access="property"
+			column="CREATE_DATE"
+			length="23"
+			not-null="false"
+			unique="false"
+			/>
+		<property
+			name="createBy"
+			type="java.lang.String"
+			update="true"
+			insert="true"
+			access="property"
+			column="CREATE_BY"
+			length="50"
+			not-null="false"
+			unique="false"
+			/>
+		<property
+			name="updateDate"
+			type="java.util.Date"
+			update="true"
+			insert="true"
+			access="property"
+			column="UPDATE_DATE"
+			length="23"
+			not-null="false"
+			unique="false"
+			/>
+		<property
+			name="updateBy"
+			type="java.lang.String"
+			update="true"
+			insert="true"
+			access="property"
+			column="UPDATE_BY"
+			length="50"
+			not-null="false"
+			unique="false"
+			/>
+		<many-to-one name="processRun" class="com.gdssoft.oa.model.flow.ProcessRun"  not-null="false" fetch="select">	
+			<column name="PROCESS_INS_ID" />
+		</many-to-one> 
+		<!-- imported bi-directional many-to-one association to Car -->  
+		<many-to-one name="car" class="com.gdssoft.oa.model.admin.Car" not-null="false" fetch="select"> 
+			<column name="carId"/> 
+		</many-to-one> 
+		
+		<set name="cars" table="CAR_APPLY_DETAIL" cascade="save-update" inverse="false" lazy="true"> 
+			<key column="apply_id"/>  
+			<many-to-many fetch="join" class="com.gdssoft.oa.model.admin.Car" column="car_id"/> 
+		</set>
+		
+		
+		 
+	</class> 
+</hibernate-mapping>

@@ -1,0 +1,816 @@
+﻿WSDWPartyReceiveArchivesPanel = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		// 必须先初始化组件
+		function createFileUpdateCmp(id_pre, label) {
+			return [{
+						columnWidth : .85,
+						items : [{
+									fieldLabel : label,
+									xtype : 'panel',
+									id : id_pre + '.personFilePanel',
+									frame : false,
+									border : true,
+									bodyStyle : 'padding:4px 4px 4px 4px;',
+									height : 80,
+									autoScroll : true,
+									html : ''
+								}]
+					}, {
+						columnWidth : .14,
+						items : [{
+							border : false,
+							xtype : 'button',
+							text : '添加文件',
+							iconCls : 'menu-attachment',
+							handler : function() {
+								var dialog = App.createUploadDialog({
+									file_cat : 'document',
+									judge_size : 'no',
+									upload_autostart : true,
+									callback : function(data) {
+										var fileIds = Ext.getCmp(id_pre
+												+ '.fileIds');
+										var filePanel = Ext.getCmp(id_pre
+												+ '.personFilePanel');
+
+										for (var i = 0; i < data.length; i++) {
+											if (fileIds.getValue() != '') {
+												fileIds.setValue(fileIds
+														.getValue()
+														+ ',');
+											}
+											fileIds.setValue(fileIds.getValue()+ data[i].fileId);
+
+											Ext.DomHelper.append(
+															filePanel.body,
+															'<span><a href="#" onclick="FileAttachDetail.show('
+																	+ data[i].fileId
+																	+ ')">'
+																	+ data[i].filename
+																	+ '</a> <img class="img-delete" src="'
+																	+ __ctxPath
+																	+ '/images/system/delete.gif" onclick="removeFile(this,\''
+																	+ id_pre
+																	+ '.fileIds\','
+																	+ data[i].fileId
+																	+ ')"/>&nbsp;|&nbsp;</span>');
+
+										}
+									}
+								});
+								dialog.show(this);
+							}
+						}, {
+							xtype : 'button',
+							text : '清除文件',
+							iconCls : 'reset',
+							handler : function() {
+								var fileAttaches = Ext.getCmp(id_pre
+										+ '.fileIds');
+								var filePanel = Ext.getCmp(id_pre
+										+ '.personFilePanel');
+
+								filePanel.body.update('');
+								fileAttaches.setValue('');
+							}
+						}, {
+							xtype : 'hidden',
+							id : id_pre + '.fileIds',
+							name : 'fileIds'
+						}]
+					}];
+		}
+		
+		this.archivesId = archivesId;
+		this.docGridPanel = new ArchivesUtil({
+			panelId : 'WSDWPartyReceiveArchivesPanel',
+			isStart : true,
+			archivesId :this.archivesId
+		}).getGridPanelWithFullTools();
+
+		var initStore = new Ext.data.SimpleStore({
+			url : __ctxPath + '/system/getAllByDepIdAppUser.do?depId=0',
+			autoLoad : false,
+			fields : ['userId', 'fullname']
+		});
+		
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id : 'WSDWPartyReceiveArchivesForm',
+			url : __ctxPath + '/archive/saveNormalArchives.do',
+			frame : false,
+			border : false,
+			labelWidth : 70,
+			width : 800,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+			}, [ {
+					name : 'archives.archivesId',
+					mapping : 'archivesId'
+				}, {
+					name : 'archives.issueDate',
+					mapping : 'issueDate'
+				}, {
+					name : 'archives.depSignNo',
+					mapping : 'depSignNo'
+				}, {
+					name : 'archives.writtenDate',
+					mapping : 'writtenDate'
+				}, {
+					name : 'archives.issueDep',
+					mapping : 'issueDep'
+				}, {
+				    name:'archives.status',
+				    mapping:'status'
+				}, {
+					name : 'archives.subject',
+					mapping : 'subject'
+				}, {
+					name : 'archives.fileCounts',
+					mapping : 'fileCounts'
+				}, {
+					name : 'archives.privacyLevel',
+					mapping : 'privacyLevel'
+				}, {
+					name : 'archives.urgentLevel',
+					mapping : 'urgentLevel'
+				}, {
+					name : 'archives.issuer',
+					mapping : 'issuer'
+				}, {
+					name : 'archives.issuerId',
+					mapping : 'issuerId'
+				}, {
+					name:'archives.orgDepName',
+					mapping:'orgDepName'
+				}, {
+					name:'archives.archType',
+					mapping:'archType'
+				}, {
+					name:'archives.orgDepId',
+					mapping:'orgDepId'
+				}, {
+					name:'archives.archivesFiles',
+					mapping:'archivesFiles'
+				}, {
+					name:'archives.limitedDate',
+					mapping:'limitedDate'
+				}, {
+					name : 'archives.reviewUser',
+					mapping : 'reviewUser'
+				},{
+					name : 'archives.reviewUserName',
+					mapping : 'reviewUserName'
+				},{
+					name : 'archives.snConfigId',
+					mapping : 'snConfigId'
+				}]),
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 150,
+						xtype : 'textfield',
+						allowBlank : true
+					}
+				},
+				items : [{
+					items : [{
+						xtype : "hidden",
+						name : "archives.recDepIds",
+						value:defId,
+						id : "WSDWPartyReceiveArchivesForm.recDepIds"
+					},{
+						xtype : "hidden",
+						name : "archives.recDepNames",
+						id : "WSDWPartyReceiveArchivesForm.recDepNames"
+					}, {
+						fieldLabel : '编号名称',
+						xtype : "combo",
+						id : "WSDWPartyReceiveArchivesForm.snId",
+						valueField : 'snId',
+						displayField : 'snName',
+						editable : false,
+						allowBlank : false,
+						triggerAction : 'all',
+						forceSelection : true,
+						width : 150,
+						store : new Ext.data.SimpleStore({
+							url :__ctxPath + '/snconfig/getReceiveSignsFlowSnConfig.do?archType=1',
+							autoLoad : true,
+							fields : ['snId', 'snName']
+						}),
+						listeners : {
+									'select' : function(cbo, record, index) {
+										Ext.getCmp('infoCenterArchivesReceiveForm.snId').setValue(cbo.getValue());
+										if (Ext.get('infoCenterArchivesReceiveForm.snName').dom.value != '督办件') {
+											Ext.getCmp('WSDWtartarchivesArchType').setValue('1');
+											Ext.getCmp('WSDWeceiverLimitedDate-container').hide();
+											Ext.getCmp('WSDWeceiverLimitedDate').allowBlank=true;
+										} else {
+											Ext.getCmp('WSDWtartarchivesArchType').setValue('2');
+											Ext.getCmp('WSDWeceiverLimitedDate-container').show();
+											Ext.getCmp('WSDWeceiverLimitedDate').allowBlank=false;
+										}
+									}
+								}
+					},{								
+								fieldLabel : '成文日期',
+								name : 'archives.writtenDate',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								editable : false,
+								allowBlank : true
+						}, {
+						xtype : 'combo',
+						width : 150,
+						fieldLabel : '文种分类',
+						hiddenName : "archives.archivesType.typeId",
+						valueField : 'typeId',
+						id:'WSDWarchivesReceiveForm.archivesType',
+						displayField : 'typeName',
+						editable : false,
+						triggerAction : 'all',
+						forceSelection : true,
+						store : new Ext.data.SimpleStore({
+									url : __ctxPath + '/archive/comboArchivesType.do',
+									autoLoad : true,
+									fields : ['typeId', 'typeName']
+								})
+					}]
+				}, {
+					items : [{
+								fieldLabel : '收文日期',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								editable : false,
+								allowBlank : false,
+								name : 'archives.issueDate',
+								value : new Date()
+							}, {
+								xtype : 'combo',
+								fieldLabel : '缓急',
+								name : 'archives.urgentLevel',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank : true,
+								store : ['特急', '急件', '加急', '平急']
+							}, {
+								xtype : 'container',
+								id : 'WSDWeceivefileCounts',
+								layout : 'column',
+								style:'padding-bottom:5px',
+								width : 260,
+								hidden : true,
+								items : [ {
+										xtype : 'label',
+										text : '份号：',
+										width : 75
+									},{
+										xtype : 'numberfield',
+										editable : false,
+										mode : 'local',
+										value:1,
+										name : 'archives.fileCounts',
+										width : 155
+								}]
+							}]
+				}, {
+					items : [{
+								xtype : 'textfield',
+								fieldLabel : '来文号',
+								name : 'archives.depSignNo',
+								allowBlank : true
+							}, {
+						xtype : 'combo',
+						fieldLabel : '密級',
+						name : 'archives.privacyLevel',
+						triggerAction : 'all',
+						editable : false,
+						allowBlank : true,
+						store : ['一般', '秘密', '机密', '绝密'],
+						listeners : {
+							'select' : function(combo) {
+								if (combo.getValue() != '一般') {
+									Ext.getCmp('WSDWeceivefileCounts').show();
+									Ext.getCmp('WSDWeceivefileCounts').allowBlank = true;
+
+								} else {
+									Ext.getCmp('WSDWeceivefileCounts').hide();
+									Ext.getCmp('WSDWeceivefileCounts').allowBlank = true;
+								}
+							}
+						}
+					
+							},{
+								xtype : 'container',
+								layout : 'form',
+								hidden: true,
+								id:'WSDWeceiverLimitedDate-container',
+								items : [{
+											fieldLabel : '限办日期',
+											name : 'archives.limitedDate',
+											xtype : 'datefield',
+											format : 'Y-m-d',
+											width : 150,
+											id:'WSDWeceiverLimitedDate',
+											hideParent:true,
+											editable : false,
+											value:new Date().add(Date.MONTH,1)
+										}]
+							}]
+				}]
+			}, {
+				xtype : 'textfield',
+				fieldLabel : '来文单位',
+				id:'WSDWPartyReceiveArchivesForm.issueDep',
+				name : 'archives.issueDep',
+				width : 670,
+				allowBlank : false
+			}, {
+				xtype : 'textfield',
+				fieldLabel : '标   题',
+				id:'WSDWPartyReceiveArchivesForm.subject',
+				name : 'archives.subject',
+				width : 670,
+				allowBlank : false
+			}, {
+				xtype:'hidden',
+				id:'WSDWPartyReceiveArchivesForm.departmentId',
+				name:'archives.orgDepId'
+			}, {
+				xtype : 'radiogroup',
+				id:'WSDWPartyReceiveArchivesForm.directionOption',
+				allowBlank : false,
+				width : 700,
+				items : [{
+					boxLabel : '办公室主任拟办',
+					name : 'archives.typeName',
+					inputValue : 1,
+					checked : true,
+					listeners:{
+						check : function(){
+							Ext.getCmp('WSDWPartyReceiveArchivesForm.leaderName').setValue('');
+							Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').setValue('');
+						}
+					}
+				}, {
+					boxLabel : '拟办分发',
+					name : 'archives.typeName',
+					inputValue : 2,
+					listeners:{
+						check:function(){
+							Ext.getCmp('WSDWPartyReceiveArchivesForm.leaderName').setValue('');
+							Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').setValue('');
+						}
+					}
+				}],
+				fieldLabel : '审批步骤'
+			}, {
+				id : 'WSDWPartyReceiveArchivesForm.viceLeaders',
+				hideMode : 'offsets',
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							id:'WSDWPartyReceiveArchivesForm.leaderNameLabel',
+							style : 'padding-top:4px;',
+							text : '选择人员:',
+							width : 73
+						}, {
+							xtype : 'textfield',
+							width : 600,
+							allowBlank:false,
+							readOnly : true,
+							name : 'archives.reviewUserName',
+							id : 'WSDWPartyReceiveArchivesForm.leaderName'
+						}, {
+							xtype : 'hidden',
+							name : 'archives.reviewUser',
+							id : 'WSDWPartyReceiveArchivesForm.viceLeaderIds'
+						}, {
+							xtype : 'button',
+							iconCls : 'menu-department',
+							text : '选择人员',
+							handler : function() {
+								//var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds=1266870';
+								var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+								DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').setValue(userIds);
+											Ext.getCmp('WSDWPartyReceiveArchivesForm.leaderName')
+													.setValue(fullnames);
+										}, true, null,url).show();
+							}
+						}]
+			},  {
+				name : 'archives.status',
+				xtype : 'hidden',
+				value : 1
+			}, {
+				name : "archives.issuer",
+				value : curUserInfo.fullname,
+				xtype : 'hidden'
+		}, {
+				name : 'archives.snConfigId',
+				id : 'WSDWPartyReceiveArchivesForm.snConfigId',
+				xtype : 'hidden'
+			}, {
+				name : 'archives.archivesId',
+				xtype : 'hidden'
+			},{
+				name : 'archives.issuerId',
+				value : curUserInfo.userId,
+				xtype : 'hidden'
+			}, {
+				name : 'archives.archType',
+				value : 1,
+				id:'WSDWtartarchivesArchType',
+				xtype : 'hidden'
+			}, {
+				xtype : 'fieldset',
+				border : false,
+				defaults : {
+					anchor : '96.3%,96%'
+				},
+				items : [this.docGridPanel]
+			},{
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:2px;',
+				defaults : {
+					allowBlank : true,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '附件：',
+							width : 74
+						}, {
+							xtype : 'textarea',
+							name : 'archives.enclosure',
+							width : '74.5%',
+							id : 'WSDWarchivesReceiveForm.enclosure'
+						}]
+			},  {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : createFileUpdateCmp('WSDWPartyReceiveArchives', '公文附件')
+			}]
+		
+		});			
+		Ext.Ajax.request({
+			url : __ctxPath + '/archive/getdefnameArchives.do',
+			params : {
+				'defId' : defId
+			},
+			method:'post',
+			success : function(response, options) {
+				var data=Ext.util.JSON.decode(response.responseText);
+				Ext.getCmp('WSDWPartyReceiveArchivesForm.recDepNames').setValue(data.name);
+			}
+		});
+		if (archivesId) {
+			this.formPanel.getForm().load({
+				deferredRender : false,
+				url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='
+						+ archivesId,
+				waitMsg : '正在载入数据...',
+				method:'post',
+				success : function(form, action) {
+					var fileAttach=new Array();
+					var af=action.result.data['archives.archivesFiles'];
+					var filePanel = Ext.getCmp('WSDWPartyReceiveArchives.personFilePanel');
+				    var fileIds = Ext.getCmp("WSDWPartyReceiveArchives.fileIds"); 
+					Ext.getCmp('WSDWarchivesReceiveForm.archivesType').getStore().load({ 
+					callback: function () { 
+					//等待数据加载完成才进行赋值，不然由于异步会出现先赋值后加载完成。 
+					Ext.getCmp('WSDWarchivesReceiveForm.archivesType').setValue(Ext.decode(action.response.responseText).data[0].parentArchId);
+					}, 
+					scope: Ext.getCmp('WSDWarchivesReceiveForm.archivesType').getStore(),//表示作用范围 
+					add: false //为false表示数据不累加 
+					});
+					Ext.getCmp('WSDWPartyReceiveArchivesForm.snId').getStore().load({ 
+					callback: function () { 
+					//等待数据加载完成才进行赋值，不然由于异步会出现先赋值后加载完成。 
+					Ext.getCmp('WSDWPartyReceiveArchivesForm.snId').setValue(Ext.decode(action.response.responseText).data[0].snConfigId);
+					}, 
+					scope: Ext.getCmp('WSDWPartyReceiveArchivesForm.snId').getStore(),//表示作用范围 
+					add: false //为false表示数据不累加 
+					});
+					if(af!=null){
+							for (var i = 0; i < af.length; i++) {
+								if (fileIds.getValue() != '') {
+									fileIds.setValue(fileIds.getValue() + ',');
+								}
+								fileIds.setValue(fileIds.getValue() + af[i].fileId);
+								Ext.DomHelper
+										.append(
+												filePanel.body,
+												'<span><a href="#" onclick="FileAttachDetail.show('
+														+ af[i].fileId
+														+ ')">'
+														+ af[i].fileName
+														+ '</a><img class="img-delete" src="'
+														+ __ctxPath
+														+ '/images/system/delete.gif" onclick="removeFile(this,\'fileAttachments.fileIds\','
+														+ af[i].fileId
+														+ ')"/>&nbsp;|&nbsp;</span>');
+							  }
+				    }
+					var privacyLevel=action.result.data['archives.privacyLevel'];
+					if(privacyLevel!='一般'&&privacyLevel!=''&&privacyLevel!=null){
+						Ext.getCmp('WSDWeceivefileCounts').show();
+						Ext.getCmp('WSDWeceivefileCounts').allowBlank = true;
+					}
+					if(privacyLevel=='一般'){
+						Ext.getCmp('WSDWeceivefileCounts').hide();
+						Ext.getCmp('WSDWeceivefileCounts').allowBlank = true;
+					}
+					Ext.getCmp('WSDWPartyReceiveArchivesForm.directionOption').setValue(Ext.decode(action.response.responseText).data[0].typeName);
+					Ext.getCmp('WSDWPartyReceiveArchivesForm.leaderName').setValue(Ext.decode(action.response.responseText).data[0].reviewUserName);
+					Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').setValue(Ext.decode(action.response.responseText).data[0].reviewUser);
+					Ext.getCmp('WSDWarchivesReceiveForm.enclosure').setValue(Ext.decode(action.response.responseText).data[0].enclosure);
+					var data = Ext.decode(action.response.responseText).data[0];
+					Ext.getCmp('WSDWarchivesReceiveForm.archivesType').setValue(data.parentArchId);
+				},
+				failure : function(form, action) {
+				}
+			});
+		}
+		WSDWPartyReceiveArchivesPanel.superclass.constructor.call(this, {
+					id : 'WSDWPartyReceiveArchivesPanel',
+					layout : 'form',
+					items : [this.formPanel],
+					modal : true,
+					maximizable : true,
+					autoHeight : true,
+					width : 800,
+					bodyStyle : "center",
+					iconCls : 'menu-archive-draft',
+					title : '重庆市藄江交通委员会收文处理笺',
+					buttonAlign : 'center',
+					buttons : [{
+								text :'启动流程',
+								id : 'archivesReceiveButtonSave',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							},{
+								text :'保存草稿',
+								iconCls : 'btn-beready-save',
+								scope : this,
+								handler : this.savedraft
+							}]
+				});
+		var jsArr = [__ctxPath + '/js/archive/ArchivesDocForm.js',
+				__ctxPath + '/js/archive/ArchivesDocForm.js',
+				__ctxPath + '/js/archive/ArchivesDocHistoryWin.js',
+				__ctxPath + '/js/archive/ArchiveTypeTempView.js',
+				__ctxPath + '/js/archive/ArchTemplateView.js',
+				__ctxPath + '/js/archive/ArchTemplateForm.js',
+				__ctxPath + '/js/archive/OfficeTemplateView.js',
+				__ctxPath + '/js/archive/ArchTemplateSelector.js',
+				__ctxPath + '/js/archive/ArchivesUtil.js'];
+		$ImportSimpleJs(jsArr, null);
+	},
+
+	save : function() {	
+		/*if (this.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		/*来文单位*/Ext.getCmp('WSDWPartyReceiveArchivesForm.issueDep').allowBlank = false;
+		/*标题*/Ext.getCmp('WSDWPartyReceiveArchivesForm.subject').allowBlank = false;
+		var docCount = this.store.getCount();
+			var defId = this.defId;
+			// 获取要提交的表单
+			var formPanel = Ext.getCmp('WSDWPartyReceiveArchivesForm');
+			if (formPanel.getForm().isValid()) {
+				if(archivesId){
+					Ext.Ajax.request({
+						url : __ctxPath + '/archive/updateIsReceiveArchives.do',
+						params : {
+							'archivesId' : archivesId
+						},
+						method:'post',
+						success : function(response, options) {
+						}
+					});
+				}
+				// 发文的文档附件
+				var docParams = [];
+
+				for (var i = 0; i < docCount; i++) {
+					docParams.push(this.store.getAt(i).data);
+				}
+				var option = formPanel.getCmpByName('archives.typeName')
+						.getGroupValue();
+				var userId = Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').getValue();
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				var signId=Ext.getCmp('WSDWPartyReceiveArchivesForm.snId').getValue();
+				Ext.getCmp('WSDWPartyReceiveArchivesForm.snConfigId').setValue(signId);
+				var param = {
+					defId : defId,
+					startFlow : true,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo: sendInfo,
+					userId : curUserInfo.userId,
+					depIds:Ext.getCmp('WSDWPartyReceiveArchivesForm.departmentId').getValue()
+				};
+				if (option == '1') {
+					Ext.apply(param, {
+								chooseDirection : 1,
+								nextUserId: userId,
+								flowAssignId : userId
+							});
+				} else if (option == '2') {
+					Ext.apply(param, {
+								chooseDirection : 2,
+								nextUserId : userId,
+								flowAssignId : userId
+							});
+				} 
+				// alert(Ext.util.JSON.encode(param));return false;
+			Ext.Ajax.request({
+								url : __ctxPath + '/snconfig/getSnNoFileSnConfig.do',
+								params : {
+									defId : defId,
+									snConfigId : Ext.getCmp("WSDWPartyReceiveArchivesForm.snId")
+											.getValue()
+								},
+								method : 'POST',
+								waitMsg : "正在生成编号，请稍等",
+								success : function(response, options) {
+									var archivesNo = Ext.util.JSON.decode(response.responseText).data;
+									var url1=__ctxPath + '/archive/saveNormalArchives.do';
+									var url2=__ctxPath + '/archive/saveArchives.do';
+				formPanel.getForm().submit({
+					method : 'POST',
+					url:archivesId?url2:url1,
+					waitMsg : '正在提交表单数据...',
+					params : {
+						'archives.isdraft' : 0,
+						'archives.isArchive' : 1,
+						'archives.archivesNo' : archivesNo,
+						docs :docParams.length>0?Ext.encode(docParams):null
+					},
+					success : function(fp, action) {
+						var archivesId = action.result.archivesId;
+						var fileIds = Ext
+								.getCmp('WSDWPartyReceiveArchives.fileIds')
+								.getValue();
+						if (fileIds == "")
+							fileIds = 0;
+						Ext.apply(param, {
+									fileIds : fileIds,
+									archivesId : archivesId
+								});
+						// 启动流程
+						formPanel.getForm().submit({
+							url : __ctxPath + '/flow/saveProcessActivity.do',
+							waitMsg : '正在发起流程...',
+							method : 'post',
+							params : param,
+							success : function(response, options) {
+								var processInsId = options.result.runId;
+								Ext.Ajax.request({
+									url : __ctxPath
+											+ '/archive/updateRunIdArchives.do',
+									params : {
+										'archivesId' : archivesId,
+										'runId' : processInsId
+									},
+									method : 'post',
+									success : function(response, options) {
+										Ext.ux.Toast.msg('操作信息', '登记成功！');
+										Ext.getCmp('centerTabPanel').remove(Ext
+												.getCmp('ProcessRunStart'
+														+ defId));
+										refreshTaskPanelView();
+									}
+								});
+							}
+						});
+					},
+					failure : function(fp, action) {
+						Ext.MessageBox.show({
+									title : '操作信息',
+									msg : '提交表单出错，请联系管理员！',
+									buttons : Ext.MessageBox.OK,
+									icon : Ext.MessageBox.ERROR
+								});
+					}
+				});},
+					failure : function(response, options) {
+						Ext.ux.Toast.msg('操作信息', '生成编号出错，请联系管理员！');
+					}
+				});
+			}
+	},
+	savedraft : function() {
+		/*来文单位*/Ext.getCmp('WSDWPartyReceiveArchivesForm.issueDep').allowBlank = true;
+		/*标题*/Ext.getCmp('WSDWPartyReceiveArchivesForm.subject').allowBlank = true;
+		/*审批负责人*/Ext.getCmp('WSDWPartyReceiveArchivesForm.leaderName').allowBlank = true;
+		var docCount = this.store.getCount();
+			var defId = this.defId;
+			
+			// 获取要提交的表单
+			var formPanel = Ext.getCmp('WSDWPartyReceiveArchivesForm');
+			if (formPanel.getForm().isValid()) {
+				var docParams = [];
+
+				for (var i = 0; i < docCount; i++) {
+					docParams.push(this.store.getAt(i).data);
+				}
+				var option = formPanel.getCmpByName('archives.typeName')
+						.getGroupValue();
+				var userId = Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').getValue();
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				var signId=Ext.getCmp('WSDWPartyReceiveArchivesForm.snId').getValue();
+				Ext.getCmp('WSDWPartyReceiveArchivesForm.snConfigId').setValue(signId);
+				var param = {
+					defId : defId,
+					startFlow : true,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo : sendInfo,
+					userId : curUserInfo.userId,
+					nextUserId:Ext.getCmp('WSDWPartyReceiveArchivesForm.viceLeaderIds').getValue(),
+					depIds:Ext.getCmp('WSDWPartyReceiveArchivesForm.departmentId').getValue()
+				};
+				if (option == '1') {
+					Ext.apply(param, {
+								chooseDirection : 1,
+								flowAssignId : userId
+							});
+				} else if (option == '2') {
+					Ext.apply(param, {
+								chooseDirection : 2
+							});
+				} 
+				// alert(Ext.util.JSON.encode(param));return false;
+				var url1=__ctxPath + '/archive/saveNormalArchives.do';
+				var url2=__ctxPath + '/archive/saveArchives.do';
+				formPanel.getForm().submit({
+					method : 'POST',
+					url:archivesId?url2:url1,
+					waitMsg : '正在提交表单数据...',
+					params : {
+						'archives.isArchive' : 1,
+						'archives.isdraft':1,
+						docs :docParams.length>0?Ext.encode(docParams):null
+					},
+					success : function(fp, action) {
+						var archivesId = action.result.archivesId;
+						var fileIds = Ext
+								.getCmp('WSDWPartyReceiveArchives.fileIds')
+								.getValue();
+						if (fileIds == "")
+							fileIds = 0;
+						Ext.apply(param, {
+									fileIds : fileIds,
+									archivesId : archivesId
+								});
+								Ext.ux.Toast.msg('操作信息', '登记成功！');
+								var IncomingGrid = Ext.getCmp('IncomingGrid');
+									if (IncomingGrid != null) {
+										IncomingGrid.getStore().reload();
+									}
+										Ext.getCmp('centerTabPanel').remove(Ext
+												.getCmp('ProcessRunStart'
+														+ defId));
+										refreshTaskPanelView();
+					},
+					failure : function(fp, action) {
+						Ext.MessageBox.show({
+									title : '操作信息',
+									msg : '提交表单出错，请联系管理员！',
+									buttons : Ext.MessageBox.OK,
+									icon : Ext.MessageBox.ERROR
+								});
+					}
+				});
+			}
+		
+	}
+})

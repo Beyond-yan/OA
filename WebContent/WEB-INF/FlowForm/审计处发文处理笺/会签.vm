@@ -1,0 +1,188 @@
+AuditSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		AuditSentArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id : 'AuditSentArchiveDepCheckWin',
+					modal : true,
+					height : 680,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			id :'SJCSentArchiveDepCheck.displayPanel',
+			autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&sentPanelId=SJCSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'AuditSentArchiveDepCheckWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+				   					id:'AuditSentArchiveDepCheck.leaderOpinion',
+									name : 'leaderRead.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('AuditSentArchiveDepCheck.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}/*,{
+			   id : 'SJCHQSentArchiveDepCheckForm.reFileId',
+			   xtype : 'hidden'
+					}*/]
+					  		}]
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		/*if(panel.store.getCount() == 0){
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (formPanel.getForm().isValid()) {
+			/*var docParams=Ext.getCmp("SJCHQSentArchiveDepCheckForm.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) 
+              {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}*/
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			result='呈部门负责人核稿';
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo : sendInfo,
+//					status:result,
+					flowAssignId : '${depExerId}',
+					checkNext:2,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextForSyncProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+                timeout : 120000,
+				params : params,
+				success : function(fp, action) {/*
+					Ext.Ajax.request({
+						url : __ctxPath + "/archive/updateArchDocsArchives.do",
+						params : {
+								  arcRecfileIds : Ext.getCmp('SJCHQSentArchiveDepCheckForm.reFileId').getValue(),
+								  'archives.archivesId':'${archivesId}'
+								  },
+						method : 'POST',
+						success : function(fp, action) {
+						Ext.ux.Toast.msg('操作信息', '会签成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+					
+				*/	//Ext.ux.Toast.msg('操作信息', '会签成功！');
+                    // --无后续的错误友好提示开始
+                    var jsonResult = action.result;
+                    if (jsonResult) {
+                        if (jsonResult && jsonResult.success == "true") {
+                            Ext.ux.Toast.msg("操作信息", "操作成功！");
+                        } else {
+                            var resultMsg = "信息保存出错，请联系管理员！";
+                            var resuIcon = Ext.MessageBox.ERROR;
+                            if (jsonResult.message && jsonResult.message != null) {
+                                resultMsg = jsonResult.message;
+                                if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+                                    resuIcon= Ext.MessageBox.WARNING;
+                                }
+                            }
+                            Ext.MessageBox.show({
+                                title : '操作信息',
+                                msg : resultMsg,
+                                buttons : Ext.MessageBox.OK,
+                                icon : resuIcon
+                            });
+                        }
+                    }
+                    // --无后续的错误友好提示结束
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();},
+				failure : function(fp, action) {
+					## Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+                    Ext.MessageBox.show({
+                        title : '操作信息',
+                        msg : '当前系统繁忙，请稍后再处理！',
+                        buttons : Ext.MessageBox.OK,
+                        icon : Ext.MessageBox.WARNING
+                    });
+				}
+			});
+		}
+	}// end of save
+})

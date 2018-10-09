@@ -1,0 +1,509 @@
+GSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'GGJBHGSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 740,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		if(!'${archivesNo}'){
+		if(curUserInfo.isArchNoAdmin){
+				var did='${defId}';
+						Ext.Ajax.request({
+										url : __ctxPath + '/snconfig/listByPageFileSnConfigOrder.do',
+										params : {
+											'flowId' : did,
+											'userId':'${flowStartUserId}',
+											'isUsed':0
+										},
+										method:'post',
+										success : function(response, options) {
+											var af=Ext.util.JSON.decode(response.responseText).result;
+										if(af!=""&&af!=null){	
+										if('${isReserveNo}'==1){
+									  Ext.Msg.confirm('提示', '该拟稿人已预约编号，是否使用预约编号？', function(btn, text) {
+												if (btn == 'yes') {
+													 Ext.getCmp('GGJBHradiogroup.YYArchNO').show();
+													 Ext.get('GGJBHradiogroup.YYArchNO').dom.checked=true;
+													 Ext.getCmp('GGJGSentArchiveDepCheckForm.signs').hide();
+													 Ext.getCmp('GSentArchiveDepCheck_snName').allowBlank=true;
+												     Ext.getCmp('GGJGarchives_archivesNo').hide();
+												     Ext.getCmp('Garchives_archivesNo').allowBlank=true;
+												     Ext.getCmp('G_JLJCbianhao').hide();
+												     Ext.getCmp('GJLJCbianhao').allowBlank=true;
+												     Ext.getCmp('GJLJCbianhao').clearValue();
+												     Ext.getCmp('Garchives_archivesNo').setValue('');
+												     Ext.getCmp('GGJ_orderarchives_archivesNo').show();
+												     Ext.getCmp('GGJorderarchives_archivesNo').allowBlank=false;
+												}else{
+													Ext.get('GGJBHradiogroup.ArchNo').dom.checked=true;
+												}
+											})
+								}}
+													}
+						});
+	}}
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'GGJDZGWGSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=GGJDZGWGSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		
+		
+		
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			id : 'GSentArchiveDepCheckForm',
+			border : false,
+			defaults : {
+				style : 'padding:5px 0 0 0;',
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'GGJBHGSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archivesId',
+						id:'GGJBHArchivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					},{
+						xtype : 'radiogroup',
+						allowBlank : true,
+						disabled:'${archivesNo}'?true:false,
+						id:'GJLJCradiogroup',
+						columns :[.3,.3,.3],
+						items : [{
+							boxLabel : '编号',
+							name : 'depOption',
+							inputValue : 1,
+							id:'GGJBHradiogroup.ArchNo',
+							checked:'${isReserveNo}'==1&&curUserInfo.isArchNoAdmin?false:true,
+							checked:true,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GGJGSentArchiveDepCheckForm.signs').show();
+										Ext.getCmp('GSentArchiveDepCheck_snName').allowBlank=false;
+									    Ext.getCmp('GGJGarchives_archivesNo').show();
+									    Ext.getCmp('Garchives_archivesNo').allowBlank=false;
+									    Ext.getCmp('G_JLJCbianhao').hide();
+									    Ext.getCmp('GJLJCbianhao').allowBlank=true;
+									    Ext.getCmp('GJLJCbianhao').clearValue();
+									    Ext.getCmp('Garchives_archivesNo').setValue('');
+									    Ext.getCmp('GGJ_orderarchives_archivesNo').hide();
+									    Ext.getCmp('GGJorderarchives_archivesNo').allowBlank=true;
+									    Ext.getCmp('GGJorderarchives_archivesNo').clearValue();
+									}
+								}
+							}
+							
+						}, {
+							boxLabel : '跨年编号',
+							name : 'depOption',
+							hidden : curUserInfo.isArchNoAdmin?false:true,
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('G_JLJCbianhao').show();
+									    Ext.getCmp('GJLJCbianhao').allowBlank=false;
+										Ext.getCmp('GGJGSentArchiveDepCheckForm.signs').show();
+										Ext.getCmp('GSentArchiveDepCheck_snName').allowBlank=false;
+									    Ext.getCmp('GGJGarchives_archivesNo').show();
+									    Ext.getCmp('Garchives_archivesNo').allowBlank=false;
+									    Ext.getCmp('Garchives_archivesNo').setValue('');
+									    Ext.getCmp('GGJ_orderarchives_archivesNo').hide();
+									    Ext.getCmp('GGJorderarchives_archivesNo').allowBlank=true;
+									    Ext.getCmp('GGJorderarchives_archivesNo').clearValue();
+									}
+								}
+							}
+						},{
+							boxLabel : '预约编号',
+							name : 'depOption',
+							id:'GGJBHradiogroup.YYArchNO',
+							inputValue : 3,
+							hidden : true,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GGJGSentArchiveDepCheckForm.signs').hide();
+										Ext.getCmp('GSentArchiveDepCheck_snName').allowBlank=true;
+									    Ext.getCmp('GGJGarchives_archivesNo').hide();
+									    Ext.getCmp('Garchives_archivesNo').allowBlank=true;
+									    Ext.getCmp('G_JLJCbianhao').hide();
+									    Ext.getCmp('GJLJCbianhao').allowBlank=true;
+									    Ext.getCmp('GJLJCbianhao').clearValue();
+									    Ext.getCmp('Garchives_archivesNo').setValue('');
+									    Ext.getCmp('GGJ_orderarchives_archivesNo').show();
+									    Ext.getCmp('GGJorderarchives_archivesNo').allowBlank=false;
+									}
+								}
+							}
+						}],
+						fieldLabel : '编号步骤'
+					},{
+						xtype : 'container',
+						id : 'G_JLJCbianhao',
+						layout : 'column',
+						height : 30,
+						hidden:true,
+						//allowBlank : '${archivesNo}'?true:false,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '选择时间：',
+									width : 105,
+									hideParent :true
+								}, {
+									xtype : "combo",
+									id : "GJLJCbianhao",
+									format:'Y',
+									editable : false,
+									hideParent :true,
+									//allowBlank : '${archivesNo}'?true:false,
+									width:440,
+									triggerAction : 'all',
+									//forceSelection : true,
+									mode:'local',
+									store:[Ext.util.Format.date(new Date(),'Y')-1,Ext.util.Format.date(new Date(),'Y')-2]
+								}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						id:'GGJGSentArchiveDepCheckForm.signs',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '编号名称：',
+									width : 105
+								}, {
+									xtype : "combo",
+									id : "GSentArchiveDepCheck_snName",
+									valueField : 'snId',
+									displayField : 'snName',
+									editable : false,
+									disabled:'${archivesNo}'?true:false,
+									allowBlank : '${archivesNo}'?true:false,
+									triggerAction : 'all',
+									forceSelection : true,
+									width : 440,
+									store : new Ext.data.SimpleStore({
+										url :__ctxPath + '/snconfig/getSignsFlowSnConfig.do?flowId=${defId}',
+										autoLoad : true,
+										fields : ['snId', 'snName']
+									})
+								}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						id:'GGJGarchives_archivesNo',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '公文编号：',
+									width : 105
+								}, {
+									name : 'archivesNo',
+									id:'Garchives_archivesNo',
+									xtype : 'textfield',
+									allowBlank : false,
+//									readOnly :true,
+									width : 445,
+									value : '${archivesNo}'
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '生成编号',
+									disabled:'${archivesNo}'?true:false,
+									handler : function() {
+										if(Ext.getCmp('GJLJCradiogroup').isValid()&&Ext.getCmp('GJLJCbianhao').isValid()&&Ext.getCmp('GSentArchiveDepCheck_snName').isValid()){
+											var snon=Ext.getCmp("GSentArchiveDepCheck_snName").getValue();
+											var sntime=Ext.getCmp("GJLJCbianhao").getValue();
+											if(""==sntime){
+											Ext.Ajax.request({
+												url : __ctxPath + '/snconfig/getSnNoFileSnConfig.do',
+												params : {
+													defId : '${defId}',
+													snConfigId:Ext.getCmp("GSentArchiveDepCheck_snName").getValue()
+												},
+												method : 'POST',
+												waitMsg : "正在生成编号，请稍等",
+												success : function(response, options) {
+													var archivesNo = Ext.util.JSON.decode(response.responseText).data;
+													Ext.getCmp('Garchives_archivesNo').setValue(archivesNo);
+													Ext.Ajax.request({
+														url : __ctxPath + '/archive/updateArchNoArchives.do',
+														params : {
+															'archivesId' : Ext.getCmp("GGJBHArchivesId").getValue(),
+															'archivesNo': archivesNo,
+														   	'fileSnConfig': Ext.getCmp('GSentArchiveDepCheck_snName').getValue()
+														},
+														method:'post',
+														success : function(response, options) {},
+														failure : function(response, options) {
+															Ext.ux.Toast.msg('编号名称错误，请联系管理员！');
+														}
+													});
+												},
+												failure : function(response, options) {
+													Ext.ux.Toast.msg('操作信息', '生成编号出错，请联系管理员！');
+												}
+											});}else if(""!=sntime){
+											Ext.Ajax.request({
+												url : __ctxPath + '/snconfig/getHistorySnNoFileSnConfig.do',
+												params : {
+													defId : '${defId}',
+													snConfigId:snon,
+												    snYear:sntime
+												},
+												method : 'POST',
+												waitMsg : "正在生成编号，请稍等",
+												success : function(response, options) {
+													var archivesNo = Ext.util.JSON.decode(response.responseText).data;
+													Ext.getCmp('Garchives_archivesNo').setValue(archivesNo);
+													Ext.Ajax.request({
+														url : __ctxPath + '/archive/updateArchNoArchives.do',
+														params : {
+															'archivesId' : Ext.getCmp("GGJBHArchivesId").getValue(),
+															'archivesNo': archivesNo,
+														   	'fileSnConfig': Ext.getCmp('GSentArchiveDepCheck_snName').getValue()
+														},
+														method:'post',
+														success : function(response, options) {},
+														failure : function(response, options) {
+															Ext.ux.Toast.msg('编号名称错误，请联系管理员！');
+														}
+													});
+												},
+												failure : function(response, options) {
+													Ext.ux.Toast.msg('操作信息', '生成编号出错，请联系管理员！');
+												}
+											});
+											
+											}
+										}
+									}
+								}]
+				},{
+						xtype : 'container',
+						layout : 'column',
+						id:'GGJ_orderarchives_archivesNo',
+						style:'padding-bottom:5px;',
+						defaults : {
+							border : false
+						},
+						hidden:true,
+						items : [{
+									xtype : 'label',
+									text : '预约公文编号：',
+									hideParent :true,
+									width : 105
+								}, {
+									id:'GGJorderarchives_archivesNo',
+									xtype : 'combo',
+									hideParent :true,
+									editable : false,
+									resizable : true,
+									allowBlank:true,
+									triggerAction : 'all',
+									displayField : 'orderSnName',
+									valueField : 'id',
+									// emptyText:'请选择分类',
+									store : new Ext.data.SimpleStore({
+										autoLoad : true,
+										url : __ctxPath + '/snconfig/listFileSnConfigOrder.do?flowId=${defId}&userId=${flowStartUserId}',
+										fields : [ 'id', 'orderSnName' ]
+									}),
+									listeners:{'select':function(){
+										var archiveNo = Ext.getCmp('GGJorderarchives_archivesNo');
+										if(null != archiveNo.getValue() || "" != archiveNo.getValue()){
+											Ext.Ajax.request({
+												url :__ctxPath + '/snconfig/getFileSigIdFileSnConfigOrder.do?flowId='+archiveNo.getValue(),
+												method : 'POST',
+												waitMsg : "正在获取编号名称，请稍等",
+												success : function(response, options) {
+													var signId = Ext.util.JSON.decode(response.responseText).data;
+													Ext.getCmp('GSentArchiveDepCheck_snName').setValue(signId);
+												},
+												failure : function(response, options) {
+													Ext.ux.Toast.msg('编号名称错误，请联系管理员！');
+												}
+											})
+										}
+								   Ext.getCmp('Garchives_archivesNo').setValue(Ext.get('GGJorderarchives_archivesNo').dom.value);
+								 //alert(Ext.getCmp('warchives_archivesNo').getValue());
+								}},
+									width : 440
+								}]
+				},{
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '备注：',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440,
+									height:40
+								}/*,{
+			   id : 'GGJBHSentArchiveDepCheckForm.reFileId',
+			   xtype : 'hidden'
+					}*/]
+					}]
+		});
+		var archivesId='${archivesId}';
+		if(archivesId){
+			Ext.Ajax.request({
+				url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='+archivesId,
+				method:'post',
+				success : function(response, options) {
+					var archivesNo=Ext.decode(response.responseText).data[0].archivesNo;
+					var snConfigId=Ext.decode(response.responseText).data[0].snConfigId;
+					if(archivesNo!=0){
+						Ext.getCmp('Garchives_archivesNo').setValue(archivesNo);
+						Ext.getCmp('GSentArchiveDepCheck_snName').getStore().load({
+							callback: function () {
+								//等待数据加载完成才进行赋值，不然由于异步会出现先赋值后加载完成。 
+								Ext.getCmp('GSentArchiveDepCheck_snName').setValue(snConfigId);
+							},
+							scope: Ext.getCmp('GSentArchiveDepCheck_snName').getStore(),//表示作用范围 
+							add: false //为false表示数据不累加 
+						});
+					}
+				},
+				failure : function(response, options) {
+					Ext.ux.Toast.msg('操作错误，请联系管理员！');
+				}
+			});
+		}
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if(panel.store.getCount() == 0){
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}
+		if (formPanel.getForm().isValid()) {
+			/*var docParams=Ext.getCmp("GGJBHSentArchiveDepCheckForm.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) 
+              {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}*/
+			var archivesNo = Ext.getCmp("Garchives_archivesNo").getValue();
+			 if(archivesNo == ""||null==archivesNo){alert('请先生成编号！'); return false;}
+			Ext.Ajax.request({
+				url : __ctxPath + '/archive/updateArchNoArchives.do',
+				params : {
+					'archivesId' : Ext.getCmp("GGJBHArchivesId").getValue(),
+					'archivesNo':archivesNo,
+					'fileSnConfig': Ext.getCmp('GSentArchiveDepCheck_snName').getValue()
+				},
+				method:'post',
+				success : function(response, options) {
+					var sendMail = msgPanel.getCmpByName('sendMail')
+							.getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg')
+							.getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : {
+							taskId : panel.taskId,
+							signalName : signalName,
+							activityName : activityName,
+							ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo:sendInfo,
+							archivesNo : archivesNo,
+							comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue(),
+							depLeaderOption : '同意'
+						},
+						success : function(fp, action) {
+							/*Ext.Ajax.request({
+						url : __ctxPath + "/archive/updateArchDocsArchives.do",
+						params : {
+								  arcRecfileIds : Ext.getCmp('GGJBHSentArchiveDepCheckForm.reFileId').getValue(),
+								  'archives.archivesId':'${archivesId}'
+								  },
+						method : 'POST',
+						success : function(fp, action) {},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});*/
+							var option = formPanel.getCmpByName('depOption').getGroupValue();
+								if(3==option){
+									Ext.Ajax.request({
+								       url : __ctxPath+ '/snconfig/saveFileSnConfigOrder.do',
+								       params : {
+									   orderId : Ext.getCmp("GGJorderarchives_archivesNo").getValue(),
+								       userId:curUserInfo.userId
+								      },
+								      method:'post'})
+								}
+							Ext.ux.Toast.msg('操作信息', '编号成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				}
+			});
+			
+		}
+	}// end of save
+})

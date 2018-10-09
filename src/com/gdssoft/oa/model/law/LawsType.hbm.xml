@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.gdssoft.oa.model.law"> 
+  <class name="LawsType" table="laws_type"> 
+    <id name="typeId" column="type_Id" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="typeName" type="java.lang.String" update="true" insert="true" access="property" column="type_name" length="128" not-null="true" unique="false"/>   
+    <set name="laws" table="laws" lazy="true" inverse="true" cascade="save-update,delete-orphan" sort="unsorted"> 
+      <key column="type_Id"/>  
+      <one-to-many class="Laws"/> 
+    </set> 
+  </class> 
+</hibernate-mapping>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="signUserIds" label="处理人员" type="varchar" length="320" isShowed="false"/>
+	<field name="readFeedback" label="指派意见" type="varchar" length="320" isShowed="true"/>
+	<field name="flowAssignId" label="下一步执行人" type="varchar" length="320" isShowed="false"/>
+	<field name="officeLeaderOption" label="指派结果" type="varchar" isShowed="false"/>
+	<field name="classId" label="承办工班ID" type="varchar" isShowed="false"/>
+</fields>

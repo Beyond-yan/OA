@@ -1,0 +1,5 @@
+<%@ page language="java" contentType="text/xml; charset=UTF-8" pageEncoding="UTF-8"%><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %><data>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+<c:forEach items="${dutySignRecordList}" var="dutySignRecordList">
+<event id='${dutySignRecordList.id}' sId='${dutySignRecordList.id}' start_date='${dutySignRecordList.sgDate}' end_date='${dutySignRecordList.sgDate}' text='${dutySignRecordList.appUser.fullname}' description='222' priority='1'/>
+</c:forEach>
+</data>

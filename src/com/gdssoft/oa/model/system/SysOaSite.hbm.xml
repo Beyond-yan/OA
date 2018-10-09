@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.system.SysOaSite"
+        table="SYS_OA_SITE"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+         schema="OA_COMMON">
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="22"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="siteCode"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="SITE_CODE"
+            length="20"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="siteName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="SITE_NAME"
+            length="200"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="ownerType"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="OWNER_TYPE"
+            length="22"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createUser"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_USER"
+            length="64"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_DATE"
+            length="7"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="updateUser"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="UPDATE_USER"
+            length="64"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="updateDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="UPDATE_DATE"
+            length="7"
+            not-null="false"
+            unique="false"
+        />
+  <!-- exported bi-directional one-to-many association to SysSchemaConfig -->
+	<set name="sysSchemaConfigs"
+	     table="sys_schema_config"
+	     lazy="true"
+	     inverse="true"
+	     cascade="save-update"
+	     sort="unsorted"
+	>
+		<key>
+			<column name="SITE_ID"/>
+		</key>
+		<one-to-many
+			class="com.gdssoft.oa.model.system.SysSchemaConfig" embed-xml="false" />
+	</set>     
+    </class>
+</hibernate-mapping>

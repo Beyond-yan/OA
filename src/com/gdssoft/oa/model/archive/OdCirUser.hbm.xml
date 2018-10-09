@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.archive.OdCirUser"
+        table="OD_CIR_USER"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="cirUserId"
+            column="CIR_USER_ID"
+            type="java.lang.Long"
+            length="19"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="path"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="PATH"
+            length="500"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="readDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="READ_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        
+         <property 
+         	 name="isRead" 
+         	 type="java.lang.Short" 
+         	 update="true" 
+         	 insert="true" 
+         	 access="property" 
+         	 column="IS_READ" 
+         	 length="5" 
+         	 not-null="true" 
+         	 unique="false"/>
+      <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="sendUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+            fetch="select"
+		>	
+			<column name="SEND_USER_ID" />
+		</many-to-one>
+       
+     <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="recUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+            fetch="select"
+		>	
+			<column name="REC_USER_ID" />
+		</many-to-one>
+    <!-- imported bi-directional many-to-one association to OdCirPaper -->
+		<many-to-one
+			name="odCirPaper"
+			class="com.gdssoft.oa.model.archive.OdCirPaper"
+            not-null="false"
+            fetch="select"
+		>	
+			<column name="CIR_PAPER_ID" />
+		</many-to-one>
+    <!-- imported bi-directional many-to-one association to ProcessRun -->
+		<many-to-one
+			name="processRun"
+			class="com.gdssoft.oa.model.flow.ProcessRun"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="PROCESS_RUN_ID" />
+		</many-to-one>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="OfficeCheck" label="办公室审核下步执行人" type="varchar" length="100" isShowed="false" />
+	<field name="BHUserId" label="办公室审核执行者id" type="varchar" length="100" isShowed="true" />
+	<field name="localNext" label="领导会签后跳转标识" type="varchar" length="100" isShowed="true" />
+</fields>

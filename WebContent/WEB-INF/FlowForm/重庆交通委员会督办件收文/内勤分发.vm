@@ -1,0 +1,477 @@
+DuBanDistributeView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		DuBanDistributeView.superclass.constructor.call(this, {
+					id : 'DuBanDistributeViewWin',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 690,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									}),
+									new Ext.Button({
+									   iconCls:'btn-changeTask',
+									   id:'DuBanDistributeViewWin.return',
+									   text:'退回',
+									   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	backsetp:function(formPanel,panel,activityName){
+		Ext.getCmp('DuBanDistributeViewForm.proposeLeaderNames').allowBlank=true;
+		Ext.getCmp('DuBanDistributeViewForm.twoLeaderNames').allowBlank=true;
+		Ext.getCmp('DuBanDistributeViewForm.threeLeaderNames').allowBlank=true;
+		if (!formPanel.getForm().isValid()){return false;}
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId;
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue(),
+								destName : prevDestName,
+								status : '退回',
+								//看是否指定了执行人员
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息','退回成功！');
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	/**
+	 * 保存公文的方法,传入公文状态作为参数
+	 */
+	onSave : function(formPanel, panel, signalName, activityName) {
+		var option = formPanel.getCmpByName('depOption').getGroupValue();
+		var uId=Ext.getCmp('DuBanDistributeViewForm.userId').getValue();
+		var xieUId=Ext.getCmp('DBxiebanchushiUserIds').getValue();
+		var comments=formPanel.getCmpByName('leaderRead.leaderOpinion').getValue();
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params={
+				taskId : taskId,
+				signalName : signalName,
+				activityName : activityName,
+				sendMail : sendMail,
+				nqffNextUserId:uId,
+				sendMsg : sendMsg,
+				officeExerId:curUserInfo.userId,
+				sendInfo : sendInfo,
+				comments:comments
+			};
+			if(1==option){//处内拟办
+				if (xieUId!=null&&xieUId!='') {
+					Ext.apply(params,{
+						nqffNext : 1,
+						destName : '处内协办',
+						signUserIds : xieUId
+					});
+				}else{
+					Ext.apply(params,{
+						nqffNext:0,
+						flowAssignId : uId
+					});
+				}
+			}else if(2==option){//处内承办
+			Ext.apply(params,{
+					nqffNext : 3,
+					flowAssignId:Ext.getCmp('DuBanDistributeViewForm.twoUserId').getValue()
+				});
+			}else if(3==option){//领导批示
+				Ext.apply(params,{
+						nqffNext : 2,
+						destName : '领导批示2',
+						signUserIds : Ext.getCmp('DuBanDistributeViewForm.threeUserId').getValue()
+					});
+			}else if(4==option){//结束
+				Ext.apply(params,{
+						nqffNext : 4
+					});
+			}
+			formPanel.getForm().submit({
+						method : 'POST',
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						params : params,
+						waitMsg : '正在提交数据...',
+						success : function(fp, action) {
+							Ext.ux.Toast.msg("操作信息", "分发成功！");
+							AppUtil.removeTab('ProcessForm' + taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}
+	},
+
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 获取处内拟办负责人
+		var initStore = new Ext.data.SimpleStore({
+					url :  __ctxPath+ '/system/searchByTwoRoleIdAppUser.do?role1Id='+roleMap.get('officeDeputyDirectorRoleID')+'&role2Id='+roleMap.get('officeDirectorRoleID'),
+					autoLoad : true,
+					fields : ['userId', 'fullname']
+				});
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					// title:'流程审批信息',
+					autoHeight : true,
+					columnWidth : 1,
+					id:'JWDBNQFFArchiveReceiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=JWDBNQFFArchiveReceiveDetailPanel',
+						nocache : true
+					}
+				});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : 'DuBanDistributeViewForm',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			items : [{
+						xtype : 'radiogroup',
+						id : 'DuBanDistributeViewForm.radiogroups',
+						allowBlank : false,
+						columns :[.25,.25,.25,0.25],
+						items : [ {
+							boxLabel : '处内拟办',
+							width :80,
+							name : 'depOption',
+							checked : true,
+							inputValue : 1,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('DuBanDistributeViewForm.Leaders').show();
+										Ext.getCmp('DuBanDistributeViewForm.oneChoice').show();
+										Ext.getCmp('DuBanDistributeViewForm.twoChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.threeChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.proposeLeaderNames').allowBlank=false;
+										Ext.getCmp('DuBanDistributeViewForm.twoLeaderNames').allowBlank=true;
+										Ext.getCmp('DuBanDistributeViewForm.threeLeaderNames').allowBlank=true;
+									}
+								}
+							}
+						}, {
+							width :100,
+							boxLabel : '处内承办',
+							name : 'depOption',
+							inputValue : 2,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('DuBanDistributeViewForm.Leaders').hide();
+										Ext.getCmp('DuBanDistributeViewForm.oneChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.twoChoice').show();
+										Ext.getCmp('DuBanDistributeViewForm.threeChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.proposeLeaderNames').allowBlank=true;
+										Ext.getCmp('DuBanDistributeViewForm.twoLeaderNames').allowBlank=false;
+										Ext.getCmp('DuBanDistributeViewForm.threeLeaderNames').allowBlank=true;
+									}
+								}
+							}
+						}, {
+							boxLabel : '领导批示',
+							width :160,
+							name : 'depOption',
+							inputValue : 3,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('DuBanDistributeViewForm.Leaders').hide();
+										Ext.getCmp('DuBanDistributeViewForm.oneChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.twoChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.threeChoice').show();
+										Ext.getCmp('DuBanDistributeViewForm.proposeLeaderNames').allowBlank=true;
+										Ext.getCmp('DuBanDistributeViewForm.twoLeaderNames').allowBlank=true;
+										Ext.getCmp('DuBanDistributeViewForm.threeLeaderNames').allowBlank=false;
+									}
+								}
+							}
+						}, {
+							width :100,
+							boxLabel : '完成',
+							name : 'depOption',
+							inputValue : 4,
+							listeners : {
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('DuBanDistributeViewForm.Leaders').hide();
+										Ext.getCmp('DuBanDistributeViewForm.oneChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.twoChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.threeChoice').hide();
+										Ext.getCmp('DuBanDistributeViewForm.proposeLeaderNames').allowBlank=true;
+										Ext.getCmp('DuBanDistributeViewForm.twoLeaderNames').allowBlank=true;
+										Ext.getCmp('DuBanDistributeViewForm.threeLeaderNames').allowBlank=true;
+									}
+								}
+							}
+						}],
+						fieldLabel : '审批步骤'
+					},{
+						xtype : 'container',
+						id : 'DuBanDistributeViewForm.Leaders',
+						style:'padding:6px 0px 0px 0px',
+						layout : 'column',
+						//style : 'padding-left:0px;margin-left:0px;',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '协办处室:',
+									width : 105
+								},{
+								    id : "DBxiebanchushiUserNames",
+								    xtype : 'textfield',
+									width : '60%',
+									//allowBlank:false,
+									readOnly : true
+									},{
+									   id:'DBxiebanchushiUserIds',
+									   xtype:'hidden'
+									   },{
+									xtype : 'button',
+									style:'padding-left:5px;',
+									iconCls : 'menu-department',
+									text : '协办处室',
+									handler : function() {
+										var url= __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID')+',1272407';	
+										DepLeaders.getView(
+												function(userIds, fullnames) {
+													     Ext.getCmp('DBxiebanchushiUserNames').setValue(fullnames);
+													     Ext.getCmp('DBxiebanchushiUserIds').setValue(userIds);
+												}, false, null,url).show();
+									}
+								},  {
+										xtype : 'button',
+										text : '清除人员',
+										iconCls : 'reset',
+										handler : function() {
+											Ext.getCmp('DBxiebanchushiUserNames')
+													.setValue('');
+													Ext.getCmp('DBxiebanchushiUserIds')
+													.setValue('');
+
+										}
+									}]
+					},{
+						xtype : 'container',
+						style:'padding:6px 0px 0px 0px',
+						id : 'DuBanDistributeViewForm.oneChoice',
+						layout : 'column',
+						//style : 'padding-left:0px;margin-left:0px;',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '处内拟办负责人:',
+									width : 105
+								},{
+								    id : "DuBanDistributeViewForm.proposeLeaderNames",
+								    xtype : 'textfield',
+									width : '60%',
+									allowBlank:false,
+									readOnly : true
+									},{
+									   id:'DuBanDistributeViewForm.userId',
+									   xtype:'hidden'
+									   },{
+									xtype : 'button',
+									style:'padding-left:5px;',
+									iconCls : 'menu-department',
+									text : '拟办人员',
+									handler : function() {
+										var url= __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID')+',1272407';
+										DepLeaders.getView(
+												function(userIds, fullnames) {
+													     Ext.getCmp('DuBanDistributeViewForm.proposeLeaderNames').setValue(fullnames);
+													     Ext.getCmp('DuBanDistributeViewForm.userId').setValue(userIds);
+													  }, true, null,url).show();
+									}
+								}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						id : 'DuBanDistributeViewForm.twoChoice',
+						hidden : true,
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '处内承办负责人:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '60%',
+									readOnly : true,
+									allowBlank:true,
+									id : 'DuBanDistributeViewForm.twoLeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'DuBanDistributeViewForm.twoUserId'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style:'padding-left:5px;',
+									text : '选择人员',
+									handler : function() {
+										var url= __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID')+',1272407';
+										DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('DuBanDistributeViewForm.twoUserId').setValue(userIds);
+											Ext.getCmp('DuBanDistributeViewForm.twoLeaderNames').setValue(fullnames);
+										},true, null,url).show();
+									}
+								}]
+					},{
+						xtype : 'container',
+						layout : 'column',
+						id : 'DuBanDistributeViewForm.threeChoice',
+						hidden : true,
+						style : 'padding-bottom:5px;padding-top:10px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '领导批示人员:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '60%',
+									readOnly : true,
+									allowBlank:true,
+									id : 'DuBanDistributeViewForm.threeLeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'DuBanDistributeViewForm.threeUserId'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									style:'padding-left:5px;',
+									text : '选择人员',
+									handler : function() {
+										var url= __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+roleMap.get('leaderRoleId');
+										DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('DuBanDistributeViewForm.threeUserId').setValue(userIds);
+											Ext.getCmp('DuBanDistributeViewForm.threeLeaderNames').setValue(fullnames);
+										},false, null,url).show();
+									}
+								}]
+					},{
+						
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[ {fieldLabel : '备注',
+										name : 'leaderRead.leaderOpinion',
+										id:'DuBanDirectorProposeForm.leaderOpinion',
+										autoScroll:true,
+										maxLength:500,
+										//allowBlank:false,
+										xtype:'textarea',
+										width:412,
+										height:40
+									},{
+			   id : 'DBNQFFSentArchiveDepCheckForm.reFileId',
+			   xtype : 'hidden'
+					}]
+					      }]
+					}]
+		});
+						if(taskId){
+			Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+					 if(prevDestName.toString().indexOf("领导批示")!=-1){
+					Ext.getCmp('DuBanDistributeViewWin.return').hide();
+				}
+			},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of init
+})

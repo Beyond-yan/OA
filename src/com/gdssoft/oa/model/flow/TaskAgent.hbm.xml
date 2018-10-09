@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.flow.TaskAgent"
+        table="Task_Agent"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="19"
+        >
+              <generator class="native"/>
+        </id>
+          <property
+            name="taskId"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="TASK_ID"
+            length="19"
+            not-null="true"
+            unique="false"
+        />
+          <property
+            name="fromUserId"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="FROM_USER_ID"
+            length="19"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="fromUserName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="FROM_USER_NAME"
+            length="100"
+            not-null="false"
+            unique="false"
+        />
+          <property
+            name="toUserId"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="TO_USER_ID"
+            length="19"
+            not-null="true"
+            unique="false"
+        />
+         <property
+            name="toUserName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="TO_USER_NAME"
+            length="100"
+            not-null="false"
+            unique="false"
+        />
+         <property
+            name="remark"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="REMARK"
+            length="500"
+            not-null="false"
+            unique="false"
+        />
+    </class>
+</hibernate-mapping>

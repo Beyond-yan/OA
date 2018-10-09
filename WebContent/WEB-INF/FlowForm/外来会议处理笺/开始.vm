@@ -1,0 +1,440 @@
+MeetingRecordStart = Ext.extend(Ext.Panel, {	
+	searchPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();	
+		MeetingRecordStart.superclass.constructor.call(this, {
+					id : 'MeetingRecordStart',
+					iconCls : 'menu-attachment',
+					title : '外来会议处理笺',
+					region : 'center',
+					items : [this.searchPanel],
+					buttonAlign : 'center',
+					buttons : [{
+								text : '启动流程',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}]
+				});
+	},
+	save : function(){
+		var defId = this.defId;
+		var isSaveOnly = false;
+		var formPanel = Ext.getCmp('MeetingRecordStartForm');
+		if(formPanel.getForm().isValid()){
+			var leaderIds = Ext.getCmp('MeetingRecordStart.leaderIds').getValue();
+		    var officerIds = Ext.getCmp('MeetingRecordStart.officerIds').getValue();
+		    var attendSubDeps = Ext.getCmp('MeetingRecordStart.attendSubDeps').getValue();
+		    
+		    var docIds = '';
+			Ext.getCmp('MeetingRecordStart.docGridPanel').getStore().each(function(rec){
+				docIds += rec.data.fileId+',';
+			},this);
+				
+			if(!leaderIds && !officerIds && !!attendSubDeps){
+				Ext.Msg.confirm('提示', '您没有填写"参会领导"或"参会处室",请确认需要继续提交吗？', function(btn) {
+					if (btn == 'yes') {
+						Ext.getCmp('outMeeting.attendType').setValue(0);
+						formPanel.getForm().submit({
+							method : 'post',
+							params : {
+								docIds : docIds 
+							},
+							waitMsg : '正在提交数据...',
+							success : function(fp, action) {
+								Ext.ux.Toast.msg('操作信息', '成功保存！');
+								Ext.getCmp('centerTabPanel').remove(Ext.getCmp('ProcessRunStart' + defId));
+								refreshTaskPanelView();
+							},
+							failure : function(fp, action) {
+								Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+							}
+						});
+					}else{
+						return false;
+					}
+				});
+			}else{
+				formPanel.getForm().submit({
+					method : 'post',
+					params : {
+						docIds : docIds//正文
+					},
+					waitMsg : '正在提交数据...',
+					timeout:60000,
+					success : function(fp, action) {
+						var meetingId = action.result.meetingId;
+						var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+						var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+						var opt = Ext.getCmp('outMeeting.attendType').getValue();
+						var attendLeaders=Ext.getCmp('MeetingRecordStart.attendLeaders').getValue();
+						var holdDt=formPanel.getCmpByName('holdDt').getValue();
+						var holdDep = formPanel.getCmpByName('outMeeting.holdDep').getValue();
+						var meetingName = formPanel.getCmpByName('outMeeting.name').getValue();
+						var myMask = new Ext.LoadMask(Ext.getBody(), {
+							msg:"正在提交数据...",
+							removeMask :true
+						});
+						myMask.show();
+						Ext.Ajax.request({
+							url : __ctxPath + '/flow/saveProcessActivity.do',
+							method : 'post',
+							waitMsg : '正在发起流程...',
+							params  : {
+								defId : defId,
+								sendMail : sendMail,
+								sendMsg : true,
+								meetingId : meetingId,
+								signUserIds : officerIds,
+								outMeeting_leaders:leaderIds,
+								archivesSubject:(Ext.getCmp('outMeeting_name').getValue()),
+								noticeText:Ext.getCmp('noticeText').getValue()+"，请阅示。办公室。",
+								noticeText2:"委领导"+attendLeaders+",将于"+Ext.getCmp('noticeText').getValue()+"，请知悉。委办公室。",
+								isForkFlow40 : true,
+								startFlow : true
+							},
+							success : function(response, options) {
+								Ext.Ajax.request({
+									url : __ctxPath + '/meeting/fillRunIdOutMeeting.do',
+									params : {
+										'outMeeting.meetingId' : meetingId,
+										'outMeeting.runId' : (eval("("+response.responseText+")").runId)
+									},
+									method:'post',
+									success : function(response, options) {
+										myMask.hide(); 
+										Ext.ux.Toast.msg('操作信息', '成功保存！');
+										Ext.getCmp('centerTabPanel').remove(Ext.getCmp('ProcessRunStart' + defId));
+										refreshTaskPanelView();
+									},
+									failure : function(fp, action) {
+										myMask.hide();
+										Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+									}
+								});
+							},
+							failure : function(fp, action) {
+								myMask.hide();
+								Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+							}
+						});
+					},
+					failure : function(fp, action) {
+						Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+					}
+				});
+			}
+		}
+	},
+	initUIComponents : function() {
+		msgPanel.getCmpByName('sendMsg').hide();
+		
+		var docGridPanel = new ArchivesUtil({
+			panelId :'MeetingRecordStart',
+			isStart : true
+		}).getGridPanelWithFullTools();
+		docGridPanel.setTitle('');
+		docGridPanel.iconCls = null;
+		var resetNoticeText = function(){
+			var formPanel = Ext.getCmp('MeetingRecordStartForm');
+			var holdDep = formPanel.getCmpByName('outMeeting.holdDep').getValue();
+			var meetingName = formPanel.getCmpByName('outMeeting.name').getValue();
+			var time = formPanel.getCmpByName('holdDt').getValue();
+			var address=formPanel.getCmpByName('outMeeting.holdLocation').getValue();
+			var noticeText = time.format('Y年m月d日 H时i分')+"，由"+holdDep+",在"+address+",召开关于"+meetingName;
+			Ext.getCmp('noticeText').setValue(noticeText);
+			resetNoticeText3();
+		}
+		var resetNoticeText3 = function(){
+			var noticeText3 = Ext.getCmp('noticeText').getValue()+"，请阅示。办公室。";
+			Ext.getCmp('noticeText3').setValue(noticeText3);
+			var attendLeaders=Ext.getCmp('MeetingRecordStart.attendLeaders').getValue();
+			var noticeText4 = "委领导"+attendLeaders+",将于"+Ext.getCmp('noticeText').getValue()+"，请知悉。委办公室。";
+			Ext.getCmp('noticeText4').setValue(noticeText4);
+		}
+		
+		this.searchPanel = new Ext.FormPanel({
+			id : 'MeetingRecordStartForm',
+			url : __ctxPath + '/meeting/saveOutMeeting.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 70,
+			width : 800,
+			padding : '5px',
+			items : [{
+				xtype : 'textfield',
+				id:'outMeeting_name',
+				allowBlank : false,
+				width : 670,
+				maxLength :100,
+				name:'outMeeting.name',
+				fieldLabel : '会议名称',
+				listeners : {
+					change:resetNoticeText
+				}
+			} , {
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 150,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+								name:'outMeeting.holdDep',
+								maxLength :100,
+								fieldLabel : '发起单位',
+								listeners : {
+									change:resetNoticeText
+								}
+							},  {
+								name:'outMeeting.contactPerson',
+								maxLength :10,
+								allowBlank : true,
+								fieldLabel : '联系人'
+							}, {
+								name:'outMeeting.contactTel',
+								maxLength :15,
+								allowBlank : true,
+								xtype : 'textfield',
+								fieldLabel : '电话'
+							}]
+				}, {
+					defaults : {
+						width : 160,
+						xtype : 'textfield',
+						allowBlank : false
+					},
+					items : [{
+								name:'outMeeting.host',
+								maxLength :10,
+								allowBlank : true,
+								fieldLabel : '主持人'
+							},  {
+								name:'holdDt',
+								fieldLabel : '会议时间',
+								xtype : 'datetimefield',
+								format : 'Y-m-d H:i',
+								value:new Date(),
+								listeners : {
+									change:resetNoticeText
+								}
+							}, {
+								name:'outMeeting.holdLocation',
+								allowBlank : true,
+								fieldLabel : '会议地点',
+								listeners : {
+									change:resetNoticeText
+								}
+							}]
+				}, {
+					items : [{
+								name:'outMeeting.recorder',
+								fieldLabel : '登记人',
+								readOnly : true,
+								value : curUserInfo.fullname.substring(0,10)
+							}, {
+								name:'outMeeting.recordTime',
+								fieldLabel : '记录时间',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								value:new Date()
+							},{
+								xtype:'hidden',
+								id:'outMeeting.attendType'
+							},{
+								xtype:'hidden',
+								name:'isStart',
+								value:'true'
+							}]
+				}]
+			}, {
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0 0 5px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '参会领导:',
+							width : 75
+						}, {
+							id : 'MeetingRecordStart.attendLeaders',
+							name:'outMeeting.attendLeaders',
+							xtype : 'textfield',
+							maxLength :500,
+							width : 510,
+							readOnly : true
+						}, {
+							id : 'MeetingRecordStart.leaderIds',
+							name :'leaderIds',
+							xtype : 'hidden'
+						}, {
+							xtype : 'button',
+							width : 80,
+							iconCls : 'menu-department',
+							text : '选择领导',
+							handler : function() {
+								var url = __ctxPath + '/system/findUserByRoleDepartment.do?roles='
+										+ ArchivesUtil.Role_Leader0;
+								DepLeaders.getView(
+									function(userIds, userNames) {
+										Ext.getCmp('MeetingRecordStart.attendLeaders').setValue(userNames);
+										Ext.getCmp('MeetingRecordStart.leaderIds').setValue(userIds);
+										Ext.getCmp('outMeeting.attendType').setValue(1);
+										if(userIds!=null&&userIds!=''){
+											Ext.getCmp('MeetingRecordStart.subDepPanel').hide();
+										}
+									}, false, null,url).show();
+							}
+						},  {
+										xtype : 'button',
+										text : '清除人员',
+										width : 80,
+										iconCls : 'reset',
+										handler : function() {
+											Ext.getCmp('MeetingRecordStart.attendLeaders')
+													.setValue('');
+											
+													Ext.getCmp('MeetingRecordStart.leaderIds')
+													.setValue('');
+											var officerIds=Ext.getCmp('MeetingRecordStart.officerIds').getValue();
+										 if(officerIds==null||officerIds==""){
+										 	Ext.getCmp('MeetingRecordStart.subDepPanel').show();
+										 }
+
+										}
+									}]
+			},{
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0 0 5px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '参会处室:',
+							width : 75
+						}, {
+							id : 'MeetingRecordStart.attendOfficers',
+							name:'outMeeting.attendOfficers',
+							xtype : 'textfield',
+							maxLength :500,
+							width : 510,
+							readOnly : true
+						}, {
+							id : 'MeetingRecordStart.officerIds',
+							name:'officerIds',
+							xtype : 'hidden'
+						}, {
+							xtype : 'button',
+							width : 80,
+							iconCls : 'menu-department',
+							text : '处室人员',
+							handler : function() {
+								//var url = __ctxPath + '/system/depLeadersTreeDepartment.do';
+								var url = __ctxPath + '/system/findUserByRoleDepartment.do?roles='
+									+ArchivesUtil.Role_Leaders+','+ArchivesUtil.Role_JWoffice;
+								DepLeaders.getView(
+									function(userIds, userNames) {
+										Ext.getCmp('MeetingRecordStart.attendOfficers').setValue(userNames);
+										Ext.getCmp('MeetingRecordStart.officerIds').setValue(userIds);
+										Ext.getCmp('outMeeting.attendType').setValue(2);
+										if(userIds!=null&&userIds!=""){
+											Ext.getCmp('MeetingRecordStart.subDepPanel').hide();
+										}
+									}, false, null,url).show();
+							}
+						}, {
+										xtype : 'button',
+										text : '清除人员',
+										width : 80,
+										iconCls : 'reset',
+										handler : function() {
+											Ext.getCmp('MeetingRecordStart.attendOfficers')
+													.setValue('');
+													Ext.getCmp('MeetingRecordStart.officerIds')
+													.setValue('');
+											var officerIds=Ext.getCmp('MeetingRecordStart.leaderIds').getValue();
+										 if(officerIds==null||officerIds==""){
+										 	Ext.getCmp('MeetingRecordStart.subDepPanel').show();
+										 }
+
+										}
+									}]
+			},{
+				xtype : 'container',
+				layout : 'column',
+				id:'MeetingRecordStart.subDepPanel',
+				style : 'padding:0 0 5px;',
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '委属单位:',
+							width : 75
+						}, {
+							id : 'MeetingRecordStart.attendSubDeps',
+							name:'outMeeting.attendSubDeps',
+							xtype : 'textfield',
+							maxLength :500,
+							width : 670
+						}]
+			},{
+				xtype : 'textarea',
+				name:'outMeeting.shortDesc',
+				maxLength :256,
+				width : 670,
+				fieldLabel : '备注'
+			}, {
+				xtype : 'textarea',
+				id:'noticeText',
+				name:'noticeText',
+				maxLength :256,
+				width : 670,
+				fieldLabel : '手机通知',
+				listeners : {
+					change:resetNoticeText3
+				}
+			},{
+				xtype : 'textarea',
+				id:'noticeText3',
+				name:'noticeText3',
+				maxLength :256,
+				width : 670,
+				readOnly:true,
+				hidden:true/*,
+				fieldLabel : '通知主任'*/
+			},{
+				xtype : 'textarea',
+				id:'noticeText4',
+				name:'noticeText4',
+				maxLength :256,
+				width : 670,
+				readOnly:true,
+				hidden:true/*,
+				fieldLabel : '通知领导'*/
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [docGridPanel]
+			}]
+		});
+	}
+})
+

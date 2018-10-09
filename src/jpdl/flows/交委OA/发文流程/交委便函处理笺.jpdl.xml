@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="JWBH" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="119,21,48,48" name="拟稿">
+      <transition g="-71,-8" name="to 拟稿送出" to="拟稿送出"/>
+   </start>
+   <task g="97,209,92,52" name="处室初核">
+      <transition g="-65,-8" name="to 初核送出" to="初核送出"/>
+   </task>
+   <decision g="118,113,48,48" name="拟稿送出">
+      <transition g="-65,-9" name="to 处室初核" to="处室初核">
+      	<condition expr="#{startNext=='1'}"/>
+      </transition>
+      <transition g="47,137;47,427:5,-163" name="to 处室复核" to="处室复核">
+      	<condition expr="#{startNext=='2'}"/> 
+      </transition>
+   </decision>
+   <task g="90,402,105,50" name="处室复核">
+      <transition g="-72,-8" name="to 复核送出" to="复核送出"/>
+   </task>
+   <task g="96,605,92,52" name="办公室审核">
+      <transition g="-43,-12" name="to 编号" to="编号"/>
+   </task>
+   <task g="97,717,92,49" name="编号">
+      <transition g="-97,-8" name="to 生成电子公文" to="生成电子公文"/>
+   </task>
+   <task g="96,829,92,49" name="生成电子公文">
+      <transition g="-44,-7" name="to 分发" to="分发"/>
+   </task>
+   <task g="97,938,92,52" name="分发">
+      <transition g="-47,-7" name="to 结束" to="结束"/>
+   </task>
+   <end g="120,1046,48,48" name="结束"/>
+   <decision g="118,305,58,47" name="初核送出">
+      <transition g="-65,-17" name="to 处室复核" to="处室复核">
+      	<condition expr="#{examineSend=='2'}"/>
+      </transition>
+      <transition g="263,329:-74,-17" name="to 重新发起" to="重新发起">
+      	<condition expr="#{examineSend=='1'}"/>
+      </transition>
+      <transition g="247,374;252,633:-91,-135" name="to 办公室审核" to="办公室审核">
+        <condition expr="#{examineSend=='3'}"/>
+      </transition>
+   </decision>
+   <decision g="118,506,91,48" name="复核送出">
+      <transition g="-77,-7" name="to 办公室审核" to="办公室审核">
+      	<condition expr="#{signSend=='1'}"/>
+      </transition>
+      <transition g="329,530:-111,-17" name="to 重新发起" to="重新发起">
+      	<condition expr="#{signSend=='2'}"/>
+      </transition>
+   </decision>
+   <task g="272,111,115,52" name="重新发起">
+      <transition g="-25,-17" name="to 拟稿送出" to="拟稿送出"/>
+   </task>
+</process>

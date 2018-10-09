@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="GBK"?>
+<process name="cqsjtyxjcddzxfwfile" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="339,17,43,38" name="拟稿">
+		<transition g="-65,-17" name="to 拟稿跳转" to="拟稿跳转" />
+	</start>
+	<decision g="341,117,48,48" name="拟稿跳转">
+		<transition g="-96,-19" name="to 部门负责人核稿" to="部门负责人核稿">
+			<condition expr="#{depNext=='1'}" />
+		</transition>
+		<transition g="254,141;259,335:-45,-22" name="to 综合办公室审核"
+			to="综合办公室审核">
+			<condition expr="#{depNext=='2'}" />
+		</transition>
+		<transition g="182,142;187,580:-36,-14" name="to 签发" to="签发">
+			<condition expr="#{depNext=='3'}" />
+		</transition>
+	</decision>
+	<task g="308,213,113,52" name="部门负责人核稿">
+		<transition g="-65,-17" name="to 部门跳转" to="部门跳转" />
+	</task>
+	<task g="304,388,130,52" name="综合办公室审核">
+		<transition g="-77,-17" name="to 办公室跳转" to="办公室跳转" />
+	</task>
+	<task g="320,555,92,52" name="签发">
+		<transition g="-65,-17" name="to 签发跳转" to="签发跳转" />
+	</task>
+	<task g="320,748,92,52" name="编号">
+		<transition g="-89,-17" name="to 生成电子公文" to="生成电子公文" />
+	</task>
+	<task g="305,825,119,52" name="生成电子公文">
+		<transition g="-41,-17" name="to 分发" to="分发" />
+	</task>
+	<task g="320,908,92,52" name="分发">
+		<transition g="-41,-17" name="to 结束" to="结束" />
+	</task>
+	<end g="343,992,48,48" name="结束" />
+	<decision g="346,305,48,48" name="部门跳转">
+		<transition g="-101,-17" name="to 综合办公室审核" to="综合办公室审核">
+			<condition expr="#{depNextSecond=='1'}" />
+		</transition>
+		<transition g="-86,-43" name="to 重新发起" to="重新发起">
+			<condition expr="#{depNextSecond=='2'}" />
+		</transition>
+		<transition g="-101,-17" name="to 部门会签" to="部门会签">
+			<condition expr="#{depNextSecond=='3'}" />
+		</transition>
+	</decision>
+	<task g="458,305,92,52" name="部门会签">
+		<transition g="504,414:-41,-17" name="to 综合办公室审核" to="综合办公室审核" />
+	</task>
+	<decision g="345,467,48,48" name="办公室跳转">
+		<transition g="-41,-17" name="to 签发" to="签发">
+			<condition expr="#{officeNext=='1'}" />
+		</transition>
+		<transition g="-65,-17" name="to 重新发起" to="重新发起">
+			<condition expr="#{officeNext=='2'}" />
+		</transition>
+		<transition g="-27,-16" name="to 领导会签" to="领导会签">
+			<condition expr="#{officeNext=='3'}" />
+		</transition>
+	</decision>
+	<decision g="341,650,48,48" name="签发跳转">
+		<transition g="608,675:-65,-17" name="to 重新发起" to="重新发起">
+			<condition expr="#{sentNext=='1'}" />
+		</transition>
+		<transition g="-41,-17" name="to 编号" to="编号">
+			<condition expr="#{sentNext=='2'}" />
+		</transition>
+	</decision>
+	<task g="560,467,92,52" name="重新发起">
+		<transition g="605,143:-41,-17" name="to 提交" to="拟稿跳转" />
+	</task>
+	<task g="200,467,92,52" name="领导会签">
+		<transition g="246,414:-41,-17" name="to 综合办公室审核" to="综合办公室审核" />
+	</task>
+</process> 

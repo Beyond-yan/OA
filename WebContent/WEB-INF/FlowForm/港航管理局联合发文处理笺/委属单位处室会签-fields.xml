@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="belongUserId" label="委属单位执行人id" type="varchar" length="100" isShowed="false" />
+</fields>

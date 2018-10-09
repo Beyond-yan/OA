@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.archive.ArchTemplate" table="arch_template" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="templateId" column="templateId" type="java.lang.Long" length="19"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="tempName" type="java.lang.String" update="true" insert="true" access="property" column="tempName" length="128" not-null="false" unique="false"/>  
+    <property name="tempPath" type="java.lang.String" update="true" insert="true" access="property" column="tempPath" length="256" not-null="false" unique="false"/>  
+    <!-- imported bi-directional many-to-one association to FileAttach -->  
+    <many-to-one name="fileAttach" class="com.gdssoft.oa.model.system.FileAttach" not-null="false" fetch="select"> 
+      <column name="fileId"/> 
+    </many-to-one>  
+    <!-- imported bi-directional many-to-one association to ArchivesType -->  
+    <many-to-one name="archivesType" class="com.gdssoft.oa.model.archive.ArchivesType" not-null="false" fetch="select"> 
+      <column name="typeId"/> 
+    </many-to-one>
+    <many-to-one name="appUser" class="com.gdssoft.oa.model.system.AppUser" not-null="false" fetch="select"> 
+      <column name="CREATE_USER"/> 
+    </many-to-one>
+    <property name="userName" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER_NAME" length="256" not-null="false" unique="false"/>
+    <many-to-one name="department" class="com.gdssoft.oa.model.system.Department" not-null="false" fetch="select"> 
+      <column name="CREATE_DEP"/> 
+    </many-to-one>
+    <property name="depName" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_DEP_NAME" length="256" not-null="false" unique="false"/>
+    <property name="password" type="java.lang.String" update="true" insert="true" access="property" column="PASSWORD" length="256" not-null="false" unique="false"/>
+    <property name="isGenre" type="java.lang.Long" update="true" insert="true" access="property" column="IS_GENRE" length="3" not-null="false" unique="false"/>
+  </class> 
+</hibernate-mapping>

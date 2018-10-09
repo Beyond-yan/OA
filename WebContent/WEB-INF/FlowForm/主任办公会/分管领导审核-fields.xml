@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="fenguanResult" label="分管领导审批结果" type="varchar" isShowed="false"/>
+	<field name="currentStep" label="当前步骤" type="long" length="0" isShowed="false" />
+	<field name="fenguanUserId" label="分管领导人员Id" type="long" length="0" isShowed="false" />
+</fields>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.duty.DutyPlan"
+        table="CQ_DUTY_PLAN"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="22"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="depId"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="DEP_ID"
+            length="22"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="planNo"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="PLAN_NO"
+            length="20"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="planner"
+            type="java.lang.Long"
+            update="true"
+            insert="true"
+            access="property"
+            column="PLANNER"
+            length="22"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="planDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="PLAN_DATE"
+            length="7"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_DATE"
+            length="7"
+            not-null="false"
+            unique="false"
+        />
+  <!-- exported bi-directional one-to-many association to CqDutyStaff -->
+	<set name="DutyStaffs"
+	     table="cq_duty_staff"
+	     lazy="true"
+	     inverse="true"
+	     cascade="save-update"
+	     sort="unsorted"
+	>
+		<key>
+			<column name="PLAN_ID"/>
+		</key>
+		<one-to-many
+			class="com.gdssoft.oa.model.duty.DutyStaff"
+		/>
+	</set>     
+    </class>
+</hibernate-mapping>

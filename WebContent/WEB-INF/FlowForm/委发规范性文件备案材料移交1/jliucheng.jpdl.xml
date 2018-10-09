@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="WFGFXWJBA_liucheng_1" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="226,7,48,48" name="拟稿">
+      <transition g="-81,-22" name="to 法规处内勤" to="法规处内勤"/>
+   </start>
+   <task g="204,91,92,52" name="法规处内勤">
+      <transition g="-81,-22" name="to 法规处结果" to="法规处结果"/>
+   </task>
+   <task g="70,89,92,52" name="重新发起">
+      <transition g="-23,-29" name="to 法规处内勤" to="法规处内勤"/>
+   </task>
+   <task g="208,272,92,52" name="处室承办">
+      <transition g="-69,-22" name="to 承办结果" to="承办结果"/>
+   </task>
+   <decision g="227,183,48,48" name="法规处结果">
+      <transition g="-69,-22" name="to 处室承办" to="处室承办">
+      	<condition expr="#{fgcNext=='3'}"/>
+      </transition>
+      <transition g="-51,-22" name="to 处室负责人审签" to="处室负责人审签">
+      	<condition expr="#{fgcNext=='2'}"/>
+      </transition>
+      <transition g="138,207:17,-23" name="to 重新发起" to="重新发起">
+      	<condition expr="#{fgcNext=='1'}"/>
+      </transition>
+   </decision>
+   <task g="350,182,92,52" name="处室负责人审签">
+      <transition g="-40,-30" name="to 审签结果" to="审签结果"/>
+   </task>
+   <decision g="474,181,48,48" name="审签结果">
+      <transition g="496,140:-81,-22" name="to 法规处内勤" to="法规处内勤">
+      	<condition expr="#{sqNext=='1'}"/>
+      </transition>
+      <transition g="499,296:-69,-22" name="to 处室承办" to="处室承办">
+      	<condition expr="#{sqNext=='2'}"/>
+      </transition>
+   </decision>
+   <task g="212,453,92,52" name="内勤存档">
+      <transition g="-45,-22" name="to 结束" to="结束"/>
+   </task>
+   <decision g="231,370,48,48" name="承办结果">
+      <transition g="536,392;532,111:-98,115" name="to 法规处内勤" to="法规处内勤">
+      	<condition expr="#{cbNext=='2'}"/>
+      </transition>
+      <transition g="-69,-22" name="to 内勤存档" to="内勤存档">
+      	<condition expr="#{cbNext=='3'}"/>
+      </transition>
+      <transition g="116,394:-69,-22" name="to 重新发起" to="重新发起">
+      	<condition expr="#{cbNext=='1'}"/>
+      </transition>
+   </decision>
+   <end g="235,551,48,48" name="结束"/>
+</process>

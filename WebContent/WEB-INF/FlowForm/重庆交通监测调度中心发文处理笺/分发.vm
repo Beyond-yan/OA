@@ -1,0 +1,230 @@
+JTXXZXFSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		JTXXZXFSentArchiveDepCheck.superclass.constructor.call(this, {
+			        id:'JTXXZXFSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 635,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'JTXXZXFSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/jiaotongxinxizhongxinSentFlow/xinxizhongxinSentFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&sentPanelId=JTXXZXFSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/updateFileSharedArchives.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'JTXXZXFSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{	xtype:'hidden',
+						name:'archives.archivesId',
+						value:'${archivesId}'
+					},{
+						xtype : 'radiogroup',
+						fieldLabel : '是否共享',
+						allowBlank:false,
+						items : [{
+									boxLabel : '共享',
+									name : 'archives.isShared',
+									// checked : true,
+									inputValue : 1/*,
+									listeners:{
+									check:function(checkbox,checked){
+									 if(checked){
+									 Ext.getCmp('JTXXZXFsentGroupCheckIds').show();
+									 Ext.getCmp('JTXXZXFsentGroupCheckNames').allowBlank=false;
+									 }
+									}
+									}*/
+								}, {
+									boxLabel : '不共享',
+									name : 'archives.isShared',
+									inputValue : 0/*,
+									listeners:{
+									check:function(checkbox,checked){
+									 if(checked){
+									 Ext.getCmp('JTXXZXFsentGroupCheckIds').hide();
+									 Ext.getCmp('JTXXZXFsentGroupCheckNames').allowBlank=true;
+									 }
+									}
+									}*/
+						}]
+					},{
+				xtype : 'container',
+				layout : 'column',
+				id:'JTXXZXFsentGroupCheckIds',
+				style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'hidden',
+							width : '60%',
+							hideParent:true,
+							id : 'JTXXZXFsentGroupCheckIds'
+						},{
+							xtype : 'label',
+							style : 'padding:0px 0px 0px 0px;',
+							text : '分发群组:',
+							hideParent:true,
+							width : 105
+						}, {
+							xtype : 'textfield',
+							width : '60%',
+							hideParent:true,
+							readOnly:true,
+							id : 'JTXXZXFsentGroupCheckNames'
+						}, {
+							style : 'padding-left:5px;',
+							xtype : 'button',
+							hideParent:true,
+							iconCls : 'menu-department',
+							text : '选择群组',
+							handler : function() {
+									var url1=__ctxPath + '/system/sentListDepartment.do';
+									var url2=__ctxPath + '/system/selectLE3Department.do';
+									var depIdsTemp = Ext.getCmp('JTXXZXFsentGroupCheckIds').getValue();
+									var depNamesTemp = Ext.getCmp('JTXXZXFsentGroupCheckNames').getValue();
+									var array1 = [];
+									var array2 = [];
+									var map = new Map();
+									if(null != depIdsTemp && '' != depIdsTemp){
+										array1 = depIdsTemp.split(',');
+										array2 = depNamesTemp.split(',');
+										for (var i = 0; i < array1.length; i++) {
+											map.put(array1[i],array2[i]);
+										}
+									}
+									DepSelector.getView(function(formPanel,id, name) {
+										Ext.getCmp('JTXXZXFsentGroupCheckNames').setValue(name);
+										Ext.getCmp('JTXXZXFsentGroupCheckIds').setValue(id);
+									},false,map,url1,url2).show();
+								}
+						},{
+						id : 'JCDDSentArchiveDepCheckForm.reFileId',
+						xtype : 'hidden'
+					}
+]
+			}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			var docParams=Ext.getCmp("JCDDSentArchiveDepCheckForm.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var params = {
+					taskId : panel.taskId,
+					signalName : signalName,
+					activityName : activityName,
+					ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+					sendMail : sendMail,
+					sendInfo:sendInfo,
+					sendMsg : sendMsg
+					// comments :
+					// formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()
+				};
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				success:function(fp, action){
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.Ajax.request({
+						url : __ctxPath + "/archive/updateArchDocsArchives.do",
+						params : {
+								  arcRecfileIds : Ext.getCmp('JCDDSentArchiveDepCheckForm.reFileId').getValue(),
+								  'archives.archivesId':'${archivesId}'
+								  },
+						method : 'POST',
+						success : function(fp, action) {},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+
+					if(""!=Ext.getCmp('JTXXZXFsentGroupCheckIds').getValue()&&null!=Ext.getCmp('JTXXZXFsentGroupCheckIds').getValue())
+					{
+					Ext.Ajax.request({
+						url : __ctxPath + "/archive/saveArchivesDep.do",
+						params : {depIds : Ext.getCmp('JTXXZXFsentGroupCheckIds').getValue(),
+								  archivesId:'${archivesId}',
+								  archDepId:null},
+						method : 'POST',
+						success : function(fp, action) {/*
+														 * Ext.ux.Toast.msg('操作信息',
+														 * '分发成功！');
+														 * AppUtil.removeTab('ProcessForm' +
+														 * panel.taskId);
+														 * refreshTaskPanelView();
+														 */},
+						failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}});
+				}
+					Ext.ux.Toast.msg('操作信息', '分发成功！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+			}
+			});
+		}
+	}// end of save
+})

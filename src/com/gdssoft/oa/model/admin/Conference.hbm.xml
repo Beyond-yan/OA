@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.admin.Conference" table="conference" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="confId" column="confid" type="java.lang.Long" length="10"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="roomId" type="java.lang.Long" update="true" insert="true" access="property" column="roomid" not-null="false" unique="false"/>  
+    <property name="confProperty" type="java.lang.String" update="true" insert="true" access="property" column="confproperty" length="128" not-null="false" unique="false"/>  
+    <property name="confTopic" type="java.lang.String" update="true" insert="true" access="property" column="conftopic" length="128" not-null="false" unique="false"/>  
+    <property name="importLevel" type="java.lang.Short" update="true" insert="true" access="property" column="importlevel" length="5" not-null="false" unique="false"/>  
+    <property name="feeBudget" type="java.lang.Double" update="true" insert="true" access="property" column="feebudget" not-null="false" unique="false"/>  
+    <property name="compere" type="java.lang.String" update="true" insert="true" access="property" column="compere" length="64" not-null="false" unique="false"/>  
+    <property name="recorder" type="java.lang.String" update="true" insert="true" access="property" column="recorder" length="64" not-null="false" unique="false"/>  
+    <property name="attendUsers" type="java.lang.String" update="true" insert="true" access="property" column="attendusers" length="500" not-null="false" unique="false"/>  
+    <property name="status" type="java.lang.Short" update="true" insert="true" access="property" column="status" length="5" not-null="false" unique="false"/>  
+    <property name="isEmail" type="java.lang.Short" update="true" insert="true" access="property" column="isemail" length="5" not-null="false" unique="false"/>  
+    <property name="isMobile" type="java.lang.Short" update="true" insert="true" access="property" column="ismobile" length="5" not-null="false" unique="false"/>  
+    <property name="startTime" type="java.util.Date" update="true" insert="true" access="property" column="starttime" length="10" not-null="false" unique="false"/>  
+    <property name="endTime" type="java.util.Date" update="true" insert="true" access="property" column="endtime" length="10" not-null="false" unique="false"/>  
+    <property name="roomName" type="java.lang.String" update="true" insert="true" access="property" column="roomname" length="64" not-null="false" unique="false"/>  
+    <property name="roomLocation" type="java.lang.String" update="true" insert="true" access="property" column="roomlocation" length="128" not-null="false" unique="false"/>  
+    <property name="confContent" type="java.lang.String" update="true" insert="true" access="property" column="confcontent" length="65535" not-null="false" unique="false"/>  
+    <property name="createtime" type="java.util.Date" update="true" insert="true" access="property" column="createtime" length="10" not-null="false" unique="false"/>  
+    <property name="sendtime" type="java.util.Date" update="true" insert="true" access="property" column="sendtime" length="10" not-null="false" unique="false"/>  
+    <property name="compereName" type="java.lang.String" update="true" insert="true" access="property" column="comperename" not-null="false" unique="false" length="256"/>  
+    <property name="recorderName" type="java.lang.String" update="true" insert="true" access="property" column="recordername" not-null="false" unique="false" length="256"/>  
+    <property name="attendUsersName" type="java.lang.String" update="true" insert="true" access="property" column="attendUsersname" not-null="false" unique="false" length="4000"/>  
+    <property name="checkUserId" type="java.lang.Long" update="true" insert="true" access="property" column="checkuserid" not-null="false" unique="false" length="18"/>  
+    <property name="checkName" type="java.lang.String" update="true" insert="true" access="property" column="checkname" not-null="false" unique="false" length="64"/>  
+    <property name="checkReason" type="java.lang.String" update="true" insert="true" access="property" column="checkreason" not-null="false" unique="false" length="512"/>  
+    <property name="typeId" type="java.lang.Long" update="true" insert="true" access="property" column="typeId" not-null="false" unique="false" length="18"/>
+    <property name="sponsorDept" type="java.lang.String" update="true" insert="true" access="property" column="SPONSOR_DEPT" not-null="false" unique="false" length="200"/>
+    <property name="sponsorDeptName" type="java.lang.String" update="true" insert="true" access="property" column="SPONSOR_DEPT_NAME" not-null="false" unique="false" length="500"/>
+    <property name="compereDept" type="java.lang.String" update="true" insert="true" access="property" column="COMPERE_DEPT" not-null="false" unique="false" length="200"/>
+    <property name="compereDeptName" type="java.lang.String" update="true" insert="true" access="property" column="COMPERE_DEPT_NAME" not-null="false" unique="false" length="500"/>
+    <property name="attendDept" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_DEPT" not-null="false" unique="false" length="200"/>
+    <property name="attendDeptName" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_DEPT_NAME" not-null="false" unique="false" length="500"/>
+
+    <!--<property name="contactUser" type="java.lang.Long" update="true" insert="true" access="property" column="CONTACT_USER" not-null="false" unique="false"/>-->
+	<many-to-one
+			name="contUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>
+			<column name="CONTACT_USER" />
+		</many-to-one>
+		
+	
+	
+	
+    <property name="contactTel" type="java.lang.String" update="true" insert="true" access="property" column="CONTACT_TEL" not-null="false" unique="false" length="20"/>
+    <property name="attendConfine" type="java.lang.String" update="true" insert="true" access="property" column="ATTEND_CONFINE" not-null="false" unique="false" length="500"/>
+    
+    <property name="roomContactTel" type="java.lang.String" update="true" insert="true" access="property" column="ROOM_CONTACT_TEL" not-null="false" unique="false" length="20"/>
+    <many-to-one
+			name="roomContactUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>
+			<column name="ROOM_CONTACT_USER" />
+		</many-to-one>
+    
+    
+    <property name="timeType" type="java.lang.Integer" update="true" insert="true" access="property" column="TIME_TYPE" not-null="false" unique="false" length="10"/>  
+    <property name="timeNumber" type="java.lang.Long" update="true" insert="true" access="property" column="TIME_NUMBER" not-null="false" unique="false" length="10"/>  
+    
+    
+    
+    <!--   cxt -->
+     <property name="isLong" type="java.lang.Short" update="true" insert="true" access="property" column="IS_LONG" not-null="false" unique="false" />  
+    <property name="parentConfId" type="java.lang.Long" update="true" insert="true" access="property" column="PARENT_CONF_ID" not-null="false" unique="false" length="10"/>  
+    <property name="bookType" type="java.lang.Short" update="true" insert="true" access="property" column="BOOK_TYPE" not-null="false" unique="false" />  
+    
+   
+    
+    
+    <!-- <property name="applicantId" type="java.lang.Long" update="true" insert="true" access="property" column="APPLICANT_ID" not-null="true" unique="false"/>   -->
+    <property name="applyStatus" type="java.lang.Short" update="true" insert="true" access="property" column="APPLY_STATUS" not-null="false" unique="false" />  
+    <property name="createBy" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_BY" not-null="false" unique="false"    length="50" />  
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_DATE" not-null="false" unique="false"     length="23" />  
+    <property name="updateBy" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_BY" not-null="false" unique="false"   length="50" />  
+    <property name="updateDate" type="java.util.Date" update="true" insert="true" access="property" column="UPDATE_DATE" not-null="false" unique="false"    length="23" />  
+    
+    
+    
+    
+    <!-- cxt  -->
+    	<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="APPLICANT_ID" />
+		</many-to-one>
+		
+    
+    <set name="attachFiles" table="conf_attach" cascade="save-update" inverse="true" lazy="true" sort="unsorted"> 
+      <key column="confId"/>  
+      <many-to-many fetch="join" class="com.gdssoft.oa.model.system.FileAttach" column="fileId"/> 
+    </set>  
+    <set name="confPrivilege" table="conf_privilege" cascade="save-update" inverse="true" lazy="true" sort="unsorted"> 
+      <key column="confId"/>  
+      <one-to-many class="com.gdssoft.oa.model.admin.ConfPrivilege"/> 
+    </set> 
+    
+    <set name="confAttend" table="conf_attend" cascade="save-update" inverse="true" lazy="true" sort="unsorted"> 
+      <key column="confId"/>  
+      <one-to-many class="com.gdssoft.oa.model.admin.ConfAttend"/> 
+    </set> 
+  </class> 
+</hibernate-mapping>

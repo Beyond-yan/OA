@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="JYTAYCSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="272,-8,48,48" name="拟稿">
+		<transition g="-37,-11" name="to 处室核稿" to="处室核稿"/>
+	</start>
+	<task g="235,77,126,52" name="处室核稿">
+		<transition g="-31,-13" name="to 核稿结果" to="核稿结果"/>
+	</task>
+	<decision g="273,172,48,48" name="核稿结果">
+		<transition g="-32,-20" name="to 重新发起" to="重新发起">
+			<condition expr="#{depLeaderOption=='restart'}"/>
+		</transition>
+		<transition g="-74,-17" name="to 委属单位处室会签" to="委属单位处室会签">
+			<condition expr="#{depLeaderOption=='sign'}"/>
+		</transition>
+		<transition g="-125,-17" name="to 委属单位办公室审核" to="委属单位办公室审核">
+			<condition expr="#{depLeaderOption=='office'}"/>
+		</transition>
+	</decision>
+	<task g="40,171,143,52" name="委属单位处室会签">
+		<transition g="109,99:1,-17" name="to 处室核稿" to="处室核稿"/>
+	</task>
+	<task g="244,479,117,52" name="交委办公室审核">
+		<transition g="-65,-6" name="to 审核结果" to="审核结果"/>
+	</task>
+	<task g="37,563,143,52" name="交委处室会签">
+		<transition g="108,504:-101,-17" name="to 交委办公室审核" to="交委办公室审核"/>
+	</task>
+	<task g="403,560,97,52" name="领导会签">
+		<transition g="452,504:-101,-17" name="to 交委办公室审核" to="交委办公室审核"/>
+	</task>
+	<decision g="276,565,48,48" name="审核结果">
+		<transition g="10,-12" name="to 签发" to="签发">
+			<condition expr="#{officeLeaderOption=='distribute'}"/>
+		</transition>
+		<transition g="-30,-15" name="to 领导会签" to="领导会签"><condition expr="#{officeLeaderOption=='offcieSignOffice'}"/></transition>
+		<transition g="-89,-17" name="to 交委处室会签" to="交委处室会签"/>
+	</decision>
+	<task g="258,653,92,52" name="签发">
+		<transition g="6,-11" name="to 编号" to="编号"/>
+	</task>
+	<task g="260,744,92,52" name="编号">
+		<transition g="6,-12" name="to 生成电子公文" to="生成电子公文"/>
+	</task>
+	<task g="253,831,102,52" name="生成电子公文">
+		<transition g="8,-9" name="to 分发" to="分发"/>
+	</task>
+	<task g="259,909,92,52" name="分发">
+		<transition g="6,-12" name="to 结束" to="结束"/>
+	</task>
+	<end g="283,987,48,48" name="结束"/>
+	<task g="427,169,92,52" name="重新发起">
+		<transition g="472,102:-65,-17" name="to 处室核稿" to="处室核稿"/>
+	</task>
+	<task g="235,255,130,52" name="委属单位办公室审核">
+		<transition g="-113,-17" name="to 委属单位领导签发" to="委属单位领导签发"/>
+	</task>
+	<task g="243,331,113,52" name="委属单位领导签发">
+		<transition g="-101,-17" name="to 交委办公室初审" to="交委办公室初审"/>
+	</task>
+	<task g="237,402,126,52" name="交委办公室初审">
+		<transition g="-101,-17" name="to 交委办公室审核" to="交委办公室审核"/>
+	</task>
+</process>

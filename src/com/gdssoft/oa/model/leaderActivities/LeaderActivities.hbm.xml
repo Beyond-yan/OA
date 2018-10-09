@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping> 
+  <class name="com.gdssoft.oa.model.leaderActivities.LeaderActivities" table="CQ_LEADERS_ACTIVITIES" select-before-update="false" dynamic-update="false" dynamic-insert="false" optimistic-lock="version"> 
+    <id name="activeId" column="ACTIVE_ID" type="java.lang.Long"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="activeName" type="java.lang.String" update="true" insert="true" access="property" column="ACTIVE_NAME" length="4000" not-null="false" unique="false"/>  
+    <property name="activeDesc" type="java.lang.String" update="true" insert="true" access="property" column="ACTIVE_DESC" length="1000" not-null="false" unique="false"/>  
+    <property name="startTime" type="java.util.Date" update="true" insert="true" access="property" column="START_TIME"  not-null="false" unique="false"/> 
+    <property name="endTime" type="java.util.Date" update="true" insert="true" access="property" column="END_TIME"  not-null="false" unique="false"/>  
+    <property name="displayType" type="java.lang.String" update="true" insert="true" access="property" column="DISPLAY_TYPE" length="1" not-null="false" unique="false"/>
+    <!-- <property name="leaderId" type="java.lang.Long" update="true" insert="true" access="property" column="LEADER_ID"  not-null="false" unique="false"/> -->
+    <many-to-one name="appUser" column="LEADER_ID" class="com.gdssoft.oa.model.system.AppUser"/>
+    
+    <property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="CREATE_USER" length="64" not-null="false" unique="false"/>    
+    <property name="createDate" type="java.util.Date" update="true" insert="true" access="property" column="CREATE_DATE"  not-null="false" unique="false"/>  
+    <property name="timeType" type="java.lang.Integer" update="true" insert="true" access="property" column="TIME_TYPE" length="64" not-null="false" unique="false"/>    
+    <property name="timeNumber" type="java.lang.Integer" update="true" insert="true" access="property" column="TIME_NUMBER"  not-null="false" unique="false"/>  
+    <property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="UPDATE_USER" length="64" not-null="false" unique="false"/>
+    <property name="updateDate" type="java.util.Date" update="true" insert="true" access="property" column="UPDATE_DATE"  not-null="false" unique="false"/>
+    <property name="dataSources" type="java.lang.Integer" update="true" insert="true" access="property" column="DATA_SOURCES"  not-null="false" unique="false"/>
+    <!--
+    <many-to-one name="leaderName" class="com.gdssoft.oa.model.system.AppUser" not-null="false" fetch="select"> 
+      <column name="userId"/> 
+    </many-to-one> -->
+  </class> 
+</hibernate-mapping>

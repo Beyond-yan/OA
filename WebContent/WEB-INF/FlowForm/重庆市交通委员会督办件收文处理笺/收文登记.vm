@@ -1,0 +1,790 @@
+﻿DuBanReceiveArchivesPanel = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		var jsArr = [
+				__ctxPath + '/js/archive/ArchivesDocForm.js',
+				__ctxPath + '/js/archive/ArchivesDocForm.js',
+				__ctxPath + '/js/archive/ArchivesDocHistoryWin.js',
+				__ctxPath + '/js/archive/ArchiveTypeTempView.js',
+				__ctxPath + '/js/archive/ArchTemplateView.js',
+				__ctxPath + '/js/archive/ArchTemplateForm.js',
+				__ctxPath + '/js/archive/OfficeTemplateView.js',
+				__ctxPath + '/js/archive/ArchTemplateSelector.js',
+				__ctxPath + '/js/archive/ArchivesUtil.js'];
+		$ImportSimpleJs(jsArr, null);
+		Ext.applyIf(this, _cfg);
+		// 必须先初始化组件
+		function createFileUpdateCmp(id_pre, label) {
+			return [{
+						columnWidth : .85,
+						items : [{
+									fieldLabel : label,
+									xtype : 'panel',
+									id : id_pre + '.personFilePanel',
+									frame : false,
+									border : true,
+									bodyStyle : 'padding:4px 4px 4px 4px;',
+									height : 80,
+									autoScroll : true,
+									html : ''
+								}]
+					}, {
+						columnWidth : .14,
+						items : [{
+							border : false,
+							xtype : 'button',
+							text : '添加文件',
+							iconCls : 'menu-attachment',
+							handler : function() {
+								var dialog = App.createUploadDialog({
+									file_cat : 'document',
+									judge_size : 'no',
+									upload_autostart : true,
+									callback : function(data) {
+										var fileIds = Ext.getCmp(id_pre
+												+ '.fileIds');
+										var filePanel = Ext.getCmp(id_pre
+												+ '.personFilePanel');
+
+										for (var i = 0; i < data.length; i++) {
+											if (fileIds.getValue() != '') {
+												fileIds.setValue(fileIds
+														.getValue()
+														+ ',');
+											}
+											fileIds.setValue(fileIds.getValue()
+													+ data[i].fileId);
+
+											Ext.DomHelper
+													.append(
+															filePanel.body,
+															'<span><a href="#" onclick="FileAttachDetail.show('
+																	+ data[i].fileId
+																	+ ')">'
+																	+ data[i].filename
+																	+ '</a> <img class="img-delete" src="'
+																	+ __ctxPath
+																	+ '/images/system/delete.gif" onclick="removeFile(this,\''
+																	+ id_pre
+																	+ '.fileIds\','
+																	+ data[i].fileId
+																	+ ')"/>&nbsp;|&nbsp;</span>');
+
+										}
+									}
+								});
+								dialog.show(this);
+							}
+						}, {
+							xtype : 'button',
+							text : '清除文件',
+							iconCls : 'reset',
+							handler : function() {
+								var fileAttaches = Ext.getCmp(id_pre
+										+ '.fileIds');
+								var filePanel = Ext.getCmp(id_pre
+										+ '.personFilePanel');
+
+								filePanel.body.update('');
+								fileAttaches.setValue('');
+							}
+						}, {
+							xtype : 'hidden',
+							id : id_pre + '.fileIds',
+							name : 'fileIds'
+						}]
+					}];
+		}
+		// 加载数据至store
+		this.archivesId=archivesId;
+			this.docGridPanel = new ArchivesUtil({
+			panelId : 'DuBanArchivesPanel',
+			isStart : true,
+			archivesId : this.archivesId
+			}).getGridPanelWithFullTools();
+		
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id : 'DuBanArchivesForm',
+			url : __ctxPath + '/archive/saveNormalArchives.do',
+			frame : false,
+			border : false,
+			labelWidth : 70,
+			width : 880,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+			}, [ {
+					name : 'archives.archivesId',
+					mapping : 'archivesId'
+				}, {
+					name : 'archives.issueDate',
+					mapping : 'issueDate'
+				}, {
+					name : 'archives.depSignNo',
+					mapping : 'depSignNo'
+				}, {
+					name : 'archives.writtenDate',
+					mapping : 'writtenDate'
+				}, {
+					name : 'archives.issueDep',
+					mapping : 'issueDep'
+				}, {
+				    name:'archives.status',
+				    mapping:'status'
+				}, {
+					name : 'archives.subject',
+					mapping : 'subject'
+				}, {
+					name : 'archives.fileCounts',
+					mapping : 'fileCounts'
+				}, {
+					name : 'archives.privacyLevel',
+					mapping : 'privacyLevel'
+				}, {
+					name : 'archives.urgentLevel',
+					mapping : 'urgentLevel'
+				}, {
+					name : 'archives.issuer',
+					mapping : 'issuer'
+				}, {
+					name : 'archives.issuerId',
+					mapping : 'issuerId'
+				}, {
+					name:'archives.orgDepName',
+					mapping:'orgDepName'
+				}, {
+					name:'archives.archType',
+					mapping:'archType'
+				}, {
+					name:'archives.orgDepId',
+					mapping:'orgDepId'
+				}, {
+					name:'archives.archivesFiles',
+					mapping:'archivesFiles'
+				}, {
+					name:'archives.limitedDate',
+					mapping:'limitedDate'
+				}]),
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 180,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [/*{
+						fieldLabel : '编号名称',
+						xtype : "combo",
+						id : "DuBanArchivesForm.snName",
+						valueField : 'snId',
+						displayField : 'snName',
+						editable : false,
+						allowBlank : false,
+						triggerAction : 'all',
+						forceSelection : true,
+						width : 172,
+						store : new Ext.data.SimpleStore({
+							url : __ctxPath
+									+ '/snconfig/getReceiveSignsFlowSnConfig.do?archType=1',
+							autoLoad : true,
+							fields : ['snId', 'snName']
+						}),
+						listeners : {
+							select : function(cbo, record, index) {
+								Ext.getCmp('DuBanArchivesForm.snId')
+										.setValue(cbo.getValue());
+										if(Ext.get('DuBanArchivesForm.snName').dom.value!='督办件'){
+										Ext.getCmp('DBLimitedDate-container').hide();
+										Ext.getCmp('DBLimitedDate').allowBlank=true;
+										}else{
+										Ext.getCmp('DBLimitedDate-container').show();
+										Ext.getCmp('DBLimitedDate').allowBlank=false;									
+										}
+							}
+						}
+					}, */{
+						xtype : 'hidden',
+						id : 'DuBanArchivesForm.snId'
+					}, {
+								fieldLabel : '收文日期',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								editable : false,
+								allowBlank : false,
+								name : 'archives.issueDate',
+								value : new Date()
+							}, {
+						xtype : 'combo',
+						width : 172,
+						fieldLabel : '文种分类',
+						id:'DBJarchivesReceiveForm.archivesType',
+						hiddenName : "archives.archivesType.typeId",
+						valueField : 'typeId',
+						displayField : 'typeName',
+						editable : false,
+						triggerAction : 'all',
+						forceSelection : true,
+						store : new Ext.data.SimpleStore({
+									url : __ctxPath
+											+ '/archive/comboArchivesType.do',
+									autoLoad : true,
+									fields : ['typeId', 'typeName']
+								})
+					}, {
+						xtype : "combo",
+						fieldLabel : '拟办负责人',
+						id : "DubanReceiveRecordFormView.leaderName",
+						style : 'padding-left:4px;',
+						valueField : 'userId',
+						displayField : 'fullname',
+						editable : false,
+						allowBlank : false,
+						triggerAction : 'all',
+						forceSelection : true,
+						width : 172,
+						store : new Ext.data.SimpleStore({
+							url : __ctxPath
+									+ '/system/searchByTwoRoleIdAppUser.do?role1Id='+roleMap.get('officeDeputyDirectorRoleID')+'&role2Id='+roleMap.get('officeDirectorRoleID'),
+							autoLoad : true,
+							fields : ['userId', 'fullname']
+						}),
+						listeners : {
+							select : function(cbo, record, index) {
+								Ext
+										.getCmp('DubanReceiveRecordFormView.userId')
+										.setValue(cbo.getValue());
+							}
+						}
+					}]
+				}, {
+					items : [ {
+								fieldLabel : '成文日期',
+								name : 'archives.writtenDate',
+								xtype : 'datefield',
+								format : 'Y-m-d',
+								editable : false,
+								allowBlank : false
+							},{
+								xtype : 'combo',
+								fieldLabel : '缓急',
+								name : 'archives.urgentLevel',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank : true,
+								store : ['特急', '急件', '加急', '平急']
+							}, {
+								xtype : 'container',
+								id:'DBLimitedDate',
+								style : 'padding:0px 0px 5px 0px;',
+								layout : 'column',
+								width : 260,
+								items : [{
+										xtype : 'label',
+										style : 'padding-top:4px;',
+										text : '限办日期:',
+										width : 75
+									}, {
+										name : 'archives.limitedDate',
+										xtype : 'datefield',
+										format : 'Y-m-d',
+										mode : 'local',
+										editable : false,
+										value: new Date().add(Date.MONTH,1),
+										width : 180
+								}]
+							}]
+				}, {
+					items : [{
+								xtype : 'textfield',
+								fieldLabel : '来文号',
+								name : 'archives.depSignNo',
+								allowBlank : true
+							},  {
+						xtype : 'combo',
+						fieldLabel : '密級',
+						width:173,
+						name : 'archives.privacyLevel',
+						triggerAction : 'all',
+						editable : false,
+						allowBlank : true,
+						store : ['一般', '秘密', '机密', '绝密'],
+						listeners : {
+							'select' : function(combo) {
+								if (combo.getValue() != '一般') {
+									Ext.getCmp('DBSentfileCounts').show();
+									Ext.getCmp('DBSentfileCounts').el.parent().parent().show();
+									Ext.getCmp('DBSentfileCounts').allowBlank = false;
+
+								} else {
+									Ext.getCmp('DBSentfileCounts').hide();
+									Ext.getCmp('DBSentfileCounts').el.parent().parent().hide();
+									Ext.getCmp('DBSentfileCounts').allowBlank = true;
+								}
+							}
+						}
+					},{
+								xtype : 'hidden',
+								name : 'flowAssignId',
+								id : 'DubanReceiveRecordFormView.userId'
+							}, {
+						fieldLabel : '份号',
+						xtype : 'numberfield',
+						editable : false,
+						value:000001,
+						allowBlank : false,
+						name : 'archives.fileCounts',
+						id : 'DBSentfileCounts',
+						width : 180,
+						allowBlank : false
+					}]
+				}]
+			}, {
+				hidden : true,
+				name : 'archives.archivesNo',
+				id : 'archivesReceiveForm.archivesNo'
+			}, /*{
+			xtype : 'container',
+			layout : 'column',
+			defaults : {
+				border : false
+			},
+			items : [{
+						layout : 'form',
+						border : false,
+						items : [{
+									fieldLabel : '公文编号',
+									name : 'archives.archivesNo',
+									id : 'archivesReceiveForm.archivesNo',
+									xtype : 'textfield',
+									allowBlank : false,
+									readOnly : true,
+									width : 655
+								}]
+					}, {
+						xtype : 'button',
+						style : 'padding-left:5px;',
+						iconCls : 'menu-flowWait',
+						text : '生成编号',
+						handler : function() {
+							if (Ext.getCmp('DuBanArchivesForm.snName')
+									.isValid()) {
+								Ext.Ajax.request({
+									url : __ctxPath
+											+ '/snconfig/getSnNoFileSnConfig.do',
+									params : {
+										defId : 0,
+										snConfigId : Ext
+												.getCmp("DuBanArchivesForm.snName")
+												.getValue()
+									},
+									method : 'POST',
+									waitMsg : "正在生成编号，请稍等",
+									success : function(response, options) {
+										var archivesNo = Ext.util.JSON
+												.decode(response.responseText).data;
+										Ext
+												.getCmp('archivesReceiveForm.archivesNo')
+												.setValue(archivesNo);
+									},
+									failure : function(response, options) {
+										Ext.ux.Toast.msg('操作信息',
+												'生成编号出错，请联系管理员！');
+									}
+								});
+							}
+						}
+					}]
+			}, */{
+				xtype : 'textfield',
+				fieldLabel : '来文单位',
+				name : 'archives.issueDep',
+				width : 754,
+				allowBlank : false
+			}, {
+				xtype : 'textfield',
+				fieldLabel : '标   题',
+				name : 'archives.subject',
+				width : 754,
+				allowBlank : false
+			}, /*{
+				xtype : 'container',
+				layout : 'hbox',
+				style : 'padding-left:0px;margin-bottom:4px;margin-top:4px;',
+				layoutConfigs : {
+					align : 'middle'
+				},
+				defaults : {
+					margins : '0 2 0 0'
+				},
+				height : 26,
+				items : [{
+							xtype : 'label',
+							text : '主办部门:',
+							style : 'padding-top:4px;',
+							width : 73
+						}, {
+							xtype : 'textfield',
+							name : 'archives.orgDepName',
+							id : 'DuBanArchivesForm.department',
+							editable : false,
+							readOnly : true,
+							width : 678
+						}, {
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '选择部门',
+							handler : function() {
+								var url = __ctxPath
+										+ "/system/select3Department.do?depId=100130";
+								DepSelector3.getView(function(id, name) {
+									Ext.getCmp('DuBanArchivesForm.department')
+											.setValue(name);
+										// Ext
+										// .getCmp('departmentId')
+										// .setValue(id);
+								}, false, null, url).show();
+							}
+						}]
+			},*/ {
+				name : 'archives.snConfigId',
+				id : 'DBJarchivesReceiveForm.snConfigId',
+				value : curUserInfo.fullname,
+				xtype : 'hidden'
+			}, {
+				name : 'userId',
+				id : 'DuBanArchivesForm.userId',
+				xtype : 'hidden'
+			}, {
+				name : 'archives.status',
+				xtype : 'hidden',
+				value : 1
+			}, {
+				name : 'archives.archivesId',
+				xtype : 'hidden'
+			}, {
+				name : "archives.issuer",
+				value : curUserInfo.fullname,
+				xtype : 'hidden'
+			}, {
+				name : 'archives.issuerId',
+				value : curUserInfo.userId,
+				xtype : 'hidden'
+			}, {
+				name : 'archives.archType',
+				value : 1,
+				id:'DBJarchivesArchType',
+				xtype : 'hidden'
+			}, {
+				xtype : 'fieldset',
+				border : false,
+				defaults : {
+					anchor : '96.3%,96%'
+				},
+				items : [this.docGridPanel]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : createFileUpdateCmp('DuBanSendArchives', '公文附件')
+			}/*, {
+				xtype : 'radiogroup',
+				fieldLabel : '是否规范性',
+				items : [{
+							boxLabel : '是',
+							name : 'archives.isStandard',
+							// checked : true,
+							inputValue : 1
+						}, {
+							boxLabel : '否',
+							name : 'archives.isStandard',
+							inputValue : 0
+						}]
+			}*//*, {
+			xtype : 'radiogroup',
+			fieldLabel : '是否公开',
+			items : [{
+				boxLabel : '不公开',
+				name : 'archives.isPublic',
+				// checked : true,
+				inputValue : 0,
+				listeners : {
+					'check' : function(checkbox, checked) {
+						if (checked) {
+							Ext.getCmp('DuBanArchivesForm.unPublicReasons').allowBlank = false;
+							Ext.getCmp('DuBanArchivesForm.unPublicReasons')
+									.show();
+							Ext.getCmp('DuBanArchivesForm.unPublicReasons').el
+									.parent().parent().show();
+						}
+					}
+				}
+			}, {
+				boxLabel : '公开到外网',
+				name : 'archives.isPublic',
+				inputValue : 1,
+				listeners : {
+					'check' : function(checkbox, checked) {
+						if (checked) {
+							Ext.getCmp('DuBanArchivesForm.unPublicReasons').allowBlank = true;
+							Ext.getCmp('DuBanArchivesForm.unPublicReasons')
+									.hide();
+							Ext.getCmp('DuBanArchivesForm.unPublicReasons').el
+									.parent().parent().hide();
+						}
+					}
+				}
+			}]
+			}, {
+			fieldLabel : '不公开原因',
+			xtype : 'textfield',
+			name : 'archives.unPublicReasons',
+			id : 'DuBanArchivesForm.unPublicReasons',
+			width : '93%'
+			}*/]
+
+		});
+		Ext.Ajax.request({
+			url :__ctxPath + '/snconfig/getSigIdFlowSnConfig.do?flowId='+defId,
+			method : 'POST',
+			success : function(response, options) {
+				      Ext.getCmp('DBSentfileCounts').hide();
+					  Ext.getCmp('DBSentfileCounts').el.parent().parent().hide();
+						var signId = Ext.util.JSON.decode(response.responseText).data;
+						var signName = Ext.util.JSON.decode(response.responseText).dataName;
+						Ext.getCmp('DBJarchivesReceiveForm.snConfigId').setValue(signId);
+						Ext.getCmp('DuBanArchivesForm.snId').setValue(signName);
+						if(signName != '督办件'){
+							Ext.getCmp('DBJarchivesArchType').setValue('1');
+							Ext.getCmp('DBLimitedDate').hide();
+							//Ext.getCmp('DBLimitedDate').el.parent().parent().hide();
+							Ext.getCmp('DBLimitedDate').allowBlank = true;
+						}else{
+							Ext.getCmp('DBJarchivesArchType').setValue('2');
+							Ext.getCmp('DBLimitedDate').show();
+							//Ext.getCmp('DBLimitedDate').el.parent().parent().show();
+							Ext.getCmp('DBLimitedDate').allowBlank = false;
+						}
+			}
+		});	
+		if (archivesId) {
+					this.formPanel.getForm().load({
+						deferredRender : false,
+						url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='
+								+ archivesId,
+						waitMsg : '正在载入数据...',
+						method:'post',
+						success : function(form, action) {
+							var fileAttach=new Array();
+							var af=action.result.data['archives.archivesFiles'];
+							var filePanel = Ext.getCmp('DuBanSendArchives.personFilePanel');
+						    var fileIds = Ext.getCmp("DuBanSendArchives.fileIds");
+							if(af!=null){
+									for (var i = 0; i < af.length; i++) {
+										if (fileIds.getValue() != '') {
+											fileIds.setValue(fileIds.getValue() + ',');
+										}
+										fileIds.setValue(fileIds.getValue() + af[i].fileId);
+										Ext.DomHelper
+												.append(
+														filePanel.body,
+														'<span><a href="#" onclick="FileAttachDetail.show('
+																+ af[i].fileId
+																+ ')">'
+																+ af[i].fileName
+																+ '</a><img class="img-delete" src="'
+																+ __ctxPath
+																+ '/images/system/delete.gif" onclick="removeFile(this,\'DuBanSendArchives.fileIds\','
+																+ af[i].fileId
+																+ ')"/>&nbsp;|&nbsp;</span>');
+									  }
+						    }
+							var privacyLevel=action.result.data['archives.privacyLevel'];
+							if(privacyLevel!='一般'){
+								Ext.getCmp('DBSentfileCounts').show();
+								Ext.getCmp('DBSentfileCounts').el.parent().parent().show();
+								Ext.getCmp('DBSentfileCounts').allowBlank = false;
+							}
+							if(privacyLevel=='一般'){
+									Ext.getCmp('DBSentfileCounts').hide();
+									Ext.getCmp('DBSentfileCounts').el.parent().parent().hide();
+									Ext.getCmp('DBSentfileCounts').allowBlank = true;
+								}
+							var data = Ext.decode(action.response.responseText).data[0];
+							Ext.getCmp('DBJarchivesReceiveForm.archivesType').setValue(data.parentArchId);
+						},
+						failure : function(form, action) {
+						}
+					});
+				}
+		
+		DuBanReceiveArchivesPanel.superclass.constructor.call(this, {
+					id : 'DuBanArchivesPanel',
+					layout : 'form',
+					items : [this.formPanel],
+					modal : true,
+					maximizable : true,
+					iconCls : 'menu-archive-draft',
+					autoHeight : true,
+					width : 885,
+					bodyStyle : "center",
+					title : '重庆市交通委员会督办件收文处理笺 ',
+					buttonAlign : 'center',
+					buttons : [{
+								text : '启动流程',
+								id : 'archivesReceiveButtonSave',
+								iconCls : 'btn-save',
+								scope : this,
+								handler : this.save
+							}]
+				});
+	},
+
+	save : function() {		
+		var docCount = this.store.getCount();
+			var defId = this.defId;
+			// 获取要提交的表单
+			var formPanel = Ext.getCmp('DuBanArchivesForm');
+			if (formPanel.getForm().isValid()) {
+				if(archivesId){
+					Ext.Ajax.request({
+						url : __ctxPath + '/archive/updateIsReceiveArchives.do',
+						params : {
+							'archivesId' : archivesId
+						},
+						method:'post',
+						success : function(response, options) {
+						}
+					});
+				}
+				// 发文的文档附件
+				var docParams = [];
+
+				for (var i = 0; i < docCount; i++) {
+					docParams.push(this.store.getAt(i).data);
+				}
+				var userId = formPanel.getCmpByName('userId').getValue();
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				var param = {
+					defId : defId,
+					startFlow : true,
+					sendMail : sendMail,
+					sendMsg : sendMsg,
+					sendInfo : sendInfo,
+					nextuserId : Ext.getCmp('DubanReceiveRecordFormView.userId').getValue(),
+					userId : curUserInfo.userId,
+					startUserId:curUserInfo.userId
+				};
+				// alert(Ext.util.JSON.encode(param));return false;
+	Ext.Ajax.request({
+		url :__ctxPath + '/snconfig/getSigIdFlowSnConfig.do?flowId='+defId,
+		method : 'POST',
+		waitMsg : "正在获取编号名称，请稍等",
+		success : function(response, options) {
+			if(!Ext.util.JSON.decode(response.responseText).success){
+				Ext.ux.Toast.msg('操作信息', '请绑定编号！');
+				return false;
+			}
+			var signId = Ext.util.JSON.decode(response.responseText).data;
+			Ext.getCmp('DuBanArchivesForm.snId').setValue(signId);
+			Ext.getCmp('DBJarchivesReceiveForm.snConfigId').setValue(signId);
+			
+				Ext.Ajax.request({
+					url : __ctxPath + '/snconfig/getSnNoFileSnConfig.do',
+					params : {
+						defId : defId,
+						snConfigId : Ext.getCmp("DuBanArchivesForm.snId")
+								.getValue()
+					},
+					method : 'POST',
+					waitMsg : "正在生成编号，请稍等",
+					success : function(response, options) {
+						var archivesNo = Ext.util.JSON.decode(response.responseText).data;
+						var url1=__ctxPath + '/archive/saveNormalArchives.do';
+						var url2=__ctxPath + '/archive/saveArchives.do';
+						formPanel.getForm().submit({
+							method : 'POST',
+							url:archivesId?url2:url1,
+							waitMsg : '正在提交表单数据...',
+							params : {
+								'archives.isArchive' : 1,
+								'archives.archivesNo' : archivesNo,
+								docs :docParams.length>0?Ext.encode(docParams):null
+							},
+							success : function(fp, action) {
+								var archivesId = action.result.archivesId;
+								var fileIds = Ext
+										.getCmp('DuBanSendArchives.fileIds')
+										.getValue();
+								if (fileIds == "")
+									fileIds = 0;
+								Ext.apply(param, {
+											fileIds : fileIds ? fileIds : '_',
+											archivesId : archivesId
+										});
+								// 启动流程
+								formPanel.getForm().submit({
+									url : __ctxPath
+											+ '/flow/saveProcessActivity.do',
+									waitMsg : '正在发起流程...',
+									method : 'post',
+									params : param,
+									success : function(response, options) {
+										var processInsId = options.result.runId;
+										Ext.Ajax.request({
+											url : __ctxPath
+													+ '/archive/updateRunIdArchives.do',
+											params : {
+												'archivesId' : archivesId,
+												'runId' : processInsId
+											},
+											method : 'post',
+											success : function(response,
+													options) {
+												Ext.ux.Toast.msg('操作信息',
+														'收文登记成功！');
+												Ext
+														.getCmp('centerTabPanel')
+														.remove(Ext
+																.getCmp('ProcessRunStart'
+																		+ defId));
+												refreshTaskPanelView();
+											}
+										});
+									}
+								});
+							},
+							failure : function(fp, action) {
+								Ext.MessageBox.show({
+											title : '操作信息',
+											msg : '提交表单出错，请联系管理员！',
+											buttons : Ext.MessageBox.OK,
+											icon : Ext.MessageBox.ERROR
+										});
+							}
+						});
+					},
+					failure : function(response, options) {
+						Ext.ux.Toast.msg('操作信息', '生成编号出错，请联系管理员！');
+					}
+				});
+				},
+				failure : function(response, options) {
+					Ext.ux.Toast.msg('编号名称错误，请联系管理员！');
+				}
+				});
+			}
+		
+	}
+})

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap
+	PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+		"http://www.ibatis.com/dtd/sql-map-2.dtd">
+<!--资料下载     20140612 gyf-->
+<sqlMap namespace="userPower">
+	<sql id="sql_column">
+		poweId,poweUserId,poweUserName,poweDeptName,poweItemKey,relationUser
+	</sql>
+
+	<sql id="sql_where">
+		1=1
+		<dynamic>
+			<isNotEmpty prepend="and" property="poweUserName">
+				poweUserName like '%'||#poweUserName#||'%'	
+			</isNotEmpty> 
+			<isNotEmpty prepend="and" property="poweDeptName">
+		      	poweDeptName >=#poweDeptName#
+		    </isNotEmpty>
+			<isNotEmpty prepend="and" property="poweItemKey">
+			   <![CDATA[  poweItemKey <=#poweItemKey#]]>
+			</isNotEmpty>
+		</dynamic>
+		order by poweUserId desc
+	</sql>
+	
+	<insert id="insert" parameterClass="userPowerModel">
+		insert into OA_COMMON.sys_integration_user_power(<include refid="sql_column"/>) 
+		values(#poweId#,#poweUserId#,#poweUserName#,#poweDeptName#,#poweItemKey#,#relationUser#)
+		
+	</insert>
+	<update id="edit"  parameterClass="userPowerModel">
+		update OA_COMMON.sys_integration_user_power set 
+			poweUserId = #poweUserId#,poweUserName=#poweUserName#,poweDeptName=#poweDeptName#,relationUser=#relationUser# 
+		where poweId = #poweId#
+	</update>
+	<update id="del"  parameterClass="String">
+
+	</update>
+	<delete id="remove"  parameterClass="String">
+		delete from OA_COMMON.sys_integration_user_power where poweId = #poweId#
+	</delete>
+	
+	<select id="query" parameterClass="String" resultClass ="userPowerModel">
+		select <include refid="sql_column"/> from OA_COMMON.sys_integration_user_power run where poweId = #poweId#
+	</select>
+	<select id="queryCount" parameterClass="Map" resultClass ="Integer">
+		select count(1) from OA_COMMON.sys_integration_user_power where 
+		<include refid="sql_where"/>
+			
+	</select>
+	<select id="queryList" parameterClass="Map" resultClass ="userPowerModel">
+		select * from OA_COMMON.sys_integration_user_power where 
+		<include refid="sql_where"/>
+	</select>
+	<select id="queryPageList" parameterClass="Map" resultClass ="userPowerModel">
+		SELECT * FROM (
+            SELECT run.*,ROWNUM  FROM OA_COMMON.sys_integration_user_power WHERE
+			<include refid="sql_where"/>
+		) t
+		where ROWNUM>#beginLimit# and <![CDATA[ ROWNUM<=#endLimit# ]]> 
+	</select>
+	
+	<!-- 根据OA-SCHEMA中的USERID查询USERNAME -->
+	<select id="queryUserName" parameterClass="String" resultClass ="String">
+		SELECT USERNAME from OA.APP_USER where USERID = #userid#
+	</select>
+	
+	<select id="queryAuditLog" parameterClass="Map" resultClass ="flowAuditLogModel">
+		
+		SELECT PR.RUNSTATUS flowStatus,us.userId,pf.creatorName oaUserName,powe.POWEUSERNAME userName,powe.POWEDEPTNAME deptName
+		,pf.activityName approvalName,to_char(pf.createTime,'yyyy-mm-dd hh24:mi:ss') approvalTime,pf.status approvalState,pf.comments approvalApinion,ar.FLOWRELATEID
+		FROM GHJOA.process_form pf 
+		LEFT JOIN GHJOA.process_run pr ON pf.RUNID = PR.RUNID 
+		LEFT JOIN GHJOA.ARCHIVES ar ON ar.process_ins_id = pr.runid
+		LEFT JOIN GHJOA.APP_USER us ON us.USERID = pf.creatorId
+		LEFT JOIN OA_COMMON.SYS_INTEGRATION_USER_POWER powe ON powe.poweUserId = us.USERNAME
+		WHERE 1=1 
+		<isNotEmpty prepend=" AND " property="flowStatus">
+			PR.RUNSTATUS =  #flowStatus# 
+		</isNotEmpty>
+		<isNotEmpty prepend=" AND " property="relateId"> 
+			ar.FLOWRELATEID IN 
+		<iterate close=")" open="("  conjunction="," property="relateId">  
+            <![CDATA[  
+                 #relateId[]#   
+            ]]>   
+       </iterate>  
+		</isNotEmpty>
+		<isEmpty prepend="AND" property="relateId">
+			ar.FLOWRELATEID is not null
+		</isEmpty>
+		order BY PF.RUNID,PF.CREATETIME 
+	</select>
+	
+	<select id="queryByPoweId" parameterClass="String" resultClass ="boolean">
+		select poweId from OA_COMMON.sys_integration_user_power where poweId = #poweId#
+	</select>
+</sqlMap>

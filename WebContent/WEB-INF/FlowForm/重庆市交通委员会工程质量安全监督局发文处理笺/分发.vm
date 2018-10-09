@@ -1,0 +1,199 @@
+WSOfficeSentArchiveDisp = Ext.extend(Ext.Panel, {
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		WSOfficeSentArchiveDisp.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id : 'WSOfficeSentArchiveDispWin',
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end]
+				});
+	},
+	initUIComponents : function() {
+		this.displayPanel = new Ext.Panel({
+			autoScroll : true,
+			autoHeight : true,
+			id :'XZSentArchiveDepCheck.displayPanel',
+			border : false,
+			autoLoad : {
+				url : __ctxPath
+						+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=$!{fileIds}&defId=${defId}&sentPanelId=XZSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/updateFileSharedArchives.do',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'WSOfficeSentArchiveDispWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{	
+						xtype:'hidden',
+						name:'archives.archivesId',
+						value:'${archivesId}'
+					},{
+						xtype : 'radiogroup',
+						fieldLabel : '是否委内公开',
+						items : [{
+									boxLabel : '是',
+									name : 'archives.isShared',
+									checked : true,
+									inputValue : 1/*,
+									listeners:{
+										check : function(checkbox, checked) {
+											if (checked) {
+												Ext.getCmp('WSOfficeSentArchiveDisp.sentGroup').show();
+												Ext.getCmp('WSOfficeSentArchiveDisp.checkNames').allowBlank = false;
+											}
+										}
+									}*/
+								}, {
+									boxLabel : '否',
+									name : 'archives.isShared',
+									inputValue : 0/*,
+									listeners:{
+										check : function(checkbox, checked) {
+											if (checked) {
+												Ext.getCmp('WSOfficeSentArchiveDisp.sentGroup').hide();
+												Ext.getCmp('WSOfficeSentArchiveDisp.checkNames').allowBlank = true;
+											}
+										}
+									}*/
+						}]
+					},{
+					xtype : 'container',
+					layout : 'column',
+					id : 'WSOfficeSentArchiveDisp.sentGroup',
+					style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+					defaults : {
+						border : false
+					},
+					items : [{
+								xtype : 'hidden',
+								width : '60%',
+								id : 'WSOfficeSentArchiveDisp.checkIds'
+							},{
+								xtype : 'label',
+								style : 'padding-top:4px;',
+								hideParent :true,
+								text : '分发群组:',
+								width : 105
+							}, {
+								xtype : 'textarea',
+								width : '60%',
+								hideParent :true,
+								allowBlank: false,
+								id : 'WSOfficeSentArchiveDisp.checkNames'
+							}, {
+								style : 'padding-left:5px;',
+								xtype : 'button',
+								iconCls : 'menu-department',
+								hideParent :true,
+								text : '选择群组',
+								handler : function() {
+									var url1=__ctxPath + '/system/sentListDepartment.do?innerLimitLevel=3';
+									var url2=__ctxPath + '/system/selectLE3Department.do';
+									var depIdsTemp = Ext.getCmp('WSOfficeSentArchiveDisp.checkIds').getValue();
+									var depNamesTemp = Ext.getCmp('WSOfficeSentArchiveDisp.checkNames').getValue();
+									var array1 = [];
+									var array2 = [];
+									var map= new Map();
+									if (depIdsTemp != null&& depIdsTemp != '') {
+										array1 = depIdsTemp.split(',');
+										array2 = depNamesTemp.split(',');
+										for (var i = 0; i < array1.length; i++) {
+											map.put(array1[i],array2[i]);
+										}
+									}
+									DepSelector.getView(function(formPanel,id, name) {
+										Ext.getCmp('WSOfficeSentArchiveDisp.checkNames').setValue(name);
+										Ext.getCmp('WSOfficeSentArchiveDisp.checkIds').setValue(id);
+									},false,map,url1,url2).show();
+								}
+								/*handler : function() {
+									var url1=__ctxPath + '/system/listDepartment.do';
+									DepSelector.getView(function(formPanel,id, name) {
+										Ext.getCmp('WSOfficeSentArchiveDisp.checkNames').setValue(name);
+										Ext.getCmp('WSOfficeSentArchiveDisp.checkIds').setValue(id);
+									},false,null,url1,null).show();
+								}*/
+							}]
+			}]
+		});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		if (formPanel.getForm().isValid()) {
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				success:function(fp, action){
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params :  {
+							taskId : panel.taskId,
+							sendMail : msgPanel.getCmpByName('sendMail').getValue(),
+							sendMsg : msgPanel.getCmpByName('sendMsg').getValue(),
+							sendInfo : msgPanel.getCmpByName('sendInfo').getValue(),
+							signalName : signalName,
+							activityName : activityName
+						},
+						success : function(fp, action) {
+							var checkIds=Ext.getCmp('WSOfficeSentArchiveDisp.checkIds').getValue();
+							if(checkIds!=null&&checkIds!=""){
+								Ext.Ajax.request({
+										url : __ctxPath + "/archive/saveArchivesDep.do",
+										params : {
+												  depIds : Ext.getCmp('WSOfficeSentArchiveDisp.checkIds').getValue(),
+												  archivesId:'${archivesId}',
+												  archDepId:null
+												 },
+										method : 'POST',
+										success : function(fp, action) {
+												 Ext.ux.Toast.msg('操作信息', '分发成功！');
+												 AppUtil.removeTab('ProcessForm' + panel.taskId);
+												 refreshTaskPanelView();
+										},
+										failure : function(fp, action) {
+									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+								}});
+						  }else{
+						  		Ext.ux.Toast.msg('操作信息', '分发成功！');
+							    AppUtil.removeTab('ProcessForm' + panel.taskId);
+							    refreshTaskPanelView();
+						  }
+						},
+						failure : function(fp, action) {
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						}
+					});
+				 }
+			});
+		}
+	}// end of save
+})

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="GBK"?>
+<process name="fengduxianjiaoweishouwen" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="398,34,50,46" name="收文登记">
+		<transition g="-65,-17" name="to 登记结果" to="登记结果" />
+	</start>
+	<decision g="397,123,46,45" name="登记结果">
+		<transition g="-101,-17" name="to 办公室主任拟办" to="办公室主任拟办">
+			<condition expr="#{chooseDirection=='1'}" />
+		</transition>
+		<transition g="267,148;267,312;389,313:-65,-17" name="to 拟办分发"
+			to="拟办分发">
+			<condition expr="#{chooseDirection=='2'}" />
+		</transition>
+	</decision>
+	<task g="355,214,132,58" name="办公室主任拟办">
+		<transition g="-65,-17" name="to 拟办分发" to="拟办分发" />
+	</task>
+	<task g="363,328,118,54" name="拟办分发">
+		<transition g="-65,-17" name="to 拟办结果" to="拟办结果" />
+	</task>
+	<decision g="397,435,78,44" name="拟办结果">
+		<transition g="-22,-16" name="to 领导批示" to="领导批示">
+			<condition expr="#{isOfficeLeader=='yes'}" />
+		</transition>
+		<transition g="-63,-11" name="to 内勤分发" to="内勤分发">
+			<condition expr="#{isOfficeLeader=='no'}" />
+		</transition>
+		<transition g="642,459:-65,-17" name="to 重新登记" to="重新登记">
+			<condition expr="#{isOfficeLeader=='resave'}" />
+		</transition>
+	</decision>
+	<task g="175,429,121,57" name="领导批示">
+		<transition g="235,356:22,-17" name="to 拟办分发" to="拟办分发" />
+	</task>
+	<task g="356,512,127,54" name="内勤分发">
+		<transition g="-69,-8" name="to 分发结果" to="分发结果" />
+	</task>
+	<task g="358,738,128,50" name="处内承办">
+		<transition name="to 内勤归档" to="内勤归档" g="-67,-7" />
+	</task>
+	<end g="402,897,36,45" name="结束" />
+	<task g="357,658,126,53" name="处内拟办">
+		<transition g="-65,-17" name="to 处内承办" to="处内承办" />
+	</task>
+	<task g="358,814,133,56" name="内勤归档">
+		<transition g="-48,-7" name="to 结束" to="结束" />
+	</task>
+	<task g="574,215,133,56" name="重新登记">
+		<transition g="638,147:-65,-17" name="to 登记结果" to="登记结果" />
+	</task>
+	<task g="523,588,126,54" name="处内协办">
+		<transition g="587,684:-65,-17" name="to 处内拟办" to="处内拟办" />
+	</task>
+	<decision g="395,591,54,27" name="分发结果">
+		<transition g="-31,-17" name="to 处内协办" to="处内协办">
+			<condition expr="#{sentNext=='1'}" />
+		</transition>
+		<transition g="-69,-10" name="to 处内拟办" to="处内拟办">
+			<condition expr="#{sentNext=='2'}" />
+		</transition>
+	</decision>
+</process>

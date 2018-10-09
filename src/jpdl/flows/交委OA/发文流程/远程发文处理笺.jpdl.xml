@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="RemoteSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start name="拟稿" g="402,35,47,35">
+      <transition name="to 处室核稿" to="处室核稿" g="-66,-11"/>
+   </start>
+   <task name="处室核稿" g="361,116,128,59">
+      <transition name="to 核稿结果" to="核稿结果" g="-68,-14"/>
+   </task>
+   <decision name="核稿结果" g="400,212,50,28">
+      <transition name="to 委属单位处室会签" to="委属单位处室会签" g="-51,-19">
+      	<condition expr="#{chooseNext=='1'}"/>
+      </transition>
+      <transition name="to 委属单位办公室审核" to="委属单位办公室审核" g="-125,-10">
+      	<condition expr="#{chooseNext=='2'}"/>
+      </transition>
+      <transition name="to 重新发起" to="重新发起" g="-32,-17">
+      	<condition expr="#{chooseNext=='3'}"/>
+      </transition>
+   </decision>
+   <task name="委属单位处室会签" g="142,207,158,58">
+      <transition name="to 处室核稿" to="处室核稿" g="220,147:-65,-17"/>
+   </task>
+   <task name="重新发起" g="539,209,135,55">
+      <transition name="to 处室核稿" to="处室核稿" g="604,145:-65,-17"/>
+   </task>
+   <task name="委属单位办公室审核" g="348,300,154,60">
+      <transition name="to 委属单位领导签发" to="委属单位领导签发" g="-115,-8"/>
+   </task>
+   <task name="委属单位领导签发" g="346,390,158,59">
+      <transition name="to 交委办公室审核" to="交委办公室审核" g="-104,-10"/>
+   </task>
+   <task name="交委办公室审核" g="351,479,147,56">
+      <transition name="to 审核结果" to="审核结果" g="-66,-8"/>
+   </task>
+   <decision name="审核结果" g="400,564,46,48">
+      <transition name="to 交委处室会签" to="交委处室会签" g="-37,-16">
+      	<condition expr="#{checkNext=='1'}"/>
+      </transition>
+      <transition name="to 领导会签" to="领导会签" g="-25,-16">
+      	<condition expr="#{checkNext=='2'}"/>
+      </transition>
+      <transition name="to 签发" to="签发" g="-50,-9">
+      	<condition expr="#{checkNext=='3'}"/>
+      </transition>
+   </decision>
+   <task name="交委处室会签" g="158,561,141,56">
+      <transition name="to 交委办公室审核" to="交委办公室审核" g="228,508:1,-18"/>
+   </task>
+   <task name="领导会签" g="546,561,134,55">
+      <transition name="to 交委办公室审核" to="交委办公室审核" g="613,505:-101,-17"/>
+   </task>
+   <task name="签发" g="358,638,134,55">
+      <transition name="to 编号" to="编号" g="-45,-10"/>
+   </task>
+   <task name="编号" g="356,721,137,55">
+      <transition name="to 生成电子公文" to="生成电子公文" g="-92,-11"/>
+   </task>
+   <task name="生成电子公文" g="357,808,139,58">
+      <transition name="to 分发" to="分发" g="-47,-10"/>
+   </task>
+   <task name="分发" g="357,893,139,55">
+      <transition name="to 结束" to="结束" g="-44,-4"/>
+   </task>
+   <end name="结束" g="404,977,40,41"/>
+</process>

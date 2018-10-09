@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="underNext" label="处理结果" type="varchar" isShowed="false"/>
+	<field name="undertakeId" label="拟办负责人" type="long" length="0" isShowed="false" />
+</fields>

@@ -1,0 +1,386 @@
+DisciplineSectionArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		DisciplineSectionArchiveDepCheck.superclass.constructor.call(this, {
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					id :'DisciplineSectionArchiveDepCheckWin',
+					modal : true,
+					height : 700,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			id :'JJZSentArchiveDepCheck.displayPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {	 
+				url : __ctxPath
+				+ '/pages/flowPath/dispatchFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&sentPanelId=JJZSentArchiveDepCheck',
+				nocache : true
+			}
+		});
+		
+								
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'DisciplineSectionArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'DisciplineSectionArchiveDepCheckWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						columns :[.4,.3,.1], 
+						defaults:{	 
+							listeners : { 
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('viceLeaderIds').setValue('');
+										Ext.getCmp('DisciplineSectionArchiveDepCheck.LeaderNames').setValue('');
+									}
+								}
+							}
+						},
+						items : [ {
+							boxLabel : '处室会签(办公室发起)',
+							width :160,
+							name : 'depOption',
+							inputValue : 1, 
+							checked : true
+						}, {
+							width :100,
+							boxLabel : '领导会签',
+							name : 'depOption',
+							inputValue : 2
+						},{
+							boxLabel : '签发',
+							width :80,
+							name : 'depOption',
+							inputValue : 3
+						}],
+						fieldLabel : '审批步骤'
+					}, {
+						id : 'DisciplineSectionArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									style : 'padding:0px 0px 0px 0px;',
+									text : '选择领导:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : '67%',
+									allowBlank:false,
+									readOnly : true,
+									id : 'DisciplineSectionArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'viceLeaderIds'
+								}, {
+									xtype : 'button',
+									style:'padding-left:5px;',
+									iconCls : 'menu-department',
+									text : '选择领导',
+									handler : function() {
+											var option = formPanel.getCmpByName('depOption').getGroupValue();
+									var roles ='';
+									var url = __ctxPath + '/system/depLeadersTreeDepartment.do';
+									switch(option){
+										case '1':
+											roles=roleMap.get('officeDirectorRoleID')+','+roleMap.get('officeDeputyDirectorRoleID');
+											url  =  __ctxPath + '/system/depLeadersTreeDepartment.do?roles=' + roles;
+											break;
+										case '2':
+											roles = roleMap.get('leaderRoleId');
+											url  =  __ctxPath + '/system/depLeadersTreeDepartment.do?roles=' + roles;
+											break;
+										case '3':
+											roles = roleMap.get('leaderRoleId');
+											url  =  __ctxPath + '/system/depLeadersTreeDepartment.do?roles='+ roles;
+											break;
+										default:
+											roles = '';
+									}
+										DepLeaders.getView(
+												function(userIds, fullnames) {
+													Ext.getCmp('viceLeaderIds').setValue(userIds);
+													Ext.getCmp('DisciplineSectionArchiveDepCheck.LeaderNames')
+															.setValue(fullnames);
+												}, option==3, null,url).show();
+									}
+								}]
+					},{
+					   layout:'column',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+									name : 'leaderRead.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+												var fm = Ext.getCmp('DisciplineSectionArchiveDepCheckForm');
+													fm.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					}]
+		});
+		if(taskId){
+			Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				if(prevDestName.toString().indexOf("会签")!=-1){
+					Ext.getCmp('DisciplineSectionArchiveDepCheck.return').hide();
+				}
+			},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+		}
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)	 
+								#if($count<1)
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								}),
+								new Ext.Button({
+								   iconCls:'btn-changeTask',
+								   id:'DisciplineSectionArchiveDepCheck.return',
+								   text:'退回',
+								   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+								})
+								#end
+								#set ($count=$count+1)
+						#end];
+	},
+	backsetp:function(formPanel,panel,activityName){
+/*		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		Ext.getCmp('DisciplineSectionArchiveDepCheck.LeaderNames').allowBlank=true;
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId; 
+				var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+				var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+				var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+				formPanel.getForm().submit({
+						url:__ctxPath+ "/flow/nextForSyncProcessActivity.do",
+						method:'post',
+						waitMsg:'正在提交处理，请稍等',
+                    timeout : 120000,
+						scope:this,
+						params:{
+								taskId : panel.taskId,
+								signalName : prevSignalName,
+								activityName : activityName,
+								comments : '退回',
+								destName : prevDestName,
+								status : '已办理',
+								sendMail : sendMail, 
+								sendMsg  : sendMsg, 
+								sendInfo : sendInfo,
+								flowAssignId : prevFlowAssignId
+						},
+						success : function(fp, action) {
+                            // --无后续的错误友好提示开始
+                            var jsonResult = action.result;
+                            if (jsonResult) {
+                                if (jsonResult && jsonResult.success == "true") {
+                                    Ext.ux.Toast.msg("操作信息", "操作成功！");
+                                } else {
+                                    var resultMsg = "信息保存出错，请联系管理员！";
+                                    var resuIcon = Ext.MessageBox.ERROR;
+                                    if (jsonResult.message && jsonResult.message != null) {
+                                        resultMsg = jsonResult.message;
+                                        if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+                                            resuIcon= Ext.MessageBox.WARNING;
+                                        }
+                                    }
+                                    Ext.MessageBox.show({
+                                        title : '操作信息',
+                                        msg : resultMsg,
+                                        buttons : Ext.MessageBox.OK,
+                                        icon : resuIcon
+                                    });
+                                }
+                            }
+                            // --无后续的错误友好提示结束
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+                            Ext.MessageBox.show({
+                                title : '操作信息',
+                                msg : '当前系统繁忙，请稍后再处理！',
+                                buttons : Ext.MessageBox.OK,
+                                icon : Ext.MessageBox.WARNING
+                            });
+						}
+					}
+				
+				);},
+			failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+/*		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}*/
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();	
+			var params = {
+					auditNext : option, 
+					taskId : panel.taskId, 
+					signalName   : signalName, 
+					activityName : activityName, 
+					sendMail : sendMail, 
+					sendMsg  : sendMsg, 
+					sendInfo : sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue() 
+				};
+			var leaderIds = Ext.getCmp('viceLeaderIds').getValue();
+			if (1 == option ) {	//会签
+				Ext.apply(params,{
+					huiqNext:3,
+					destName : '处室会签',//目的节点名,会签时需要指定
+					//status:result,
+					//signUserIds会签到的一个或多个用户id，逗号隔开
+					signUserIds : leaderIds	//有提交signUserIds属性表示是会签任务，同时需要指定destName
+				});
+			} else if (2 == option ) { //领导会签
+				result='呈领导会签';
+				Ext.apply(params,{
+					status:result,
+					destName : '领导会签',
+					signUserIds : leaderIds
+				});
+			}else {		//签发
+				//result='呈签发';
+				Ext.apply(params,{
+					//status:result,
+					//下步执行人，单个用户id,与流程定义时配置的用户和角色比优先级最高，若提交将无视流程定义时的配置
+					flowAssignId : leaderIds
+				});
+			}
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextForSyncProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+                timeout : 120000,
+				params : params,
+				success : function(fp, action) {
+                    // --无后续的错误友好提示开始
+                    var jsonResult = action.result;
+                    if (jsonResult) {
+                        if (jsonResult && jsonResult.success == "true") {
+                            Ext.ux.Toast.msg("操作信息", "操作成功！");
+                        } else {
+                            var resultMsg = "信息保存出错，请联系管理员！";
+                            var resuIcon = Ext.MessageBox.ERROR;
+                            if (jsonResult.message && jsonResult.message != null) {
+                                resultMsg = jsonResult.message;
+                                if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+                                    resuIcon= Ext.MessageBox.WARNING;
+                                }
+                            }
+                            Ext.MessageBox.show({
+                                title : '操作信息',
+                                msg : resultMsg,
+                                buttons : Ext.MessageBox.OK,
+                                icon : resuIcon
+                            });
+                        }
+                    }
+                    // --无后续的错误友好提示结束
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();//完成任务后调用，用来刷新“我的待办”等列表
+				},
+				failure : function(fp, action) {
+                    Ext.MessageBox.show({
+                        title : '操作信息',
+                        msg : '当前系统繁忙，请稍后再处理！',
+                        buttons : Ext.MessageBox.OK,
+                        icon : Ext.MessageBox.WARNING
+                    });
+				}
+			});
+		}
+	}// end of save
+})

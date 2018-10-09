@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="GBK"?>
+<process name="CQSGHJQJLCFiles" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="300,20,50,50" name="填单">
+		<transition g="-20,-20" name="to 处室意见" to="处室意见" />
+	</start>
+	<task g="265,120,120,50" name="处室意见">
+		<transition g="-40,-20" name="to 处室意见结果" to="处室意见结果" />
+	</task>
+	<decision g="300,220,50,50" name="处室意见结果">
+		<transition g="-40,-20" name="to 人事处意见" to="人事处意见">
+			<condition expr="#{chushiOption=='1'}" />
+		</transition>
+		<transition g="-40,-20" name="to 分管领导意见" to="分管领导意见">
+			<condition expr="#{chushiOption=='2'}" />
+		</transition>
+		<transition g="500,445:0,-5" name="to 请假确认" to="请假确认">
+			<condition expr="#{chushiOption=='3'}" />
+		</transition>
+		<transition g="-40,-20" name="to 重新申请" to="重新申请">
+			<condition expr="#{chushiOption=='4'}" />
+		</transition>
+	</decision>
+	<task g="100,220,120,50" name="人事处意见">
+		<transition g="160,345:-31,-13" name="to 分管领导意见" to="分管领导意见" />
+	</task>
+	<task g="440,220,120,50" name="重新申请">
+		<transition g="500,145:-31,-13" name="to 处室意见" to="处室意见" />
+	</task>
+	<task g="265,320,120,50" name="分管领导意见">
+		<transition g="-40,-20" name="to 分管领导结果" to="分管领导结果" />
+	</task>
+	<decision g="300,420,50,50" name="分管领导结果">
+		<transition g="-40,-20" name="to 领导意见" to="领导意见">
+			<condition expr="#{leaderOption=='1'}" />
+		</transition>
+		<transition g="160,545:-20,-5" name="to 请假确认" to="请假确认">
+			<condition expr="#{leaderOption=='2'}" />
+		</transition>
+	</decision>
+	<task g="265,520,120,50" name="领导意见">
+		<transition g="-40,-20" name="to 请假确认" to="请假确认" />
+	</task>
+	<task g="265,620,120,50" name="请假确认">
+		<transition g="-40,-20" name="to 请假确认结果" to="请假确认结果" />
+	</task>
+	<decision g="300,720,50,50" name="请假确认结果">
+		<transition g="-40,-20" name="to 销假审批" to="销假审批">
+			<condition expr="#{xiaojiaOption=='1'}" />
+		</transition>
+		<transition g="-20,-5" name="to 办结" to="办结">
+			<condition expr="#{xiaojiaOption=='2'}" />
+		</transition>
+	</decision>
+	<task g="440,720,120,50" name="销假审批">
+		<transition g="500,845:-40,10" name="to 办结" to="办结" />
+	</task>
+	<task g="265,820,120,50" name="办结">
+		<transition g="-40,-20" name="to 结束" to="结束" />
+	</task>
+	<end g="300,920,50,50" name="结束" />
+</process>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="zhurResult" label="办公室审批结果" type="varchar" isShowed="false"/>
+	<field name="currentStep" label="当前步骤" type="long" length="0" isShowed="false" />
+</fields>

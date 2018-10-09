@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-lazy-init="true">
+	<bean id="scheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+		lazy-init="false">
+		<property name="triggers">
+			<list>
+				<!-- <ref local="sendMessageTrigger"/>
+				<ref local="sendContractTrigger"/>
+				<ref local="warningAppointmentTrigger" />-->
+				<ref local="smsMobileTrigger"/> 
+				<ref local="outMeetingTrigger"/>
+				<!-- 交委行政、党委规范性文件到期提醒 -->
+				<ref local="sendSmsForStandardExpireJWTrigger"/>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Detial -->
+	<bean id="sendMessageDetial" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="officeGoodsService"></property>
+		<property name="targetMethod" value="sendWarmMessage"></property>
+		<property name="concurrent" value="false"></property>
+	</bean>
+	<!-- Trigger -->
+	<bean id="sendMessageTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 早上二点钟开始调用SENDWARMMESSAGE方法-->
+		<property name="cronExpression">
+			<value>0 0 2 * * ?</value>
+		</property> 
+		<property name="jobDetail" ref="sendMessageDetial"/>
+	</bean>
+	
+	<!-- 新增：一分钟之内认为提醒  -->
+	<!-- Detail -->
+	<bean id="warningAppointmentDetial" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="appointmentService"></property>
+		<property name="targetMethod" value="warningAppointment"></property>
+		<property name="concurrent" value="false"></property>
+	</bean>
+	<!-- trigger -->
+	<bean id="warningAppointmentTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!--一分钟提醒一次  -->
+		<!-- 表达式的格式：秒，分，时，Day of month,Day of week,year(可选) -->
+		<property name="cronExpression">
+			<value>0 1 * * * ?</value>
+		</property>
+		<property name="jobDetail" ref="warningAppointmentDetial" />
+	</bean>
+	
+	<!-- 合同信息 -->
+    <bean id="sendContractDetial" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="userContractService"></property>
+        <property name="targetMethod" value="sendContractTime"></property>
+        <property name="concurrent" value="false"></property>
+    </bean>
+	<!-- Trigger -->
+	<bean id="sendContractTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 早上二点钟开始调用SENDCONTRACTMESSAGE方法-->
+		<property name="cronExpression">
+			<value>0 0 2 * * ?</value>
+		</property> 
+	   <property name="jobDetail" ref="sendContractDetial"/>
+	</bean>
+	
+	<!-- Detial -->
+    <bean id="smsMobileDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="smsMobileService"></property>
+        <property name="targetMethod" value="sendSms"></property>
+        <property name="concurrent" value="false"></property>
+    </bean>
+	<!-- Trigger -->
+	<bean id="smsMobileTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 每两分钟检查要发送的短信-->
+		<property name="cronExpression">
+		    <value>0 0/2 * * * ?</value>
+		</property> 
+	   <property name="jobDetail" ref="smsMobileDetail"/>
+	</bean>
+	
+	<!-- Detial -->
+    <bean id="outMeetingDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="outMeetingService"></property>
+        <property name="targetMethod" value="autoStopFlow"></property>
+        <property name="concurrent" value="false"></property>
+    </bean>
+	<!-- Trigger -->
+	<bean id="outMeetingTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 每2h检查自动结束超时的外来会议流程-->
+		<property name="cronExpression">
+		    <value>0 */3 * * * ?</value>
+		</property> 
+	   <property name="jobDetail" ref="outMeetingDetail"/>
+	</bean>
+	
+	<!-- Detial -->
+    <bean id="sendSmsForStandardExpireJWDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="archivesService"></property>
+        <property name="targetMethod" value="sendSmsForStandardExpireJW"></property>
+        <property name="concurrent" value="false"></property>
+    </bean>
+	<!-- Trigger -->
+	<bean id="sendSmsForStandardExpireJWTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 每天9点提醒-->
+		<property name="cronExpression">
+			<!-- <value>0 0/1 * * * ?</value> -->
+		    <value>0 0 9 * * ?</value>
+		</property> 
+	   <property name="jobDetail" ref="sendSmsForStandardExpireJWDetail"/>
+	</bean>
+</beans>

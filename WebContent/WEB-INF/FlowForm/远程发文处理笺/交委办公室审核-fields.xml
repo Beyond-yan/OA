@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="checkNext" label="办公室审核下步执行方向" type="varchar" length="100" isShowed="false" />
+</fields>

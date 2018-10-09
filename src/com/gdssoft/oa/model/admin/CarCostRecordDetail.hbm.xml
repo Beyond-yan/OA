@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class
+		name="com.gdssoft.oa.model.admin.CarCostRecordDetail" table="car_cost_Record_detail" select-before-update="false"
+		dynamic-update="false" dynamic-insert="false" optimistic-lock="version">
+		<id name="id" column="id" type="java.lang.Long" length="19">
+			<generator class="native"/>
+		</id>
+	<property name="costPrice" type="java.lang.Float" update="true" insert="true" access="property" column="unit_price" length="100" not-null="false" unique="false"/>  
+	<property name="costName" type="java.lang.String" update="true" insert="true" access="property" column="item_name" length="100" not-null="false" unique="false"/>  
+	<property name="createTime" type="java.util.Date" update="true" insert="true" access="property" column="create_date" length="19" not-null="false" unique="false"/>   
+	<property name="updateTime" type="java.util.Date" update="true" insert="true" access="property" column="update_date" length="19" not-null="false" unique="false"/>   
+	<property name="createUser" type="java.lang.String" update="true" insert="true" access="property" column="create_user" length="50" not-null="false" unique="false"/>   
+	<property name="updateUser" type="java.lang.String" update="true" insert="true" access="property" column="update_user" length="50" not-null="false" unique="false"/>      
+	<many-to-one name="carCostRecord" class="com.gdssoft.oa.model.admin.CarCostRecord">
+		<column name="RECORD_ID"/>
+	</many-to-one> 
+	</class>
+</hibernate-mapping>

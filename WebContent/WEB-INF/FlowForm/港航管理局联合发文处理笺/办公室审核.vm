@@ -1,0 +1,248 @@
+GHGLJLHFSentArchiveDepCheck = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	displayPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		GHGLJLHFSentArchiveDepCheck.superclass.constructor.call(this, {
+					id:'GHGLJBGSSHGHGLJLHFSentArchiveDepCheck',
+					layout : 'form',
+					items : [this.displayPanel, this.formPanel],
+					modal : true,
+					height : 740,
+					width : 700,
+					autoHeight : true,
+					maximizable : true,
+					buttonAlign : 'center',
+					buttons : this.buttons
+				});
+	},
+	initUIComponents : function() {
+
+		this.displayPanel = new Ext.Panel({
+			id : 'GHGLJLHFSentArchiveDepCheckPanel',
+			autoScroll : true,
+			autoHeight : true,
+			border : false,
+			autoLoad : {	//将该Panel以jsp的返回填充，这里需要传递用于显示公文信息的公文的ID,和公文附件的ids
+				url : __ctxPath
+						+ '/pages/ganghanglianheSentFiles/SentArchiveDetail.jsp?archiveId=${archivesId}&fileIds=${fileIds}',
+				nocache : true
+			}
+		});
+		
+								
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			url : __ctxPath + '/archive/saveDepLeaderRead.do',
+			id : 'GHGLJLHFSentArchiveDepCheckForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [new ArchivesUtil({
+						panelId : 'GHGLJBGSSHGHGLJLHFSentArchiveDepCheck',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+						name : 'archives.archivesId',
+						xtype : 'hidden',
+						value : '${archivesId}'
+					}, {
+						xtype : 'radiogroup',
+						allowBlank : false,
+						columns :[.4,.3,.3],//表示该元素的子组件所占宽度比例，此处0.3=.3=30%。
+						defaults:{	//{}对象A中的defaults属性值也是一个对象，该对象的属性会被A的所有子元素继承，并可以被重写。
+							listeners : {//为radiogroup中items的所有组件添加该listeners
+								'check' : function(checkbox, checked) {
+									if (checked) {
+										Ext.getCmp('GHGLJLHFviceLeaderIds').setValue('');
+										Ext.getCmp('GHGLJLHFSentArchiveDepCheck.LeaderNames').setValue('');
+									}
+								}
+							}
+						},
+						items : [ {
+							boxLabel : '交委处室会签',
+							width :160,
+							name : 'depOption',
+							inputValue : 3,//选中该radio button时radiogroup的值
+							checked : true
+						}, {
+							width :100,
+							boxLabel : '领导会签',
+							name : 'depOption',
+							inputValue : 1
+						},{
+							boxLabel : '签发',
+							width :80,
+							name : 'depOption',
+							inputValue : 2
+						}],
+						fieldLabel : '会签步骤'
+					}, {
+						id : 'GHGLJLHFSentArchiveDepCheck.Leaders',
+						xtype : 'container',
+						layout : 'column',
+						style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									style : 'padding:0px 0px 0px 0px;',
+									text : '选择领导:',
+									width : 105
+								}, {
+									xtype : 'textfield',
+									width : 445,
+									allowBlank:false,
+									readOnly : true,
+									id : 'GHGLJLHFSentArchiveDepCheck.LeaderNames'
+								}, {
+									xtype : 'hidden',
+									id : 'GHGLJLHFviceLeaderIds'
+								}, {
+									xtype : 'button',
+									iconCls : 'menu-department',
+									text : '选择领导',
+									handler : function() {
+										var option = formPanel.getCmpByName('depOption').getGroupValue();
+										var url = __ctxPath +"/system/depLeadersTreeDepartment.do";
+										if(option==2 || option==1){
+											url+= '?roles=100175';
+										}/*else if(option==4){
+											url+= '?roles=100152,100156&depIds='+curUserInfo.depId;
+										}*/else{
+											url+= '?roles=100152,100156&depIds=';
+										}
+										
+										//创建领导选择器
+										//DepLeaders.getView(
+										//	callback,//选择后点击“确定”后的回调方法，返回参数：userIds（选择的userid,多个以","隔开）, fullnames（选择的用户名）.
+										//	isSingle,//是否单选，true|false,默认false.
+										//	map,//保留参数2013-10-10，传入null即可.
+										//	url //加载领导数据的url,默认__ctxPath + '/system/dep3LeadersTreeDepartment.do'，
+										//		该url有可选参数depIds（部门列表）和roles（角色列表），组合可查出某些部门下的某
+										//		些角色level==3的用户，两者都无则查询全部level==3的用户.
+										//)
+										DepLeaders.getView(
+												function(userIds, fullnames) {
+													Ext.getCmp('GHGLJLHFviceLeaderIds').setValue(userIds);
+													Ext.getCmp('GHGLJLHFSentArchiveDepCheck.LeaderNames')
+															.setValue(fullnames);
+												}, option==2, null,url).show();
+									}
+								}]
+					}, {
+						xtype : 'container',
+						layout : 'column',
+						defaults : {
+							border : false
+						},
+						items : [{
+									xtype : 'label',
+									text : '审核意见',
+									width : 105
+								}, {
+									name : 'leaderRead.leaderOpinion',
+									xtype : 'textarea',
+									maxLength :500,
+									width : 440
+								},{
+									xtype : 'button',
+									iconCls : 'menu-flowWait',
+									text : '选择常用批示语',
+									handler : function() {
+										OdCommentsSelector.getView(
+											function(id, name) {
+												Ext.getCmp('GHGLJLHFSentArchiveDepCheckForm')
+													.getCmpByName('leaderRead.leaderOpinion')
+													.setValue(name);
+											}, true).show();
+										}
+								}]
+					
+					}]
+		});
+		this.buttons = [ #set ($count=0)
+							#foreach ($v in $nextTrans)	//$nextTrans的值是该节点的流出路径的集合
+								#if($count<1)
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确定',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#end
+								#set ($count=$count+1)
+						#end];
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		
+		if (formPanel.getForm().isValid()) {
+			var option = formPanel.getCmpByName('depOption').getGroupValue();
+			var sendMail = msgPanel.getCmpByName('sendMail')
+					.getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg')
+					.getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();		
+			var params = {
+					thirdNext : option,//分支节点读取该值配合流程定义决定流程下一步流向,需要在-fields.xml配置
+					officeExerId : curUserInfo.userId,//该节点执行人，即当前用户，方便以后节点读取,需要在-fields.xml配置
+					taskId : panel.taskId,//每个节点都要向nextProcessActivity.do提交taskId : panel.taskId
+					signalName   : signalName,//流程的下一个节点名
+					activityName : activityName,//当前节点名
+					ccUserIds    : ccPanel.getCmpByName('ccIds').getValue(),//抄送人，多个以“,”隔开
+					sendMail : sendMail,//是否发送邮件通知，true|false
+					sendMsg  : sendMsg,//是否发送手机短信通知，true|false
+					sendInfo:sendInfo,
+					comments : formPanel.getCmpByName('leaderRead.leaderOpinion').getValue()//节点处理意见
+				};
+			var leaderIds = Ext.getCmp('GHGLJLHFviceLeaderIds').getValue();
+			if (3 == option ) {	//交委处室会签
+				
+				//Ext.apply(A,B)复制B对象的所有属性到A
+				Ext.apply(params,{
+					depLeaderOption : 'roomSign',
+					destName : '交委处室会签',
+					signUserIds : leaderIds
+				});
+			} else if (1 == option ) { //领导会签
+				Ext.apply(params,{
+					depLeaderOption : 'depSign',
+					destName : '领导会签',//目的节点名,会签时需要指定
+					//signUserIds会签到的一个或多个用户id，逗号隔开
+					signUserIds : leaderIds	//有提交signUserIds属性表示是会签任务，同时需要指定destName
+				});
+			} else {		//签发
+				Ext.apply(params,{
+					depLeaderOption : 'sent',
+					//下步执行人，单个用户id,与流程定义时配置的用户和角色比优先级最高，若提交将无视流程定义时的配置
+					flowAssignId : leaderIds
+				});
+			}
+
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '成功保存！');
+					AppUtil.removeTab('ProcessForm' + panel.taskId);
+					refreshTaskPanelView();//完成任务后调用，用来刷新“我的待办”等列表
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});
+		}
+	}// end of save
+})

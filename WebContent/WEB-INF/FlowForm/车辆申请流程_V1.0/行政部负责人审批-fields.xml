@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="opinion" label="审批意见" type="varchar" length="0" isShowed="true"/>
+	<field name="resultRep" label="审核结果" type="varchar" length="0" isShowed="true"/>
+	<field name="applyRepId" label="applyRepId" type="varchar" length="0" isShowed="false"/>
+	<field name="xzbOption" label="流转结果" type="varchar" isShowed="false"/>
+	</fields>

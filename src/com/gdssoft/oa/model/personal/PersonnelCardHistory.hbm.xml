@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.personal.PersonnelCardHistory"
+        table="personnel_card_history"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+    >
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="19"
+        >
+              <generator class="native"/>
+        </id>
+         <property
+            name="empCode"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="EMP_CODE"
+            length="30"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="recordDt"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="RECORD_DT"
+            length="23"
+            not-null="true"
+            unique="false"
+        />
+        <property
+            name="readerCode"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="READER_CODE"
+            length="30"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="createBy"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="CREATE_BY"
+            length="50"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="updateDate"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            access="property"
+            column="UPDATE_DATE"
+            length="23"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="updateBy"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            access="property"
+            column="UPDATE_BY"
+            length="50"
+            not-null="false"
+            unique="false"
+        />
+     <!-- imported bi-directional many-to-one association to AppUser -->
+		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="USER_ID" />
+		</many-to-one>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,520 @@
+WSDWProposeDistributeView = Ext.extend(Ext.Panel, {
+	taskId : null,
+	setTaskId : function(vId) {
+		this.taskId = vId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	// 内嵌FormPanel
+	formPanel : null,
+	// 内嵌FormPanel
+	displayPanel : null,
+	// 构造函数
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		// 必须先初始化组件
+		this.initUIComponents();
+		WSDWProposeDistributeView.superclass.constructor.call(this, {
+					id : 'WSDWProposeDistributeViewWin',
+					modal : true,
+					height : 595,
+					width : 700,
+					autoHeight:true,
+					//maximizable : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									}),
+									new Ext.Button({
+									   iconCls:'btn-changeTask',
+									   id : 'WSDWProposeDistributeView.return',
+									   text:'退回',
+									   handler:this.backsetp.createCallback(this.formPanel,this,'${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.displayPanel, this.formPanel]
+				});
+				var jsArr=[__ctxPath+'/js/flow/LeaderCommandWindow.js'];
+				$ImportSimpleJs(jsArr,null);
+	},// end of the constructor
+	// 初始化组件
+	initUIComponents : function() {
+		//内勤分发负责人
+		var comboStore = new Ext.data.SimpleStore({
+			url : __ctxPath + '/system/getAllByDepIdAppUser.do',
+			//autoLoad : true,
+			fields : ['userId', 'fullname']
+		});
+		//加载
+		this.displayPanel = new Ext.Panel({
+			id : 'DWBBFFWSDWProposeDistributeViewPanel',
+			//autoScroll : true,
+			//autoHeight : true,
+			border : false,
+			autoLoad : {
+				url : __ctxPath+'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=DWBBFFWSDWProposeDistributeViewPanel',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			bodyStyle : 'padding:10px 10px 10px 10px',
+			border : false,
+			id : 'WSDWProposeDistributeViewForm',
+			defaults : {
+				anchor : '98%,98%'
+			},
+			items : [{
+				xtype : 'radiogroup',
+   				allowBlank : false,
+   				width : 100,
+   				items : [{
+    				boxLabel : '处室拟办',
+    				name : 'option',
+    				checked : true,
+    				inputValue : 2,
+    				listeners : {
+     					'check' : function(checkbox, checked){
+							if(checked){//只有在点击时触发
+								Ext.getCmp('WSDWProposeDistributeView.niban').show(); 
+								Ext.getCmp('WSDWProposeDistributeView.nibanName').allowBlank = false;
+								Ext.getCmp('WSDWProposeDistributeView.xieban').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.xiebanName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.xiebanId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.xiebanName').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.huiqian').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.huiqianName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.huiqianId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.huiqianName').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.guidang').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.guidangName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.guidangId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.guidangName').setValue('');
+							}   
+						}
+					}
+   				},{
+    				boxLabel : '处室协办',
+    				name : 'option',
+    				inputValue : 1,
+    				listeners : {
+     					'check' : function(checkbox, checked){
+							if(checked){//只有在点击时触发
+								Ext.getCmp('WSDWProposeDistributeView.xieban').show(); 
+								Ext.getCmp('WSDWProposeDistributeView.xiebanName').allowBlank = false;
+								Ext.getCmp('WSDWProposeDistributeView.niban').show(); 
+								Ext.getCmp('WSDWProposeDistributeView.nibanName').allowBlank = false;
+								Ext.getCmp('WSDWProposeDistributeView.huiqian').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.huiqianName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.huiqianId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.huiqianName').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.guidang').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.guidangName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.guidangId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.guidangName').setValue('');
+							}   
+						}
+					}
+				},{
+					boxLabel : '处室会签',
+					name : 'option',
+					inputValue : 3,
+					listeners : {
+						'check' : function(checkbox, checked){
+							if(checked){//只有在点击时触发
+								Ext.getCmp('WSDWProposeDistributeView.huiqian').show(); 
+								Ext.getCmp('WSDWProposeDistributeView.huiqianName').allowBlank = false;
+								Ext.getCmp('WSDWProposeDistributeView.niban').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.nibanName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.nibanId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.nibanName').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.xieban').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.xiebanName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.xiebanId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.xiebanName').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.guidang').hide(); 
+								Ext.getCmp('WSDWProposeDistributeView.guidangName').allowBlank = true;
+								Ext.getCmp('WSDWProposeDistributeView.guidangId').setValue('');
+								Ext.getCmp('WSDWProposeDistributeView.guidangName').setValue('');
+							}   
+						}
+					}
+				},{
+					boxLabel : '内勤归档',
+					name : 'option',
+					inputValue : 4,
+					listeners : {
+						'check' : function(checkbox, checked){
+  							 if(checked){//只有在点击时触发
+								 Ext.getCmp('WSDWProposeDistributeView.guidang').show(); 
+								 Ext.getCmp('WSDWProposeDistributeView.guidangName').allowBlank = false;
+								 Ext.getCmp('WSDWProposeDistributeView.niban').hide(); 
+								 Ext.getCmp('WSDWProposeDistributeView.nibanName').allowBlank = true;
+								 Ext.getCmp('WSDWProposeDistributeView.nibanId').setValue('');
+								 Ext.getCmp('WSDWProposeDistributeView.nibanName').setValue('');
+								 Ext.getCmp('WSDWProposeDistributeView.xieban').hide(); 
+								 Ext.getCmp('WSDWProposeDistributeView.xiebanName').allowBlank = true;
+								 Ext.getCmp('WSDWProposeDistributeView.xiebanId').setValue('');
+								 Ext.getCmp('WSDWProposeDistributeView.xiebanName').setValue('');
+								 Ext.getCmp('WSDWProposeDistributeView.huiqian').hide(); 
+								 Ext.getCmp('WSDWProposeDistributeView.huiqianName').allowBlank = true;
+								 Ext.getCmp('WSDWProposeDistributeView.huiqianId').setValue('');
+								 Ext.getCmp('WSDWProposeDistributeView.huiqianName').setValue('');
+							 }   
+						}
+				    }
+			    }],
+  				fieldLabel : '审批步骤'
+			},{
+				xtype : 'container',
+				id : 'WSDWProposeDistributeView.niban',
+				layout : 'column',
+				hidden:false,
+				height : 30,
+				defaults : {
+					border : false
+				},
+				items : [{
+						xtype:'hidden',
+						id:'WSDWProposeDistributeView.nibanId'
+					},  {
+						xtype : 'label',
+						text : '处室拟办负责人:',
+						style : 'padding-top:4px;',
+						width : 105
+					}, {
+						id : 'WSDWProposeDistributeView.nibanName',
+						xtype : 'textfield',
+						allowBlank:false,
+						width : '67%',
+						readOnly : true
+					},{
+						xtype : 'button',
+						iconCls : 'menu-department',
+						style : 'padding-left:5px;',
+						text : '选择人员',
+						handler : function() {
+							var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+							DepLeaders.getView(function(userIds, fullnames) {
+								Ext.getCmp('WSDWProposeDistributeView.nibanId').setValue(userIds);
+								Ext.getCmp('WSDWProposeDistributeView.nibanName')
+										.setValue(fullnames);
+							},true, null,url).show();
+						}
+					}]
+			}, {
+				xtype : 'container',
+				id : 'WSDWProposeDistributeView.xieban',
+				layout : 'column',
+				hidden:true,
+				height : 30,
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype:'hidden',
+							id:'WSDWProposeDistributeView.xiebanId'
+						},  {
+							xtype : 'label',
+							text : '处室协办负责人:',
+							style : 'padding-top:4px;',
+							width : 105
+						}, {
+							id : 'WSDWProposeDistributeView.xiebanName',
+							xtype : 'textfield',
+							allowBlank:true,
+							width : '67%',
+							readOnly : true
+						},{
+							xtype : 'button',
+							iconCls : 'menu-department',
+							style : 'padding-left:5px;',
+							text : '选择人员',
+							handler : function() {
+								var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+								DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('WSDWProposeDistributeView.xiebanId').setValue(userIds);
+											Ext.getCmp('WSDWProposeDistributeView.xiebanName')
+													.setValue(fullnames);
+										},false, null,url).show();
+							}
+							
+						}]
+			}, {
+				xtype : 'container',
+				id : 'WSDWProposeDistributeView.huiqian',
+				layout : 'column',
+				hidden:true,
+				height : 30,
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype:'hidden',
+							id:'WSDWProposeDistributeView.huiqianId'
+						},  {
+							xtype : 'label',
+							text : '处室会签负责人:',
+							style : 'padding-top:4px;',
+							width : 105
+						}, {
+							id : 'WSDWProposeDistributeView.huiqianName',
+							xtype : 'textfield',
+							allowBlank:true,
+							width : '67%',
+							readOnly : true
+						},{
+							xtype : 'button',
+							iconCls : 'menu-department',
+							style : 'padding-left:5px;',
+							text : '选择人员',
+							handler : function() {
+								var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+								DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('WSDWProposeDistributeView.huiqianId').setValue(userIds);
+											Ext.getCmp('WSDWProposeDistributeView.huiqianName')
+													.setValue(fullnames);
+										},false, null,url).show();
+							}
+							
+						}]
+			}, {
+				xtype : 'container',
+				id : 'WSDWProposeDistributeView.guidang',
+				layout : 'column',
+				hidden:true,
+				height : 30,
+				defaults : {
+					border : false
+				},
+				items : [{
+							xtype:'hidden',
+							id:'WSDWProposeDistributeView.guidangId'
+						},  {
+							xtype : 'label',
+							text : '内勤归档负责人:',
+							style : 'padding-top:4px;',
+							width : 105
+						}, {
+							id : 'WSDWProposeDistributeView.guidangName',
+							xtype : 'textfield',
+							allowBlank:true,
+							width : '67%',
+							readOnly : true
+						},{
+							xtype : 'button',
+							iconCls : 'menu-department',
+							style : 'padding-left:5px;',
+							text : '选择人员',
+							handler : function() {
+								var url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+								DepLeaders.getView(
+										function(userIds, fullnames) {
+											Ext.getCmp('WSDWProposeDistributeView.guidangId').setValue(userIds);
+											Ext.getCmp('WSDWProposeDistributeView.guidangName')
+													.setValue(fullnames);
+										},true, null,url).show();
+							}
+							
+						}]
+			}, {
+			   layout:'column',
+			   border:false,
+			   items:[{
+			   		layout:'form',
+			   		border:false,
+			   		items:[{	
+		   					fieldLabel : '审批意见',
+		   					id:'WSDWProposeDistributeView.leaderOpinion',
+							name : 'leaderOpinion',
+							autoScroll:true,
+							maxLength:500,
+							height:40,
+							xtype:'textarea',
+							width:448
+							}]
+			     	 },{
+				   		layout:'form',
+				   		style:'padding-top:10px;padding-left:5px;',
+				   		border:false,
+				   		items:[{
+								xtype : 'button',
+								text : '常用批示语',
+								iconCls : 'menu-new-document',
+								handler : function() {
+									OdCommentsSelector.getView(
+										function(id, name) {
+											Ext.getCmp('WSDWProposeDistributeView.leaderOpinion')
+											.setValue(name);
+											}, true).show();
+									}
+								}]
+			  		}]
+			},{
+				xtype: 'hidden',
+				id : 'WSDWProposeDistributeView.preActivity'
+			},{
+				id : 'WSDWProposeDistributeView.reFileId',
+				xtype : 'hidden'
+			}]
+		});
+		if(taskId){
+			Ext.Ajax.request({
+				url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+				params : {
+					'taskId' : taskId
+				},
+				method:'post',
+				success : function(response, options) {
+					var processForm = Ext.util.JSON.decode(response.responseText).data;
+					var prevSignalName  = processForm[0].signalName;
+					var prevDestName  = processForm[0].activityName;
+					if(prevDestName.toString()=="办公室主任拟办"){
+						Ext.getCmp('WSDWProposeDistributeView.preActivity').setValue(1);
+					}else if(prevDestName.toString()=="领导批示"){
+						Ext.getCmp('WSDWProposeDistributeView.return').hide();
+						Ext.getCmp('WSDWProposeDistributeView.preActivity').setValue(2);
+					}
+				},
+				failure : function(response, options) {
+					Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+				}
+			});
+		}
+	},
+	backsetp:function(formPanel,panel,activityName){
+		 Ext.getCmp('WSDWProposeDistributeView.nibanName').allowBlank=true;
+		 Ext.getCmp('WSDWProposeDistributeView.xiebanName').allowBlank=true;
+		 Ext.getCmp('WSDWProposeDistributeView.huiqianName').allowBlank=true;
+		 Ext.getCmp('WSDWProposeDistributeView.guidangName').allowBlank=true;
+		 Ext.Ajax.request({
+			url : __ctxPath + '/flow/getPreviousStepProcessRun.do',
+			params : {
+				'taskId' : panel.taskId
+			},
+			method:'post',
+			success : function(response, options) {
+				var processForm = Ext.util.JSON.decode(response.responseText).data;
+				var prevSignalName  = processForm[0].signalName;
+				var prevDestName  = processForm[0].activityName;
+				var prevFlowAssignId =  processForm[0].creatorId; 
+				var docParams=Ext.getCmp("WSDWProposeDistributeView.reFileId");
+				if("收文登记" == prevDestName){
+					prevSignalName = 'to重新登记';
+					prevFlowAssignId ='${userId}';
+					prevDestName = '重新登记';
+					result='呈重新登记';
+				}
+				formPanel.getForm().submit({
+					url:__ctxPath+ "/flow/nextProcessActivity.do",
+					method:'post',
+					waitMsg:'正在提交处理，请稍等',
+					scope:this,
+					params:{
+							taskId : panel.taskId,
+							signalName : prevSignalName,
+							activityName : activityName,
+							comments : formPanel.getCmpByName('leaderOpinion').getValue(),
+							destName : prevDestName,
+							status : '退回',
+							flowAssignId : prevFlowAssignId
+					},
+					success : function(fp, action) {
+						 Ext.ux.Toast.msg('操作信息','退回上一步成功！');
+						 AppUtil.removeTab('ProcessForm' + panel.taskId);
+						 refreshTaskPanelView();
+					},
+					failure : function(fp, action) {
+						Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+					}
+				});
+			},
+			failure : function(response, options) {
+				Ext.ux.Toast.msg('操作信息', '撤回出错，请联系管理员！');
+			}
+		});
+	},
+	/**
+	 * 保存记录
+	 */
+	save : function(formPanel, panel, signalName, activityName) {
+		var opt = formPanel.getCmpByName('option').getGroupValue();
+		if (formPanel.getForm().isValid()) {
+		  	var isOfficeLeader;
+			var option = formPanel.getCmpByName('option').getGroupValue();
+			var comments='';
+			var params={
+				sentNext:option,
+				taskId : panel.taskId,
+				signalName : signalName,
+				activityName : activityName, 
+				depId: curUserInfo.depId,
+				sendMail : sendMail,
+				sendMsg : sendMsg,
+				sendInfo: sendInfo, 
+			    comments: formPanel.getCmpByName('leaderOpinion').getValue() 
+			};
+			if (option == '1') {
+				Ext.apply(params,{
+					destName : '处室协办',
+					sentNextUid : Ext.getCmp('WSDWProposeDistributeView.nibanId').getValue(),
+					signUserIds :Ext.getCmp('WSDWProposeDistributeView.xiebanId').getValue()
+				});
+			} else if(option =="2"){
+				Ext.apply(params,{
+					flowAssignId : Ext.getCmp('WSDWProposeDistributeView.nibanId').getValue()
+				});
+			}else if(option =="3"){
+				Ext.apply(params,{
+					destName : '处室会签',
+					sentNextUid : curUserInfo.userId,
+					signUserIds : Ext.getCmp('WSDWProposeDistributeView.huiqianId').getValue()
+				});
+			}else {
+				Ext.apply(params,{
+					flowAssignId : Ext.getCmp('WSDWProposeDistributeView.guidangId').getValue()
+				});
+			}
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var docParams=Ext.getCmp("WSDWProposeDistributeView.reFileId");
+			formPanel.getForm().submit({
+				url : __ctxPath + "/flow/nextProcessActivity.do",
+				method : 'post',
+				waitMsg : '正在提交数据...',
+				params : params,
+				success : function(fp, action) {
+					 Ext.ux.Toast.msg('操作信息', '成功保存！');
+					 AppUtil.removeTab('ProcessForm' + panel.taskId);
+					 var myTaskView = Ext.getCmp("MyTaskGrid");
+					 var appHomeTaskGrid = Ext
+							.getCmp("appHomeTaskGrid");
+					 if (appHomeTaskGrid != null) {
+						appHomeTaskGrid.getStore().reload();
+					 }
+					 if (myTaskView != null) {
+						myTaskView.getStore().reload();
+					 }
+					 refreshTaskPanelView();
+				},
+				failure : function(fp, action) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			}); 
+		}
+	}
+})

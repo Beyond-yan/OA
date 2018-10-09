@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="JTJDPublicSentFiles" xmlns="http://jbpm.org/4.0/jpdl">
+   <start g="280,13,50,37" name="拟稿">
+      <transition g="-65,-17" name="to 处室核稿" to="处室核稿"/>
+   </start>
+   <task g="244,83,117,57" name="处室核稿">
+      <transition g="-62,-8" name="to 核稿结果" to="核稿结果"/>
+   </task>
+   <task g="258,320,93,51" name="签发">
+      <transition g="-48,-15" name="to 编号" to="编号"/>
+   </task>
+   <task g="257,411,97,48" name="编号">
+      <transition g="-94,-11" name="to 生成电子公文" to="生成电子公文"/>
+   </task>
+   <task g="246,505,121,55" name="生成电子公文">
+      <transition g="-49,-11" name="to 分发" to="分发"/>
+   </task>
+   <task g="261,583,86,49" name="分发">
+      <transition g="-41,-17" name="to 结束" to="  "/>
+   </task>
+   <end g="282,677,37,43" name="  "/>
+   <decision g="278,192,48,48" name="核稿结果">
+      <transition g="-37,-17" name="to 重新发起" to="重新发起">
+       <condition expr="#{depNext=='2'}"/></transition>
+      <transition name="to 会签" to="会签" g="-44,-21">
+      <condition expr="#{depNext=='3'}"/></transition>
+      <transition name="to 签发" to="签发" g="-44,-21"/>
+   </decision>
+   <task g="435,185,92,52" name="重新发起">
+      <transition g="481,114:-65,-17" name="to 处室核稿" to="处室核稿"/>
+   </task>
+   <task name="会签" g="78,190,92,52">
+      <transition name="to 处室核稿" to="处室核稿" g="124,114:-68,-21"/>
+   </task>
+</process>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="foreachUserIds" label="foreachUserIds" type="varchar" length="1000" isShowed="false" />
+	<field name="nibanUserIds" label="nibanUserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="banniOption" label="处室结果流转标识" type="varchar" length="100" isShowed="true" />
+</fields>

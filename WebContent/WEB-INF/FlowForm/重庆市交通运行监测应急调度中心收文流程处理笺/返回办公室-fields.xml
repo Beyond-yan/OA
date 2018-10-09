@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="officeNext"  type="long" length="0" isShowed="false" />
+	<field name="underTakeId" label="承办负责人" type="long" length="0" isShowed="false" />
+	<field name="officeUserId" label="返回办公室负责人" type="long" length="10" isShowed="false" />
+</fields>

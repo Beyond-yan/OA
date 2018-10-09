@@ -1,0 +1,178 @@
+ZFXXSectionInnertakeView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		ZFXXSectionInnertakeView.superclass.constructor.call(this, {
+					id : 'ZFXXSectionInnertakeViewWin',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 530,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	/**
+	 * 保存公文的方法,传入公文状态作为参数
+	 */
+	onSave : function(formPanel, panel, signalName, activityName) {
+		if (panel.store.getCount() == 0) {
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文!');
+			return false;
+		}
+		Ext.Msg.confirm('信息确认', '请确认是否已办结', function(btn) {
+			if (btn == 'yes') {
+		var result='完成';
+		var comments=formPanel.getCmpByName('leaderOpinion').getValue();
+		Ext.Ajax.request({
+					url :__ctxPath + '/system/saveDocFromArchivesDocFiles.do?archivesId='+ '${archivesId}',
+					method : 'POST',
+					success : function(response, options) {
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var docParams=Ext.getCmp("ZFXXSectionInnertakeFormView.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+			formPanel.getForm().submit({
+						method : 'POST',
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						params : {
+							taskId : taskId,
+							signalName : signalName,
+							activityName : activityName,
+							ccUserIds : ccPanel.getCmpByName('ccIds').getValue(),
+							sendMail : sendMail,
+							sendMsg : sendMsg,
+							sendInfo : sendInfo,
+							status:result,
+							comments:comments
+						},
+						waitMsg : '正在提交数据...',
+						success : function(fp, action) {
+							Ext.Ajax.request({
+								url : __ctxPath + "/archive/updateArchDocsArchives.do",
+								params : {
+										  arcRecfileIds : Ext.getCmp('ZFXXSectionInnertakeFormView.reFileId').getValue(),
+										  'archives.archivesId':'${archivesId}'
+										  },
+								method : 'POST',
+								success : function(fp, action) {
+										 Ext.ux.Toast.msg("操作信息", "成功保存！");
+										 AppUtil.removeTab('ProcessForm' + taskId);
+										 refreshTaskPanelView();
+		                        },
+								failure : function(fp, action) {
+									Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+								}
+							});
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}}});}});
+	},
+
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					autoHeight : true,
+					columnWidth : 1,
+					id:'XXGKNQGDReceiveArchiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=XXGKNQGDReceiveArchiveDetailPanel',
+						nocache : true
+					}
+				});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : 'ZFXXSectionInnertakeFormView',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			items : [new ArchivesUtil({
+						panelId : 'ZFXXSectionInnertakeViewWin',
+						archivesId : '${archivesId}'
+					}).getGridPanelWithFullTools(),{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+				   					id:'ZFXXSectionInnertakeFormView.leaderOpinion',
+									name : 'leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('ZFXXSectionInnertakeFormView.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+						},{
+							id : 'ZFXXSectionInnertakeFormView.reFileId',
+							xtype : 'hidden'
+						}]
+		});
+	}// end of init
+})

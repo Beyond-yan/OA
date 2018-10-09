@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="sz_dispatch_20171216" xmlns="http://jbpm.org/4.4/jpdl">
+   <start g="228,5,48,48" name="发文拟稿">
+      <transition g="-69,-22" name="to 科室初核" to="科室初核"/>
+   </start>
+   <task g="203,74,92,52" name="科室初核">
+      <transition g="-69,-22" name="to 初核结果" to="初核结果"/>
+   </task>
+   <task g="209,208,92,52" name="领导审核">
+      <transition g="-72,-13" name="to 审核结果" to="审核结果"/>
+   </task>
+   <task g="206,344,92,52" name="印发">
+      <transition g="-45,-22" name="to 校对" to="校对"/>
+   </task>
+   <decision g="230,145,48,48" name="初核结果">
+      <transition g="140,169:-69,-22" name="to 重新拟稿" to="重新拟稿">
+      	<condition expr="#{toInitialCheckOpt=='1'}"/>
+      </transition>
+      <transition g="-69,-22" name="to 领导审核" to="领导审核">
+      	<condition expr="#{toInitialCheckOpt=='2'}"/>
+      </transition>
+   </decision>
+   <task g="96,76,92,52" name="重新拟稿">
+      <transition g="-42,-42" name="to 科室初核" to="科室初核"/>
+   </task>
+   <decision g="230,274,48,48" name="审核结果">
+      <transition g="63,300;63,104:19,76" name="to 重新拟稿" to="重新拟稿">
+      	<condition expr="#{toCheckOpt=='1'}"/>
+      </transition>
+      <transition g="334,298;332,230:-59,2" name="to 领导审核" to="领导审核">
+      	<condition expr="#{toCheckOpt=='2'}"/>
+      </transition>
+      <transition g="-45,-22" name="to 印发" to="印发">
+      	<condition expr="#{toCheckOpt=='3'}"/>
+      </transition>
+      <transition g="356,297;355,97:-69,-22" name="to 科室初核" to="科室初核">
+      	<condition expr="#{toCheckOpt=='4'}"/>
+      </transition>
+   </decision>
+   <task g="211,408,92,52" name="校对">
+      <transition g="-45,-22" name="to 分发" to="分发"/>
+   </task>
+   <task g="209,473,92,52" name="分发">
+      <transition g="-50,-22" name="to 结束" to="结束"/>
+   </task>
+   <end g="231,537,48,48" name="结束"/>
+</process>

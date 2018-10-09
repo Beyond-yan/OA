@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	<field name="transactOpt" label="流转结果" type="varchar" isShowed="false"/>
+	<field name="foreachUserIds" label="foreachUserIds" type="varchar" length="1000" isShowed="true" />
+	<field name="foreachUserIdsLengths" label="foreachUserIdsLengths" type="varchar" length="100" isShowed="true" />
+	<field name="toDoOpt" label="下一步骤" type="varchar" length="100" isShowed="true" />
+</fields>

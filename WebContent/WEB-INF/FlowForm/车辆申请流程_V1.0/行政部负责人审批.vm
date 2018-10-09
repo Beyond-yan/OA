@@ -1,0 +1,288 @@
+ChargePersonView=Ext.extend(Ext.Panel ,{
+	
+	// 构造函数
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+			
+		// 初始化组件
+		this.initUIComponents();
+		// 调用父类构造
+		ChargePersonView.superclass.constructor.call(this, {
+					id : 'ChargePersonView',
+					title : '行政部负责人审核',
+					region : 'center',
+					layout : 'form',
+					modal : true,
+					height : 780,
+					width : 700,
+					maximizable : true,
+					buttonAlign : 'center',
+					items : [this.detailPanel,this.formPanel],
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0),
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.save.createCallback(this,'${v.name}','${v.source}','${v.destination}')
+									})
+									#set ($count=$count+1)
+								#end
+					          ]
+
+				});
+	},// end of constructor
+	
+	initUIComponents : function(){
+		this.detailPanel = new Ext.Panel({
+			autoHeight : true,
+			columnWidth : 1,
+			autoScroll:true,
+			autoLoad:{
+				url:__ctxPath+ '/pages/common/carApplyInfo.jsp?archivesId='+ '${applyId}',
+				nocache : true
+			}
+		});
+		this.formPanel = new Ext.FormPanel(
+				{	
+					layout : 'form',
+					id : 'CarApplyForm',
+					frame : false,
+					border : true,
+					defaults : {
+						width : 500,
+						anchor : '98%,98%'
+					},
+					bodyStyle : 'padding-top:5px;padding-left:5px;',
+					formId : 'CarApplyFormId',
+					defaultType : 'textfield',
+					items : [
+								/*{
+									fieldLabel : '审核',
+									name : 'result',
+									id : 'result',
+									xtype : 'combo',
+									mode : 'local',
+									allowBlank : false,
+									editable : false,
+									triggerAction : 'all',
+									value : '1',
+									store : [ [ '1', '同意' ],
+											[ '2', '拒绝' ] ]
+								}*/{
+							xtype : 'radiogroup',
+   							allowBlank : false,
+   							width : 100,
+   							items : [{
+    							boxLabel : '呈分管领导审批',
+    							name : 'depOption',
+    							inputValue : 1,
+    							checked : true,
+    							listeners : {
+     									'check' : function(checkbox, checked){
+              								if(checked){
+              									Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaders').show();
+              									Ext.getCmp('ChargePersonView.des').allowBlank = true;
+              									Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaderNames').allowBlank = false;
+              								}   
+										}
+									}
+   								}, {
+    							boxLabel : '结束',
+    							name : 'depOption',
+    							inputValue : 2,
+    							listeners : {
+     								'check' : function(checkbox, checked){
+											if(checked){
+													Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaders').hide();
+												Ext.getCmp('ChargePersonView.des').allowBlank = true;
+												Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaderNames').allowBlank = true;
+											}   
+									}
+    							}
+   								}, {
+    							boxLabel : '驳回',
+    							name : 'depOption',
+    							inputValue : 3,
+    							listeners : {
+     								'check' : function(checkbox, checked){
+											if(checked){
+												Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaders').hide();
+												 Ext.getCmp('ChargePersonView.des').allowBlank = false;
+												 Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaderNames').allowBlank = true;
+											}   
+									}
+    							}
+   								}],
+  						 fieldLabel : '审批步骤'
+
+					},{
+						    id : 'InnerRedHeadArticleSendDepView.viceLeaders',
+							xtype : 'container',
+							layout : 'column',
+							hidden : false,
+							style : 'padding:0px 0px 8px 0px;margin-left:0px;',
+							defaults : {
+								border : false
+							},
+							items : [{
+										xtype : 'label',
+										style : 'padding:0px 0px 0px 0px;',
+										text : '分管领导:',
+										width : 105
+									}, {
+										// columnWidth:.6,
+										xtype : 'textfield',
+										name : 'viceLeaderNames',
+										width : '67%',
+										readOnly : true,
+										allowBlank:false,
+										id : 'InnerRedHeadArticleSendDepView.viceLeaderNames'
+									}, {
+										xtype : 'hidden',
+										name : 'viceLeaderIds',
+										id : 'InnerRedHeadArticleSendDepView.viceLeaderIds'
+									}, {
+										xtype : 'button',
+										iconCls : 'menu-department',
+										text : '选择分管领导',
+										handler : function() {
+											DeptOfUserSelector
+													.getView(
+															function(userIds,
+																	fullnames) {
+																Ext
+																		.getCmp('InnerRedHeadArticleSendDepView.viceLeaderIds')
+																		.setValue(userIds);
+																Ext
+																		.getCmp('InnerRedHeadArticleSendDepView.viceLeaderNames')
+																		.setValue(fullnames);
+															}, false, false, 16)
+													.show();
+										}
+									}]
+						},
+								{
+									xtype:"textarea",
+									id:'ChargePersonView.des',
+									name:"des",
+									anchor:"100%",
+									fieldLabel:"审批意见",
+									height:150,
+									width:300
+								}
+							]
+				});// end of the formPanel
+
+	},
+	
+	/**
+	 * 保存记录
+	 */
+	save : function(panel,signalName,taskName,destName) {
+		var formPanel=panel.formPanel;
+		if(formPanel.getForm().isValid()){
+		var myMask = new Ext.LoadMask(Ext.getBody(), {
+							msg : '正在提交处理，请稍等！',
+							removeMask : true
+								// 完成后移除
+							});
+						myMask.show();
+		var taskId = panel.taskId;
+		var userId='${userId}';
+		var piId='${defId}';
+		var option = panel.formPanel.getCmpByName('depOption').getGroupValue();
+		//var superOption= panel.formPanel.getCmpByName('result').getValue();
+		var applyRepId ='${applyId}';
+		var flowAssignId=null;
+		var resultRep=null;
+		/*if(superOption=='1'){
+			resultRep="同意";
+		}else {
+			resultRep="拒绝";
+			flowAssignId=userId;
+		}*/
+		var opinion= panel.formPanel.getCmpByName('des').getValue();
+		var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+		var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+		
+		if (option == '1') {
+			flowAssignId = Ext.getCmp('InnerRedHeadArticleSendDepView.viceLeaderIds').getValue();
+			xzbOption = 'fgld';
+			Ext.Ajax.request({
+								url:__ctxPath+ "/flow/nextProcessActivity.do",
+								params:{taskId:taskId,signalName:signalName,activityName:taskName,destName:'分管领导审批',resultRep:resultRep,opinion:opinion,applyRepId:applyRepId,
+								        flowAssignId:flowAssignId,sendMail:sendMail,sendMsg:sendMsg,userId:userId,piId:piId,status:'承分管领导审批',comments:opinion,xzbOption:xzbOption},
+								method : 'POST',
+								success : function(response, opts) {
+									Ext.ux.Toast.msg("操作信息", "审核成功！");
+									
+									var tabPanel = Ext.getCmp('centerTabPanel');
+									
+									tabPanel.remove(Ext.getCmp('ProcessForm'+taskId));
+									refreshTaskPanelView();
+									myMask.hide();
+								},
+								failure : function(response, opts) {
+								}
+						});
+		}else if(option == '2'){
+			xzbOption = 'end';
+			Ext.Ajax.request({
+								url:__ctxPath+ "/flow/nextProcessActivity.do",
+								params:{taskId:taskId,signalName:signalName,activityName:taskName,destName:'结束',resultRep:resultRep,opinion:opinion,applyRepId:applyRepId,
+								        flowAssignId:flowAssignId,sendMail:sendMail,sendMsg:sendMsg,userId:userId,piId:piId,status:'结束',comments:opinion,xzbOption:xzbOption},
+								method : 'POST',
+								success : function(response, opts) {
+									Ext.ux.Toast.msg("操作信息", "审核成功！");
+				
+										Ext.Ajax.request({
+											url:__ctxPath+ "/admin/updateStatusCarApply.do",
+											method : 'POST',
+											params:{
+											applyRepId:applyRepId
+										    },
+										    success : function(response, opts){
+										    	Ext.ux.Toast.msg("操作信息", "审核成功！");
+										    }
+										})
+										//业务逻辑操作
+									
+									var tabPanel = Ext.getCmp('centerTabPanel');
+									
+									tabPanel.remove(Ext.getCmp('ProcessForm'+taskId));
+									refreshTaskPanelView();
+										myMask.hide();
+								},
+								failure : function(response, opts) {
+								}
+						});
+		}else if(option == '3'){
+			flowAssignId=userId;
+			xzbOption = 'reject';
+			Ext.Ajax.request({
+								url:__ctxPath+ "/flow/nextProcessActivity.do",
+								params:{taskId:taskId,signalName:signalName,activityName:taskName,destName:'结束',resultRep:resultRep,opinion:opinion,applyRepId:applyRepId,
+								        flowAssignId:flowAssignId,sendMail:sendMail,sendMsg:sendMsg,userId:userId,piId:piId,status:'驳回',comments:opinion,xzbOption:xzbOption},
+								method : 'POST',
+								success : function(response, opts) {
+									Ext.ux.Toast.msg("操作信息", "审核成功！");
+								
+									var tabPanel = Ext.getCmp('centerTabPanel');
+									
+									tabPanel.remove(Ext.getCmp('ProcessForm'+taskId));
+									refreshTaskPanelView();
+										myMask.hide();
+								},
+								failure : function(response, opts) {
+								}
+						});
+			
+		}
+		
+		}	
+
+	}// end of save
+})

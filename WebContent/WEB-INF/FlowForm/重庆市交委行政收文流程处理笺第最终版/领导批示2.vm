@@ -1,0 +1,154 @@
+XZSWLeaderCommentsTwoView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		XZSWLeaderCommentsTwoView.superclass.constructor.call(this, {
+					id : 'XZSWLeaderCommentsTwoViewWin',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 530,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	/**
+	 * 保存公文的方法,传入公文状态作为参数
+	 */
+	onSave : function(formPanel, panel, signalName, activityName) {
+	    //return false;
+		if (formPanel.getForm().isValid()) {
+			var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+			var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+			var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+			var flowAssignId='${officeExerId}';
+			var foreachUserIdsLengthsDB = Number('${foreachUserIdsLengths}');
+			var leader2UserIdsLengthsDB = Number('${leader2UserIdsLengths}');
+			if(leader2UserIdsLengthsDB>1){
+				flowAssignId="";
+				foreachUserIdsLengthsDB=foreachUserIdsLengthsDB-1;
+			}
+			var params = {
+	            taskId : taskId,
+				signalName : signalName,
+				activityName : activityName,
+				sendMail : sendMail,
+				sendMsg : sendMsg,
+				sendInfo : sendInfo,
+				isJoinFlow:true,
+				isForkFlow:true,
+				joinName:'处内办理合并',
+				nibanUserId:flowAssignId,
+				leader2UserIdsLengths:leader2UserIdsLengthsDB-1,
+				foreachUserIdsLengths:foreachUserIdsLengthsDB,
+				comments:Ext.getCmp('XZSWLeaderCommentsTwoFormView.leaderOpinion').getValue()
+			};
+			formPanel.getForm().submit({
+						method : 'POST',
+						url : __ctxPath + "/flow/nextProcessActivity.do",
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {
+								 Ext.ux.Toast.msg("操作信息", "审核成功！");
+								 AppUtil.removeTab('ProcessForm' + taskId);
+								 refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+		}
+	},
+
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					// title:'流程审批信息',
+					autoHeight : true,
+					columnWidth : 1,
+					id:'XZLDPSArchiveReceiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/flowPath/receiveFlow.jsp?archiveId=${archivesId}&fileIds=${fileIds}&defId=${defId}&detailId=XZLDPSArchiveReceiveDetailPanel',
+						nocache : true
+					}
+				});
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : 'XZSWLeaderCommentsTwoFormView',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			items : [{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '审批意见',
+				   					id:'XZSWLeaderCommentsTwoFormView.leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('XZSWLeaderCommentsTwoFormView.leaderOpinion')
+													.setValue(name);
+													}, 1).show();
+											}
+										}]
+					  		}]
+					},{
+						id : 'XZSWLeaderCommentsTwoFormView.reFileId',
+						xtype : 'hidden'
+					}]
+		});
+	}// end of init
+})

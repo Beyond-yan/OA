@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="com.gdssoft.oa.model.system.SysInterfaceAccount"
+        table="SYS_INTERFACE_ACCOUNT"
+        select-before-update="false"
+        dynamic-update="false"
+        dynamic-insert="false"
+        optimistic-lock="version"
+        schema="OA_COMMON">
+		<id
+            name="id"
+            column="ID"
+            type="java.lang.Long"
+            length="22"
+        >
+              <generator class="native"/>
+        </id>
+      <!-- imported bi-directional many-to-one association to SysServiceAccount -->
+		<many-to-one
+			name="sysServiceAccount"
+			class="com.gdssoft.oa.model.system.SysServiceAccount"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="ACCOUNT_ID" />
+		</many-to-one>
+    <!-- imported bi-directional many-to-one association to SysServiceInterface -->
+		<many-to-one
+			name="sysServiceInterface"
+			class="com.gdssoft.oa.model.system.SysServiceInterface"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="SERVICE_ID" />
+		</many-to-one>
+    </class>
+</hibernate-mapping>

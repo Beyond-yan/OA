@@ -1,0 +1,727 @@
+JYTAYCSentArchiveReStart = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		JYTAYCSentArchiveReStart.superclass.constructor.call(this, {
+					id : 'JYTAYCSentArchiveReStart',
+					title : '建议提案远程发文流程处理笺',
+					layout : 'form',
+					modal : true,
+					width : 800,
+					iconCls : 'menu-archive-draft',
+					maximizable : true,
+					items : [this.formPanel],
+					buttonAlign : 'center',
+					buttons : [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end]
+				});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		var fileIds = Ext.getCmp('JYTAYCReFiles.fileIds').getValue();
+/*		if (panel.store.getCount() == 0) {// 公文正文附件为空
+			Ext.ux.Toast.msg('操作信息', '请添加公文正文附件!');
+			return false;
+		}*/
+		if (formPanel.getForm().isValid()) {
+			var docParams=Ext.getCmp("JYTAYCSentArchiveReStart.reFileId");
+			for (var i = 0, cnt = panel.store.getCount(); i < cnt; i++) {
+				if(panel.store.getAt(i).data.fileId!=''){
+					if(docParams.getValue()!=""){
+						docParams.setValue(docParams.getValue()+',');
+					} 
+				} 
+				docParams.setValue(docParams.getValue()+panel.store.getAt(i).data.fileId);
+			}
+			var test=Ext.getCmp("JYTAYCSentArchiveReStart.reFileId").getValue();
+			formPanel.getForm().submit({
+				method : 'POST',
+				waitMsg : '正在提交数据...',
+				params : {
+					archivesRecfileIds : Ext.getCmp("JYTAYCSentArchiveReStart.reFileId").getValue()
+				},
+				success : function(fp, action) {
+					var sendMail = msgPanel.getCmpByName('sendMail').getValue();
+					var sendMsg = msgPanel.getCmpByName('sendMsg').getValue();
+					var sendInfo = msgPanel.getCmpByName('sendInfo').getValue();
+					var isReserveNo=formPanel.getCmpByName('archives.isReserveNo').getGroupValue();
+					var flowAssignId = Ext.getCmp("JYYCTA_flowAssignId").getValue();
+					formPanel.getForm().submit({
+						url : __ctxPath + '/flow/nextProcessActivity.do',
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : {
+							taskId : panel.taskId,
+							signalName : signalName,
+							activityName : activityName,
+							isReserveNo:isReserveNo,
+							sendMail : sendMail,
+							NGUserId:curUserInfo.depId,
+							sendMsg : sendMsg,
+							sendInfo : sendInfo,
+							flowAssignId : flowAssignId,
+							fileIds : fileIds?fileIds:'_'
+						},
+						success : function(response, options) {
+							Ext.ux.Toast.msg('操作信息', '成功保存！');
+							Ext.getCmp('centerTabPanel').remove(Ext
+									.getCmp('ProcessForm' + panel.taskId));
+							refreshTaskPanelView();
+						}
+					});
+				},
+				failure : function(fp, action) {
+					Ext.MessageBox.show({
+								title : '操作信息',
+								msg : '信息保存出错，请联系管理员！',
+								buttons : Ext.MessageBox.OK,
+								icon : Ext.MessageBox.ERROR
+							});
+				}
+			});
+		}
+
+	},
+	initUIComponents : function() {
+		this.archivesId='${archivesId}'; 
+		// 初始化附件文档
+	    this.docGridPanel = new ArchivesUtil({
+			panelId : 'JYTAYCSentArchiveReStart',
+			archivesId : this.archivesId
+		}).getGridPanelWithFullTools();
+		this.formPanel = new Ext.FormPanel({
+			url : __ctxPath + '/archive/saveArchives.do',
+			frame : false,
+			border : false,
+			layout : 'form',
+			labelWidth : 80,
+			width : 800,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+					}, [	{
+								name : 'archives.archivesId',
+								mapping : 'archivesId'
+							}, {
+								name : 'archives.archivesType.typeId',
+								mapping : 'parentArchId'
+							}, {
+								name : 'archives.issueDep',
+								mapping : 'issueDep'
+							}, {
+							    name:'archives.status',
+							    mapping:'status'
+							}, {
+								name : 'archives.subject',
+								mapping : 'subject'
+							}, {
+								name : 'archives.fileCounts',
+								mapping : 'fileCounts'
+							}, {
+								name : 'archives.privacyLevel',
+								mapping : 'privacyLevel'
+							}, {
+								name : 'archives.urgentLevel',
+								mapping : 'urgentLevel'
+							}, {
+								name : 'archives.issuer',
+								mapping : 'issuer'
+							}, {
+								name : 'archives.issuerId',
+								mapping : 'issuerId'
+							}, {
+								name:'archives.sources',
+								mapping:'sources'
+							}, {
+								name:'archives.archType',
+								mapping:'archType'
+							}, {
+								name:'archives.isPublic',
+								mapping:'isPublic'
+							}, {
+								name : 'archives.reviewUser',
+								mapping : 'reviewUser'
+							}, {
+								name : 'archives.reviewUserName',
+								mapping : 'reviewUserName'
+							}, {
+								name : 'archives.sendTo',
+								mapping : 'sendTo'
+							}, {
+								name : 'archives.ccTo',
+								mapping : 'ccTo'
+							}, {
+								name:'archives.isStandard',
+								mapping:'isStandard'
+							}, {
+								name:'archives.isReserveNo',
+								mapping:'isReserveNo'
+							}, {
+								name:'archives.unPublicReasons',
+								mapping:'unPublicReasons'
+							}]),
+			items : [{
+				border : false,
+				layout : 'column',
+				defaults : {
+					border : false,
+					columnWidth : .33,
+					layout : 'form',
+					defaults : {
+						width : 150,
+						xtype : 'textfield',
+						allowBlank : false
+					}
+				},
+				items : [{
+					items : [{
+								fieldLabel : "拟稿单位",
+								value : curUserInfo.depName,
+								readOnly : true
+							}, {
+								xtype : 'combo',
+								fieldLabel : "发文单位",
+								name : 'archives.issueDep',
+								triggerAction : 'all',
+								listWidth:200,
+								lazyRender : true,
+								editable : false,
+								fieldLabel : '发文单位',
+								store : ['重庆市交通委员会',
+										'中共重庆市交通委员会', '中共重庆市交通委员会机关党委',
+										'中共重庆市交通纪律检查委员会', '共青团重庆市交通委员会',
+										'重庆市交通委员会直属机关工会']
+							}, {
+								xtype : 'combo',
+								fieldLabel : '文种',
+								id:'JYTAYCFWSentArchiveReStart.archivesType',
+								hiddenName : "archives.archivesType.typeId",
+								valueField : 'typeId',
+								displayField : 'typeName',
+								editable : false,
+								triggerAction : 'all',
+								forceSelection : true,
+								store : new Ext.data.SimpleStore({
+											url : __ctxPath
+													+ '/archive/comboArchivesType.do',
+											autoLoad : true,
+											fields : ['typeId', 'typeName']
+										})
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '缓急',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank:true,
+								name : 'archives.urgentLevel',
+								emptyText : '急缓程度',
+								store : ['特急', '急件', '加急', '平急']
+							}, {
+								fieldLabel : '拟稿',
+								name : "archives.issuer",
+								readOnly : true,
+								value : curUserInfo.fullname
+							}, {
+								xtype : 'combo',
+								name : 'archives.sources',
+								triggerAction : 'all',
+								editable : false,
+								fieldLabel : '行文方向',
+								store : ['上行文', '平行文', '下行文']
+							}]
+				}, {
+					items : [{
+								xtype : "combo",
+								fieldLabel : '密级',
+								triggerAction : 'all',
+								editable : false,
+								allowBlank:true,
+								name : 'archives.privacyLevel',
+								emptyText : '密级程度',
+								store : ['一般', '秘密', '机密', '绝密'],
+								listeners: {
+									'select':function(combo){
+										if(combo.getValue()!='一般'){
+											Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').disable();
+											Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').allowBlank=true;
+											Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').setValue(null);
+											Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').allowBlank=true;
+											Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').setValue(null);
+											Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').disable();
+//											Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').show();
+//											Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').el.parent().parent().show();
+//											Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').allowBlank = false;
+										}else{
+											Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').enable();
+											Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').allowBlank=false;
+											Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').setValue(null);
+											Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').setValue(null);
+											Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').allowBlank=false;
+											Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').enable();
+//											Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').hide();
+//											Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').el.parent().parent().hide();
+//											Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').allowBlank = true;
+										}
+									}
+								}
+							},{
+						xtype : 'container',
+						id : 'RemoteSentArchiveDepCheck.signDep',
+						layout : 'column',
+						width:300,style : 'padding-bottom:5px;',
+						defaults : {
+							border : false
+						},
+						items : [ {
+									xtype : 'label',
+									text : '核稿:',
+									width : 84
+								}, {
+									id : 'RemoteSentArchiveStart.flowAssignName',
+									name:'archives.reviewUserName',
+									xtype : 'textfield',
+									width:100,
+									allowBlank : false,
+									readOnly : true
+								} ,{
+									xtype : 'button',
+									iconCls : 'menu-department',
+									width:80,
+									style : 'padding-left:5px;',
+									text : '选择人员',
+									handler : function() {
+										var url='';
+										if(curUserInfo.depExternal!=2){
+										  url  =  __ctxPath + '/system/depUsersTreeDepartment.do?depIds='+roleMap.get('DepartmentCommonId');
+										}else{
+										 url = __ctxPath + '/system/curDepLeadersTreeDepartment.do';
+										}
+										DepLeaders.getView(function(userIds, userNames) {
+													Ext.getCmp('JYYCTA_flowAssignId').setValue(userIds);
+													Ext.getCmp('RemoteSentArchiveStart.flowAssignName').setValue(userNames);
+												}, true, null,url).show();
+									}
+								},{
+									id : 'JYYCTA_flowAssignId',
+									name : "archives.reviewUser",
+									xtype : 'hidden'
+								}]
+					},  {
+								xtype : 'textfield',
+								id: 'JYTAYCSentArchiveReStart.fileCounts',
+								name : 'archives.fileCounts',
+								fieldLabel : '份数',
+								value : 1
+							}]
+				}]
+			}, {
+				xtype : 'textfield',
+				name : 'archives.subject',
+				allowBlank : false,
+				width : '94%',
+				fieldLabel : '标题'
+			}, {
+				xtype : 'container',
+				layout : 'hbox',
+				style : 'padding:0px 0px 5px 0px;margin-left:0px;',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '主送:',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.sendTo',
+							width : '71.1%',
+							id : 'JYTAYCSentArchiveReStart.sendTo'
+						}, {
+							style : 'padding-left:5px;',
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '常用主送单位',
+							handler : function() {
+								UnitsSelector.getView(
+									function(ids, names) {
+										Ext.getCmp('JYTAYCSentArchiveReStart.sendTo')
+											.setValue(names);
+										}, false,1).show();
+							}
+						}]
+			}, {
+				xtype : 'container',
+				layout : 'hbox',
+				defaults : {
+					allowBlank : false,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							style:'padding-top:4px;',
+							text : '抄送:',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.ccTo',
+							allowBlank : true,
+							id : 'JYTAYCSentArchiveReStart.ccTo',
+							width : '71.1%'
+						}, {
+							xtype : 'button',
+							style : 'padding-left:5px;',
+							iconCls : 'menu-department',
+							text : '常用抄送单位',
+							handler : function() {
+								UnitsSelector.getView(
+									function(ids, names) {
+										Ext.getCmp('JYTAYCSentArchiveReStart.ccTo')
+											.setValue(names);
+										}, false,2).show();
+							}
+						}]
+			}, {
+				xtype : 'fieldset',
+				style:'padding-top:6px',
+				border : false,
+				defaults : {
+					anchor : '96%,90%'
+				},
+				items : [this.docGridPanel]
+			},{
+				xtype : 'container',
+				layout : 'column',
+				style : 'padding:0px 0px 8px 0px;margin-left:2px;',
+				defaults : {
+					allowBlank : true,
+					border : false
+				},
+				items : [{
+							xtype : 'label',
+							text : '附件：',
+							width : 84
+						}, {
+							xtype : 'textfield',
+							name : 'archives.enclosure',
+							width : '84%',
+							id : 'JYTAYCReFiles.enclosure'
+						}]
+			}, {
+				layout : 'column',
+				border : false,
+				defaults : {
+					layout : 'form',
+					border : false
+				},
+				items : [{
+							columnWidth : .85,
+							items : [{
+										fieldLabel : '公文附件',
+										xtype : 'panel',
+										id : 'JYTAYCReFiles.personFilePanel',
+										frame : false,
+										border : true,
+										bodyStyle : 'padding:4px 4px 4px 4px;',
+										height : 80,
+										autoScroll : true,
+										html : ''
+									}]
+						}, {
+							columnWidth : .12,
+							items : [{
+								border : false,
+								xtype : 'button',
+								text : '添加文件',
+								iconCls : 'menu-attachment',
+								handler : function() {
+									var dialog = App.createUploadDialog({
+										file_cat : 'document',
+										judge_size : 'no',
+										upload_autostart : true,
+										callback : function(data) {
+											var fileIds = Ext.getCmp('JYTAYCReFiles.fileIds');
+											var filePanel = Ext.getCmp('JYTAYCReFiles.personFilePanel');
+
+											for (var i = 0; i < data.length; i++) {
+												if (fileIds.getValue() != '') {
+													fileIds.setValue(fileIds
+															.getValue()
+															+ ',');
+												}
+												fileIds.setValue(fileIds
+														.getValue()
+														+ data[i].fileId);
+
+												Ext.DomHelper
+														.append(
+																filePanel.body,
+																'<span><a href="#" onclick="FileAttachDetail.show('
+																		+ data[i].fileId
+																		+ ')">'
+																		+ data[i].filename
+																		+ '</a> <img class="img-delete" src="'
+																		+ __ctxPath
+																		+ '/images/system/delete.gif" onclick="removeFile(this,\'JYTAYCReFiles.fileIds\','
+																		+ data[i].fileId
+																		+ ')"/>&nbsp;|&nbsp;</span>');
+
+											}
+										}
+									});
+									dialog.show(this);
+								}
+							}, {
+								xtype : 'button',
+								text : '清除文件',
+								iconCls : 'reset',
+								handler : function() {
+									var fileAttaches = Ext.getCmp('JYTAYCReFiles.fileIds');
+									var filePanel = Ext.getCmp('JYTAYCReFiles.personFilePanel');
+
+									filePanel.body.update('');
+									fileAttaches.setValue('');
+								}
+							}, {
+								xtype : 'hidden',
+								id : 'JYTAYCReFiles.fileIds',
+								name : 'fileIds'
+							}]
+						}]
+			}, {
+				border : false,
+				labelWidth:105,
+			    id: 'JYTAYCSentArchiveReStart.YYArchNo',
+				layout : 'form',
+			    items:{
+				xtype : 'radiogroup',
+				hideParent : true,
+				fieldLabel : '是否使用预约编号',
+				items : [{
+							boxLabel : '是',
+							id:'JYTAYCSentArchiveReStart.reserveNo',
+							name : 'archives.isReserveNo',
+							inputValue : 1
+						}, {
+							boxLabel : '否',
+							id:'JYTAYCSentArchiveReStart.unreserveNo',
+							name : 'archives.isReserveNo',
+							inputValue : 0
+						}]
+			}}, {
+			border:false,
+			labelWidth:105,
+			layout:'form',
+			items:{
+				xtype : 'radiogroup',
+				fieldLabel : '是否规范性文件',
+				items : [{
+							boxLabel : '是',
+							id:'JYTAYCSentArchiveReStart.standard',
+							name : 'archives.isStandard',
+							inputValue : 1
+						}, {
+							boxLabel : '否',
+							id:'JYTAYCSentArchiveReStart.unStandard',
+							name : 'archives.isStandard',
+							inputValue : 0
+						}]
+			}}, {
+			border:false,
+			labelWidth:105,
+			layout:'form',
+			items:{
+				xtype : 'radiogroup',
+				id:'JYTAYCSentArchiveReStart.isPublic',
+				fieldLabel : '是否公开到外网',
+				items : [{
+					boxLabel : '是',
+					id:'JYTAYCSentArchiveReStart.public',
+					name : 'archives.isPublic',
+					inputValue : 1,
+					listeners : {
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').allowBlank = true;
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').hide();
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').el.parent().parent().hide();
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').setValue("");
+							}
+						}
+					}
+				},{
+					boxLabel : '否',
+					id:'JYTAYCSentArchiveReStart.unPublic',
+					name : 'archives.isPublic',
+					inputValue : 0,
+					listeners : {
+						'check' : function(checkbox, checked) {
+							if (checked) {
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').allowBlank = false;
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').show();
+								Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').el.parent().parent().show();
+							}
+						}
+					}
+				}]
+			}}, {
+				border : false,
+				layout : 'form',
+				items:[{
+					fieldLabel : '不公开原因',
+					xtype : 'textarea',
+					hideParent : true,
+					name : 'archives.unPublicReasons',
+					id : 'JYTAYCSentArchiveReStart.unPublicReasons',
+					width : '93%'
+				}]
+			},{
+				xtype:'hidden',
+				name:'archives.issuerId',
+				value:curUserInfo.userId
+			},{
+				xtype:'hidden',
+				name:'archives.archType',
+				value:0
+			},{
+				xtype:'hidden',
+				name:'archives.archivesId'
+			},{
+				xtype:'hidden',
+				name:'archives.status'
+			},{
+				xtype:'hidden',
+				id:'JYTAYCSentArchiveReStart.reFileId'
+			}]
+		});
+		if (this.archivesId) {
+			this.formPanel.getForm().load({
+				deferredRender : false,
+				url : __ctxPath + '/archive/getArchDataArchives.do?archivesId='
+						+ this.archivesId,
+				waitMsg : '正在载入数据...',
+				method:'post',
+				success : function(form, action) {
+					var isStandard=action.result.data['archives.isStandard'];
+					var isPublic=action.result.data['archives.isPublic']; 
+					var privacyLevel=action.result.data['archives.privacyLevel'];
+					var isReserveNo=action.result.data['archives.isReserveNo'];
+					Ext.getCmp('JYTAYCFWSentArchiveReStart.archivesType').getStore().load({ 
+					callback: function () { 
+						
+					//等待数据加载完成才进行赋值，不然由于异步会出现先赋值后加载完成。 
+					Ext.getCmp('JYTAYCFWSentArchiveReStart.archivesType').setValue(Ext.decode(action.response.responseText).data[0].parentArchId);
+					}, 
+					scope: Ext.getCmp('JYTAYCFWSentArchiveReStart.archivesType').getStore(),//表示作用范围 
+					add: false //为false表示数据不累加 
+					});
+					
+					var did='${defId}';
+					Ext.Ajax.request({
+									url : __ctxPath + '/snconfig/listByPageFileSnConfigOrder.do',
+									params : {
+										'flowId' : did,
+										'userId': curUserInfo.userId,
+										'isUsed': 0
+									},
+									method:'post',
+									success : function(response, options) {
+										var af=Ext.util.JSON.decode(response.responseText).result;
+										if(af==""){
+											  Ext.getCmp('JYTAYCSentArchiveReStart.YYArchNo').hide();
+						                      Ext.getCmp('JYTAYCSentArchiveReStart.YYArchNo').allowBlank=true;
+										}else{										
+											Ext.getCmp('JYTAYCSentArchiveReStart.YYArchNo').show();
+						                    Ext.getCmp('JYTAYCSentArchiveReStart.YYArchNo').allowBlank=false;
+											if(isReserveNo==1){
+											Ext.get("JYTAYCSentArchiveReStart.reserveNo").dom.checked=true;
+											}else if(isReserveNo==0){
+											Ext.get("JYTAYCSentArchiveReStart.unreserveNo").dom.checked=true;		
+											}else{
+											Ext.getCmp('JYTAYCSentArchiveReStart.YYArchNo').hide();
+						                    Ext.getCmp('JYTAYCSentArchiveReStart.YYArchNo').el.parent().parent().hide();
+										}
+										}
+									}
+						});
+					Ext.getCmp('JYTAYCReFiles.enclosure').setValue(Ext.decode(action.response.responseText).data[0].enclosure);
+					Ext.get('JYTAYCSentArchiveReStart.flowAssignId').dom.value=action.result.data['archives.reviewUserName'];
+					//Ext.getCmp('JYTAYCSentArchiveReStart.flowAssignId').setValue(action.result.data['archives.reviewUser']);
+					if(privacyLevel!='一般'&&privacyLevel!='密级程度'){
+						Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').disable();
+						Ext.getCmp('JYTAYCSentArchiveReStart.isPublic').allowBlank = true;
+						Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').allowBlank = true;
+						Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').disable();
+//						Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').show();
+//						Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').el.parent().parent().show();
+//						Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').allowBlank = false;
+					}
+					if(privacyLevel=='一般'||privacyLevel=='密级程度'){
+//						Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').hide();
+//						Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').el.parent().parent().hide();
+//						Ext.getCmp('JYTAYCSentArchiveReStart.fileCounts').allowBlank = true;
+						if(isPublic==0){
+							Ext.get("JYTAYCSentArchiveReStart.unPublic").dom.checked=true;
+						}else{
+							Ext.get("JYTAYCSentArchiveReStart.public").dom.checked=true;
+							Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').allowBlank = true;
+							Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').hide();
+							Ext.getCmp('JYTAYCSentArchiveReStart.unPublicReasons').el.parent().parent().hide();
+						}
+					}
+					if(isStandard==0){
+						Ext.get("JYTAYCSentArchiveReStart.unStandard").dom.checked=true;
+					}else{
+						Ext.get("JYTAYCSentArchiveReStart.standard").dom.checked=true;
+					}
+					var filePanel = Ext.getCmp('JYTAYCReFiles.personFilePanel');
+					var fileIds = Ext.getCmp("JYTAYCReFiles.fileIds");
+					/*Ext.Ajax.request({
+									url : __ctxPath + '/archive/getAttachFilesArchives.do',
+									params : {
+										'fileIds' : '${fileIds}'
+									},
+									method:'post',
+									success : function(response, options) {*/
+										var af=Ext.decode(action.response.responseText).data[0].archivesFiles;
+										if(af!=null){
+										for (var i = 0; i < af.length; i++) {
+											if (fileIds.getValue() != '') {
+												fileIds.setValue(fileIds.getValue() + ',');
+											}
+											fileIds.setValue(fileIds.getValue() + af[i].fileId);
+											Ext.DomHelper
+													.append(
+															filePanel.body,
+															'<span><a href="#" onclick="FileAttachDetail.show('
+																	+ af[i].fileId
+																	+ ')">'
+																	+ af[i].fileName
+																	+ '</a><img class="img-delete" src="'
+																	+ __ctxPath
+																	+ '/images/system/delete.gif" onclick="removeFile(this,\'JYTAYCReFiles.fileIds\','
+																	+ af[i].fileId
+																	+ ')"/>&nbsp;|&nbsp;</span>');
+										}
+									}
+									/*}
+						});*/
+				},
+				failure : function(form, action) {
+				}
+			});
+		}
+	}
+})

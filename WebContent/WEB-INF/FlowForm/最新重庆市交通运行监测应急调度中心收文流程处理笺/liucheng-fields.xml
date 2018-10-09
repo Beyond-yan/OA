@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="GBK"?>
+<process name="InfoCenterReceiveArchives" xmlns="http://jbpm.org/4.0/jpdl">
+	<start g="375,10,82,42" name="收文登记">
+		<transition g="-46,-8" name="to 分办" to="分办" />
+	</start>
+	<task g="344,75,109,51" name="分办">
+		<transition g="-78,-7" name="to 分办结果" to="分办结果" />
+	</task>
+	<task g="502,240,122,55" name="中心领导批示">
+		<transition name="to 分办" to="分办" g="658,266;657,77;539,77:-44,-21" />
+	</task>
+	<task g="338,276,121,55" name="返回办公室">
+		<transition g="-85,-10" name="to 办公室结果" to="办公室结果" />
+	</task>
+	<task g="340,403,118,56" name="承办部门">
+		<transition g="-65,-8" name="to 承办结果" to="承办结果" />
+	</task>
+	<decision g="376,470,52,41" name="承办结果">
+		<transition g="-86,-7" name="to 科室内办理" to="科室内办理">
+			<condition expr="#{underNext=='1'}" />
+		</transition>
+		<transition g="534,493;536,630:-41,-17" name="to 归档" to="归档">
+			<condition expr="#{underNext=='2'}" />
+		</transition>
+		<transition g="219,494:23,-18" name="to 科室内协办" to="科室内协办">
+			<condition expr="#{underNext=='3'}" />
+		</transition>
+	</decision>
+	<task g="337,532,127,56" name="科室内办理">
+		<transition g="-49,-6" name="to 归档" to="归档" />
+	</task>
+	<task g="346,605,115,53" name="归档">
+		<transition g="-50,-10" name="to 结束" to="结束" />
+	</task>
+	<end g="379,675,51,37" name="结束" />
+	<decision g="374,171,42,34" name="分办结果">
+		<transition g="130,195;131,433:-65,-17" name="to 承办部门" to="承办部门">
+			<condition expr="#{divNext=='1'}" />
+		</transition>
+		<transition g="-29,-18" name="to 重新登记" to="重新登记">
+			<condition expr="#{divNext=='3'}" />
+		</transition>
+		<transition name="to 返回办公室" to="返回办公室" g="-81,-8">
+			<condition expr="#{divNext=='4'}" />
+		</transition>
+		<transition name="to 中心领导批示" to="中心领导批示" g="-51,20">
+			<condition expr="#{divNext=='2'}" />
+		</transition>
+	</decision>
+	<task g="503,167,119,55" name="重新登记">
+		<transition g="562,100:-41,-17" name="to 分办" to="分办" />
+	</task>
+	<task g="488,344,121,53" name="协办部门">
+		<transition g="549,429:-65,-17" name="to 承办部门" to="承办部门" />
+	</task>
+	<decision g="374,346,41,25" name="办公室结果">
+		<transition g="-34,-21" name="to 协办部门" to="协办部门">
+			<condition expr="#{officeNext=='1'}" />
+		</transition>
+		<transition g="-78,-12" name="to 承办部门" to="承办部门">
+			<condition expr="#{officeNext=='2'}" />
+		</transition>
+		<transition g="-44,-22" name="to 中心领导批示2" to="中心领导批示2">
+			<condition expr="#{officeNext=='3'}" />
+		</transition>
+	</decision>
+	<task g="159,534,121,54" name="科室内协办">
+		<transition g="-40,-10" name="to 科室内转办" to="科室内转办" />
+	</task>
+	<task g="159,605,121,54" name="科室内转办">
+		<transition g="-40,-24" name="to 归档" to="归档" />
+	</task>
+	<task g="154,343,124,55" name="中心领导批示2">
+		<transition g="215,304:-13,-21" name="to 返回办公室" to="返回办公室" />
+	</task>
+</process> 

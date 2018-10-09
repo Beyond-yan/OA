@@ -1,0 +1,456 @@
+HYTZNBFFView = Ext.extend(Ext.Panel, {
+	setTaskId : function(tId) {
+		this.taskId = tId;
+	},
+	getTaskId : function() {
+		return this.taskId;
+	},
+	formPanel : null,
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.init();
+		msgPanel.hide();
+		HYTZNBFFView.superclass.constructor.call(this, {
+					id : 'HYTZNBFFView',
+					defaults : {
+						border : false,
+						autoScroll : true
+					},
+					width : 700,
+					height : 530,
+					autoHeight : true,
+					buttons : [
+								#set ($count=0)
+								#foreach ($v in $nextTrans)
+									#if($count>0)
+								,
+									#end
+									new Ext.Button({
+									   iconCls:'btn-transition',
+									   text:'确认',
+									   id:'hytzsaveBtn005',
+									   handler:this.onSave.createCallback(this.formPanel,this,'${v.name}','${v.source}')
+									}),
+									new Ext.Button({
+									   iconCls:'btn-changeTask',
+									   text:'办结',
+									   id:'hytzsaveBtn004',
+									   handler:this.onEnd.createCallback(this.formPanel,this,'${v.source}')
+									})
+									#set ($count=$count+1)
+								#end
+								],
+					buttonAlign : 'center',
+					items : [this.detailPanel, this.formPanel]
+				});
+	},
+	
+	onEnd:function(formPanel,panel,activityName){
+		singleClick('hytzsaveBtn004');
+	    Ext.Msg.confirm('信息确认', '请确认是否执行此操作。', function(btn) {
+			if (btn == 'yes') {
+				Ext.Ajax.request({
+					url : __ctxPath + '/meetingNotice/getMeetingNotice.do?id=${noticeId}',
+					method : 'POST',
+					success : function(response) {
+						var data = Ext.decode(response.responseText).data;
+						var meetingState = data[0].meetingState;
+						var foreachUserIdsLengthsDB = Number('${foreachUserIdsLengths}');
+						formPanel.getForm().submit({
+							url:__ctxPath+ "/flow/nextForSyncProcessActivity.do",
+							method:'post',
+							waitMsg:'正在提交处理，请稍等',
+							scope:this,
+							params:{
+								taskId : panel.taskId,
+								activityName : activityName,
+								isForkFlow:true,
+								isEndFlow:true,
+								destName:'处内办理合并',
+								joinName:'处内办理合并',
+								joinedName:'结束',
+								meetingState:meetingState,
+								forkNextUserId:curUserInfo.userId,
+								foreachUserIdsLengths:foreachUserIdsLengthsDB,
+								comments: formPanel.getCmpByName('leaderOpinion').getValue(),
+								nibanResult : '2'
+							},
+							success : function(fp, action) {
+								 var jsonResult = action.result;
+								if (jsonResult) {
+									if (jsonResult && jsonResult.success == "true") {
+										if(meetingState == "会议取消"){
+											Ext.Ajax.request({
+												url : __ctxPath + '/leaderActivities/removeActiveByNoticeIdSchedule.do',
+												method : 'POST',
+												params : {archivesId: '${noticeId}'},
+												success : function(response) {
+												}
+											});
+										}
+										Ext.ux.Toast.msg("操作信息", "操作成功！");
+									} else {
+										var resultMsg = "信息保存出错，请联系管理员！";
+										var resuIcon = Ext.MessageBox.ERROR;
+										if (jsonResult.message && jsonResult.message != null) {
+											resultMsg = jsonResult.message;
+											if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+												resuIcon= Ext.MessageBox.WARNING;
+											}
+										}
+										Ext.MessageBox.show({
+											title : '操作信息',
+											msg : resultMsg,
+											buttons : Ext.MessageBox.OK,
+											icon : resuIcon
+										});
+									}
+								}
+								 AppUtil.removeTab('ProcessForm' + panel.taskId);
+								 refreshTaskPanelView();
+								 if(Ext.getCmp('ArchMeetingGrid')){
+									Ext.getCmp('ArchMeetingGrid').getStore().reload();
+								}
+							},
+							failure : function(fp, action) {
+								Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+							}
+						});
+					},
+					failure : function(fp, action) {
+						Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+					}
+				});
+			}
+		});
+	},
+	
+	//保存方法
+	onSave : function(formPanel, panel, signalName, activityName) {
+		singleClick('hytzsaveBtn005');
+		var departmentId=Ext.getCmp('HYTZNBFFFormView.departmentId').getValue();
+		var leaderId=Ext.getCmp('HYTZNBFFFormView.leaderId').getValue();
+		var depIds=Ext.getCmp('HYTZNBFFFormView.depIds').getValue();
+		var mainDepId=Ext.getCmp('HYTZNBFFFormView.mainDepId').getValue();
+		var oldMainDepId = '${mainDepId}';
+		var comments=formPanel.getCmpByName('leaderOpinion').getValue();
+		if(departmentId==""&&leaderId==""){
+		    alert("请选择人员！");
+		    return false;
+		}
+		if(departmentId!=""&&mainDepId==""&&oldMainDepId==''){
+			alert("请选择主办部门！");
+		    return false;
+		}
+		if(oldMainDepId != '' && mainDepId == ''){
+			mainDepId = oldMainDepId;
+		}
+		if (formPanel.getForm().isValid()) {
+			Ext.Ajax.request({
+				url : __ctxPath + '/meetingNotice/getMeetingNotice.do?id=${noticeId}',
+				method : 'POST',
+				success : function(response) {
+					var data = Ext.decode(response.responseText).data;
+					var meetingState = data[0].meetingState;
+					var foreachUserIdsLengths =0;
+					if(departmentId!=""){
+						foreachUserIdsLengths=departmentId.split(",").length;
+					}
+					var leaderUserIdsLengths =0;
+					if(leaderId!=""){
+						leaderUserIdsLengths=leaderId.split(",").length;
+					}
+					var foreachUserIdsLengthsDB = Number('${foreachUserIdsLengths}');
+					var params={
+						taskId : panel.taskId,
+						signalName : signalName,
+						activityName : activityName,
+						forkNextUserId:curUserInfo.userId,
+						isForkFlow:true,
+						joinName:'处内办理合并',
+						destName : '拟办分发并发',
+						leaderUserIds:leaderId,
+						meetingState:meetingState,
+						leaderUserIdsLengths:leaderUserIdsLengths,
+						nibanUserIds:departmentId,
+						foreachUserIdsLengths:foreachUserIdsLengths+leaderUserIdsLengths+foreachUserIdsLengthsDB+1,
+						comments: formPanel.getCmpByName('leaderOpinion').getValue(),
+						meetingRemark: formPanel.getCmpByName('leaderOpinion').getValue(),
+						nibanResult : "1",
+						mainDepId : mainDepId
+					};
+					addMsgFunction(true,taskId);
+					formPanel.getForm().submit({
+						url : __ctxPath + "/flow/nextForSyncProcessActivity.do",
+						method : 'post',
+						waitMsg : '正在提交数据...',
+						params : params,
+						success : function(fp, action) {	
+							Ext.MessageBox.hide();
+							var jsonResult = action.result;
+							if (jsonResult && jsonResult.success == "true") {
+								if(meetingState == "会议取消"){
+									Ext.Ajax.request({
+										url : __ctxPath + '/leaderActivities/removeActiveByArchiveIdSchedule.do',
+										method : 'POST',
+										params : {archivesId: '${noticeId}'},
+										success : function(response) {
+										}
+									});
+								}else{
+									Ext.Ajax.request({
+										url : __ctxPath + '/leaderActivities/syncActiveByMeetingNoticeIdSchedule.do',
+										method : 'POST',
+										params : {noticeId: '${noticeId}'},
+										success : function(response) {
+										}
+									});
+								}
+								if(departmentId != ''){
+									Ext.Ajax.request({
+										url : __ctxPath + '/meetingNotice/autoSendSmsForDepMeetingNotice.do',
+										method : 'POST',
+										params : {noticeId: '${noticeId}',personIds:departmentId},
+										success : function(response) {
+										}
+									});
+								}
+								Ext.Ajax.request({
+									url : __ctxPath + '/meetingNotice/updateMainDepMeetingNotice.do',
+									method : 'POST',
+									params : {
+										noticeId: '${noticeId}',
+										mainDepId: Ext.getCmp('HYTZNBFFFormView.mainDepId').getValue(),
+										mainDep: Ext.getCmp('HYTZNBFFFormView.mainDep').getValue()
+									},
+									success : function(response) {
+									}
+								});
+								Ext.ux.Toast.msg("操作信息", "保存成功！");
+							} else {
+								var resultMsg = "信息保存出错，请联系管理员！";
+								var resuIcon = Ext.MessageBox.ERROR;
+								if (jsonResult.message && jsonResult.message != null) {
+									resultMsg = jsonResult.message;
+									if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+										resuIcon= Ext.MessageBox.WARNING;
+									}
+								}
+								Ext.MessageBox.show({
+									title : '操作信息',
+									msg : resultMsg,
+									buttons : Ext.MessageBox.OK,
+									icon : resuIcon
+								});
+							}
+							AppUtil.removeTab('ProcessForm' + panel.taskId);
+							refreshTaskPanelView();
+							if(Ext.getCmp('ArchMeetingGrid')){
+								Ext.getCmp('ArchMeetingGrid').getStore().reload();
+							}
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.hide();
+							Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+						} 
+					});
+				},
+				failure : function(fp) {
+					Ext.ux.Toast.msg('操作信息', '操作出错，请联系管理员！');
+				}
+			});  
+		}
+	},
+	/**
+	 * init the components
+	 */
+	init : function() {
+		// 显示公文详细信息
+		this.detailPanel = new Ext.Panel({
+					// title:'流程审批信息',
+					autoHeight : true,
+					columnWidth : 1,
+					id:'XZNBFFArchiveReceiveDetailPanel',
+					autoScroll : true,
+					autoLoad : {
+						url : __ctxPath+'/pages/flowPath/meetingFlow.jsp?noticeId=${noticeId}&defId=${defId}&detailId=XZNBFFArchiveReceiveDetailPanel&isEdited=1',
+						nocache : true
+					}
+				});
+		
+		// 初始化表单
+		this.formPanel = new Ext.FormPanel({
+			columnWidth : 1,
+			layout : 'form',
+			id : 'HYTZNBFFFormView',
+			autoHeight : true,
+			style : 'padding:6px 6px 6px 1%',
+			items : [{
+						name : 'userId',
+						id : 'HYTZNBFFFormView.leaderId',
+						xtype : 'hidden'
+					},{
+						xtype:'hidden',
+						id:'HYTZNBFFFormView.departmentId',
+						name:'archives.orgDepId'
+					},{
+						xtype : 'container',
+						id : 'HYTZNBFFFormView.leader',
+						layout : 'column',
+						height : 30,
+						defaults : {
+							border : false
+						},
+						items : [{
+							xtype : 'label',
+							text : '领导批示:',
+							style : 'padding-top:4px;',
+							width : 105
+						}, {
+							id : 'HYTZNBFFFormView.leaderName',
+							xtype : 'textfield',
+							allowBlank:true,
+							width : '67%',
+							readOnly : true
+						},{
+							xtype : 'button',
+							iconCls : 'menu-department',
+							style : 'padding-left:5px;',
+							text : '选择人员',
+							handler : function() {
+								var roles = roleMap.get('diaryLeaderRoleId');
+								var url  =  __ctxPath + '/system/depLeadersTreeDepartment.do?roles=' + roles;
+								DepLeaders.getView(
+									function(userIds, fullnames) {
+										Ext.getCmp('HYTZNBFFFormView.leaderId').setValue(userIds);
+										Ext.getCmp('HYTZNBFFFormView.leaderName').setValue(fullnames);
+								},false, null,url).show();
+							}
+						}]
+					},{
+						xtype : 'container',
+						id:'HYTZNBFFFormView.depNeiqin',
+						layout : 'hbox',
+						style:'padding:0px 0px 6px 0px',
+						items : [{
+							xtype : 'label',
+							text : '内勤分发:',
+							hideParent:true,
+							style : 'padding-top:4px;',
+							width : 104
+						}, {
+							xtype : 'textfield',
+							id : 'HYTZNBFFFormView.department',
+							allowBlank:true,
+							readOnly : true,
+							width : 450
+						},{
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '选择人员',
+							hideParent:true,
+							style : 'padding-left:5px;',
+							handler : function() {
+								var roles = roleMap.get('officeStaffRoleId');
+								var url  =  __ctxPath + '/system/depLeadersTreeDepartment.do?roles=' + roles;
+								DepLeaders3.getView(
+									function(userIds, fullnames,depIds) {
+										Ext.getCmp('HYTZNBFFFormView.departmentId').setValue(userIds);
+										Ext.getCmp('HYTZNBFFFormView.department').setValue(fullnames);
+										Ext.getCmp('HYTZNBFFFormView.depIds').setValue(depIds);
+										Ext.getCmp('HYTZNBFFFormView.mainDep').setValue("");
+										Ext.getCmp('HYTZNBFFFormView.mainDepId').setValue("");
+								},false, null,url).show();
+							}
+						}]
+					},{
+						xtype : 'container',
+						id:'HYTZNBFFFormView.zhubanbm',
+						layout : 'hbox',
+						style:'padding:0px 0px 6px 0px',
+						items : [{
+							xtype : 'label',
+							text : '主办部门:',
+							hideParent:true,
+							style : 'padding-top:4px;',
+							width : 104
+						}, {
+							xtype : 'textfield',
+							id : 'HYTZNBFFFormView.mainDep',
+							allowBlank:true,
+							readOnly : true,
+							width : 450
+						},{
+							xtype : 'button',
+							iconCls : 'btn-dep-sel',
+							text : '选择部门',
+							hideParent:true,
+							style : 'padding-left:5px;',
+							handler : function() {
+								var depIds = Ext.getCmp('HYTZNBFFFormView.depIds').getValue();
+								if(depIds == null || depIds == ""){
+									alert("请先选择内勤！");
+									return;
+								}
+								DepSelector4.getView(function(id, name) {
+									Ext.getCmp('HYTZNBFFFormView.mainDep')
+											.setValue(name);
+									Ext.getCmp('HYTZNBFFFormView.mainDepId')
+											.setValue(id);
+								}, true,depIds).show();
+							}
+						}]
+					},{
+					   layout:'column',
+					   style:'padding:6px 0px 0px 0px',
+					   border:false,
+					   items:[{
+					   		layout:'form',
+					   		border:false,
+					   		items:[{	
+				   					fieldLabel : '办理意见',
+				   					id:'HYTZNBFFFormView.leaderOpinion',
+									name : 'leaderOpinion',
+									autoScroll:true,
+									maxLength:500,
+									height:40,
+									xtype:'textarea',
+									width:448
+									}]
+					     	 },{
+						   		layout:'form',
+						   		style:'padding-top:10px;padding-left:5px;',
+						   		border:false,
+						   		items:[{
+										xtype : 'button',
+										text : '常用批示语',
+										iconCls : 'menu-new-document',
+										handler : function() {
+											OdCommentsSelector.getView(
+												function(id, name) {
+													Ext.getCmp('HYTZNBFFFormView.leaderOpinion')
+													.setValue(name);
+													}, true).show();
+											}
+										}]
+					  		}]
+					},{
+						id : 'HYTZNBFFFormView.reFileId',
+						xtype : 'hidden'
+					}, {
+						xtype:'hidden',
+						id:'MeetingNBFFForm.snId'
+					},{
+						xtype:'hidden',
+						id:'HYTZNBFFFormView.depIds'
+					},{
+						xtype:'hidden',
+						id:'HYTZNBFFFormView.mainDepId'
+					}, {
+						name : 'archives.snConfigId',
+						id : 'MeetingNBFFForm.snConfigId',
+						xtype : 'hidden'
+					}]
+		});
+	}// end of init
+})

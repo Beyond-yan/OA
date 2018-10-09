@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.gdssoft.oa.model.system"> 
+  <class name="DepartmentAll" table="department_all"> 
+   <cache usage="read-write"/>
+    <id name="depId" type="java.lang.Long"> 
+      <generator class="native"></generator> 
+    </id>  
+    <property name="depName" not-null="true"/>  
+    <property name="depDesc" type="java.lang.String"/>  
+    <property name="depLevel" type="java.lang.Integer"/>  
+    <property name="parentId" type="java.lang.Long"/>  
+    <property name="path" type="java.lang.String"/> 
+    <property name="depCode" type="java.lang.String"/>  
+    <property name="eamDepCode" type="java.lang.String"/>  
+    <property name="depUnitCode" type="java.lang.String"/>
+    <property name="departmentLevel" type="java.lang.Long" update="true" insert="true" access="property" column="DEPARTMENT_LEVEL" not-null="false" unique="false" length="500"/>  
+   	<property name="isExternal" type="java.lang.Integer" not-null="false" column="IS_EXTERNAL" /> 
+   	<property name="schemaId" type="java.lang.Long" not-null="false" column="SCHEMA_ID" />   
+   		<many-to-one
+			name="appUser"
+			class="com.gdssoft.oa.model.system.AppUser"
+            not-null="false"
+			fetch="select"
+		>	
+			<column name="VICE_LEADER_ID" />
+		</many-to-one>
+  </class> 
+</hibernate-mapping>

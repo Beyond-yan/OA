@@ -1,0 +1,322 @@
+﻿HYTZCXDJPanel = Ext.extend(Ext.Panel, {
+	constructor : function(_cfg) {
+		Ext.applyIf(this, _cfg);
+		this.initUIComponents();
+		HYTZCXDJPanel.superclass.constructor.call(this, {
+			id : 'HYTZCXDJPanel',
+			layout : 'form',
+			items : [this.formPanel],
+			modal : true,
+			maximizable : true,
+			autoHeight : true,
+			width : 800,
+			bodyStyle : "center",
+			iconCls : 'menu-archive-draft',
+			title : '会议通知-重新登记 ',
+			buttonAlign : 'center',
+			buttons : [ #set ($count=0)
+							#foreach ($v in $nextTrans)
+								#if($count>0)
+								,
+								#end
+								new Ext.Button({
+								   iconCls:'btn-transition',
+								   text:'确认',
+								   id:'hytzsaveBtn010',
+								   handler:this.save.createCallback(this.formPanel,this,'${v.name}','${v.source}','${v.destination}')
+								})
+								#set ($count=$count+1)
+						#end]
+		});
+	},
+	save : function(formPanel, panel, signalName, activityName, destination) {
+		singleClick('hytzsaveBtn010');
+		if (formPanel.getForm().isValid()) {
+			var docIds = '';
+			Ext.getCmp('HYTZCXDJPanel.docGridPanel').getStore().each(function(rec){
+				docIds += rec.data.fileId+',';
+			},this);
+			formPanel.getForm().submit({
+				method: 'POST',
+				waitMsg: '正在提交数据...',
+				params: {
+					docIds: docIds
+				},
+				success: function (fp, action) {
+					var userId = Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName').getValue();
+					addMsgFunction(true,taskId);
+					formPanel.getForm().submit({
+						url: __ctxPath + '/flow/nextForSyncProcessActivity.do',
+						waitMsg: '正在提交数据...',
+						timeout: 120000,
+						method: 'post',
+						params: {
+							taskId : panel.taskId,
+							signalName : signalName,
+							activityName : activityName,
+							flowAssignId : userId,
+							userId : curUserInfo.userId
+						},
+						success: function (fp, action) {
+							Ext.MessageBox.hide();	
+							var jsonResult = action.result;
+							if (jsonResult && jsonResult.success == "true") {
+								Ext.ux.Toast.msg("操作信息", "保存成功！");
+							}else {
+								var resultMsg = "信息保存出错，请联系管理员！";
+								var resuIcon = Ext.MessageBox.ERROR;
+								if (jsonResult.message && jsonResult.message != null) {
+									resultMsg = jsonResult.message;
+									if (jsonResult.code && (jsonResult.code == '2' || jsonResult.code == '3')) {
+										resuIcon= Ext.MessageBox.WARNING;
+									}
+								}
+								Ext.MessageBox.show({
+								title : '操作信息',
+								msg : resultMsg,
+								buttons : Ext.MessageBox.OK,
+								icon : resuIcon
+								});
+							}
+							Ext.getCmp('centerTabPanel').remove(Ext.getCmp('ProcessForm' + panel.taskId));
+							refreshTaskPanelView();
+						},
+						failure : function(fp, action) {
+							Ext.MessageBox.hide();
+							Ext.MessageBox.show({
+										title : '操作信息',
+										msg : '信息保存出错，请联系管理员！',
+										buttons : Ext.MessageBox.OK,
+										icon : Ext.MessageBox.ERROR
+									});
+						}
+					});
+				},
+				failure: function (fp, action) {
+					Ext.MessageBox.show({
+						title: '操作信息',
+						msg: '信息保存出错，请联系管理员！',
+						buttons: Ext.MessageBox.OK,
+						icon: Ext.MessageBox.ERROR
+					});
+				}
+			});
+		}
+	},
+	
+	initUIComponents : function() {
+		this.noticeId='${noticeId}';
+		this.docGridPanel = new MeetingNoticeUtil({
+			panelId : 'HYTZCXDJPanel',
+			noticeId : this.noticeId
+		}).getGridPanelWithFullTools();
+		msgPanel.hide();
+		this.formPanel = new Ext.FormPanel({
+			layout : 'form',
+			id : 'meetingNoticeHYTZCXDJForm',
+			url : __ctxPath + '/meetingNotice/saveMeetingNotice.do',
+			frame : false,
+			border : false,
+			labelWidth:70,
+			width : 800,
+			padding : '5px',
+			reader : new Ext.data.JsonReader({
+						root : 'data'
+			}, [ {
+					name : 'meetingNotice.noticeId',
+					mapping : 'noticeId'
+				}, {
+					name : 'meetingNotice.subject',
+					mapping : 'subject'
+				}, {
+					name : 'meetingNotice.host',
+					mapping : 'host'
+				}, {
+					name : 'meetingNotice.holdDep',
+					mapping : 'holdDep'
+				}, {
+					name : 'meetingNotice.meetingDate',
+					mapping : 'meetingDate'
+				}, {
+				    name:'meetingNotice.meetingPlace',
+				    mapping:'meetingPlace'
+				}, {
+					name : 'meetingNotice.meetingState',
+					mapping : 'meetingState'
+				}, {
+					name : 'meetingNotice.reviewUser',
+					mapping : 'reviewUser'
+				}, {
+					name : 'meetingNotice.departureTime',
+					mapping : 'departureTime'
+				}, {
+					name : 'meetingNotice.departurePlace',
+					mapping : 'departurePlace'
+				},{
+					name : 'meetingNotice.vehicleInfo',
+					mapping : 'vehicleInfo'
+				}, {
+					name : 'meetingNotice.driverInfo',
+					mapping : 'driverInfo'
+				}, {
+					name:'meetingNotice.mainDep',
+					mapping:'mainDep'
+				}, {
+					name:'meetingNotice.mainDepId',
+					mapping:'mainDepId'
+				}, {
+					name:'meetingNotice.status',
+					mapping:'status'
+				}, {
+					name:'meetingNotice.createTime',
+					mapping:'createTime'
+				}, {
+					name:'meetingNotice.creator',
+					mapping:'creator'
+				}, {
+					name : 'meetingNotice.creatorId',
+					mapping : 'creatorId'
+				}, {
+					mame : 'meetingNotice.createDep',
+					mapping : 'createDep'				
+				}, {
+					name : 'meetingNotice.createDepId',
+					mapping : 'createDepId'
+				}]),
+			items : [{
+						xtype : 'textfield',
+						fieldLabel : '会议名称',
+						name : 'meetingNotice.subject',
+						id:'meetingNoticeHYTZCXDJForm.subject',
+						width:670,
+						allowBlank : false
+					},{
+						border : false,
+						layout : 'column',
+						defaults : {
+							border : false,
+							columnWidth : .28,
+							layout : 'form',
+							defaults : {
+								width : 120,
+								xtype : 'textfield',
+								allowBlank : false
+							}
+						},
+						items:[{
+								columnWidth:.47,
+								items:[{
+										xtype : 'textfield',
+										fieldLabel : '召集单位',
+										name : 'meetingNotice.holdDep',
+										id:'meetingNoticeHYTZCXDJForm.holdDep',
+										width:290,
+										allowBlank : false
+								},{
+									fieldLabel : '会议时间',
+								    name : 'meetingNotice.meetingDate',
+									xtype : 'datetimefield',
+									format : 'Y-m-d H:i:s',
+									editable : false,
+									allowBlank : false,
+									width:290
+								},{
+									xtype : 'combo',
+									fieldLabel : '会议状态',
+									name : 'meetingNotice.meetingState',
+									id : 'meetingNoticeHYTZCXDJForm.meetingState',
+									triggerAction : 'all',
+									editable : false,
+									allowBlank : false,
+									value : '会议创建',
+									store : ['会议创建', '会议变更', '会议取消'],
+									width:290
+								}]
+							},{
+								columnWidth:.47,
+								items:[{
+									xtype : 'textfield',
+									fieldLabel : '主持人',
+									name : 'meetingNotice.host',
+									width:290,
+									allowBlank : true,
+								},{
+									xtype : 'textfield',
+									fieldLabel : '会议地点',
+									name : 'meetingNotice.meetingPlace',
+									id : 'meetingNoticeHYTZCXDJForm.meetingPlace',
+									width : 290,
+									allowBlank : true
+								},{
+									xtype : "combo",
+									fieldLabel : "负责人",
+									id : "meetingNoticeHYTZCXDJForm.leaderName",
+									hiddenName : 'meetingNotice.reviewUser',
+									valueField : 'userId',
+									displayField : 'fullname',
+									editable : false,
+									allowBlank : false,
+									triggerAction : 'all',
+									forceSelection : true,
+									width : 290,
+									store : new Ext.data.SimpleStore({
+									//	url : __ctxPath + '/system/getAllByDepIdAppUser.do?depId=0',
+											url : __ctxPath
+													+ '/system/searchByTwoRoleIdAppUser.do?role1Id='+roleMap.get('officeDeputyDirectorRoleID')+'&role2Id='+roleMap.get('officeDirectorRoleID'),
+											autoLoad : true,
+											fields : ['userId', 'fullname']
+										}),
+									listeners : {
+										select : function(cbo, record, index) {
+											Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName')
+															.setValue(cbo.getValue());
+												}
+											}
+										}]
+								
+							}]
+					},{
+						name : 'meetingNotice.status',
+						xtype : 'hidden',
+						value :  1
+					},{
+						name : 'meetingNotice.noticeId',
+						xtype : 'hidden'
+					},{
+						xtype : 'fieldset',
+						border : false,
+						defaults : {
+							anchor : '96.3%,96%'
+						},
+						items : [this.docGridPanel]
+					}]
+			
+		});
+		
+		if (this.noticeId) {
+			this.formPanel.getForm().load({
+				deferredRender : false,
+				url : __ctxPath + '/meetingNotice/getMeetingNotice.do?id='
+						+ this.noticeId,
+				waitMsg : '正在载入数据...',
+				method:'post',
+				success : function(form, action) {
+					Ext.decode(action.response.responseText).data[0].reviewUser
+				    Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName').getStore().load({
+				    	callback : function () {
+				    		Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName').setValue(Ext.decode(action.response.responseText).data[0].reviewUser);
+				    		if(!Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName').getValue()){
+								Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName').allowBlank = true;
+				    		}
+				    	},
+				    	scope : Ext.getCmp('meetingNoticeHYTZCXDJForm.leaderName').getStore(),
+				    	add : false
+				    });
+				},
+				failure : function(form, action) {
+				}
+			});
+		}
+		
+	}
+})

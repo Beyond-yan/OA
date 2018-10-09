@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fields>
+	 <field name="archivesNo" label="编号" type="varchar" length="100" isShowed="true" />
+</fields>
